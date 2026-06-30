@@ -36,7 +36,7 @@ jobs:
       - name: Link check
         uses: lycheeverse/lychee-action@v2
         with:
-          args: '--no-progress ./**/*.md'
+          args: '--no-progress .'
 
       - name: Self-test
         run: bun scripts/index.mjs selftest
