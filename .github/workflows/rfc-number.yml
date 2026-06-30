@@ -1,0 +1,35 @@
+name: Assign RFC number
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths: ['rfcs/draft-*.md']
+
+permissions:
+  contents: write
+
+jobs:
+  assign:
+    # Same-repo branches only — GITHUB_TOKEN can't push to a fork's branch.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Assign number + id
+        run: bun scripts/index.mjs assign "${{ github.event.pull_request.number }}"
+
+      - name: Commit rename
+        run: |
+          if [ -n "$(git status --porcelain rfcs/)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add -A rfcs/
+            git commit -m "chore(rfc): assign number ${{ github.event.pull_request.number }}"
+            git push
+          fi

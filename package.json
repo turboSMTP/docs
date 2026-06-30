@@ -1,0 +1,21 @@
+{
+  "name": "@turbosmtp/rfc-tools",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Zero-dependency RFC tooling for the TurboSMTP Developer Ecosystem repo.",
+  "bin": {
+    "rfc": "./scripts/index.mjs"
+  },
+  "scripts": {
+    "new": "bun scripts/index.mjs new",
+    "assign": "bun scripts/index.mjs assign",
+    "check": "bun scripts/index.mjs check",
+    "write": "bun scripts/index.mjs write",
+    "accept": "bun scripts/index.mjs accept",
+    "selftest": "bun scripts/index.mjs selftest"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  }
+}

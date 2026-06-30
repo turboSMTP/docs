@@ -1,0 +1,63 @@
+name: RFC checks
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+  push:
+    branches: [main]
+    paths: ['rfcs/**', 'scripts/**']
+
+permissions:
+  contents: write # auto-commit the regenerated decision log on main
+  pull-requests: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      # PR title is the squash-merge commit, so it must be a Conventional Commit.
+      - name: Conventional PR title
+        if: github.event_name == 'pull_request'
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Markdown lint
+        uses: DavidAnson/markdownlint-cli2-action@v16
+        with:
+          globs: '**/*.md'
+
+      - name: Link check
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: '--no-progress ./**/*.md'
+
+      - name: Self-test
+        run: bun scripts/index.mjs selftest
+
+      # PR: validate frontmatter. main: regenerate the decision log and commit it.
+      - name: Validate RFCs
+        if: github.event_name == 'pull_request'
+        run: bun scripts/index.mjs check
+
+      - name: Accept merged RFCs + regenerate decision log
+        if: github.event_name == 'push'
+        run: |
+          bun scripts/index.mjs accept
+          bun scripts/index.mjs write
+
+      - name: Commit
+        if: github.event_name == 'push'
+        run: |
+          if [ -n "$(git status --porcelain rfcs/ README.md)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add -A rfcs/ README.md
+            git commit -m "chore: accept merged RFCs and regenerate decision log"
+            git push
+          fi
