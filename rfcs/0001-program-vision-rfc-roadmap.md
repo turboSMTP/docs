@@ -40,7 +40,7 @@ practices rather than inventing a new one:
 So RFC-0001 fixes the pillars and the decision map; every concrete decision
 below gets its **own** narrow RFC.
 
-**Pillars**
+### Pillars
 
 1. **Meet developers where they are.** Prioritize work that reduces
    time-to-first-successful-send for a developer evaluating TurboSMTP.
@@ -51,7 +51,7 @@ below gets its **own** narrow RFC.
    at the same time; the constraint is that each stays *narrowly scoped*, not
    that they're serialized.
 
-**Non-goals**
+### Non-goals
 
 - Not the core sending platform — deliverability engine, dashboard, billing,
   pricing live elsewhere. This repo governs the developer-facing surface
@@ -60,15 +60,16 @@ below gets its **own** narrow RFC.
   serversmtp.com keeps the general B2B audience.
 - Not taking on OSS integrations we can't maintain upstream long-term.
 
-**Success criteria (program-level)**
+### Success criteria (program-level)
 
 - A developer can go from "never heard of TurboSMTP" to a working send by
   following the minisite alone.
 - TurboSMTP is a first-class provider option in at least one major OSS project.
 - Every non-trivial program decision is traceable to a merged RFC.
 
-**Decision roadmap** — planned follow-up RFCs (intent, not commitment; each is
-decided in its own PR):
+### Decision roadmap
+
+Planned follow-up RFCs (intent, not commitment; each is decided in its own PR):
 
 | Area | Workstream |
 |------|-----------|
