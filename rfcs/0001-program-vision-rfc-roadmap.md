@@ -12,10 +12,12 @@ date: 2026-07-01
 TurboSMTP is building out a developer ecosystem, and ownership of that program
 now sits with this repo. Two workstreams are already in motion:
 
-- **Developer minisite** — a public site aimed at developers integrating with
-  TurboSMTP (docs, quickstarts, API reference, examples).
-- **OSS contributions** — upstreaming TurboSMTP support into developer-facing
-  open-source projects, so TurboSMTP shows up where developers already are.
+- **Developer hub** — the developers minisite *and* the assets it showcases:
+  quickstarts, API reference, official SDKs, an MCP server + agent skills, and
+  open-source example apps. The front door plus the tooling developers use.
+- **OSS contributions** — upstreaming native TurboSMTP providers into the
+  open-source projects where developers pick an email provider, so we're present
+  where competitors already ship.
 
 Right now there is no shared, written record of *what the program commits to*
 or *how decisions get made and split up*. Without that, the two workstreams
@@ -49,6 +51,15 @@ below gets its **own** narrow RFC.
    at the same time; the constraint is that each stays *narrowly scoped*, not
    that they're serialized.
 
+**Non-goals**
+
+- Not the core sending platform — deliverability engine, dashboard, billing,
+  pricing live elsewhere. This repo governs the developer-facing surface
+  (minisite, SDKs, MCP server, examples, OSS integrations), not the backend.
+- Not a general marketing channel — the minisite serves developers,
+  serversmtp.com keeps the general B2B audience.
+- Not taking on OSS integrations we can't maintain upstream long-term.
+
 **Success criteria (program-level)**
 
 - A developer can go from "never heard of TurboSMTP" to a working send by
@@ -61,9 +72,11 @@ decided in its own PR):
 
 | Area | Workstream |
 |------|-----------|
-| Minisite: tech stack, hosting, domain | Developer minisite |
-| Minisite: information architecture & content scope | Developer minisite |
-| OSS: target-project selection criteria & shortlist (e.g. Strapi email providers) | OSS contributions |
+| Minisite: tech stack, hosting, domain | Developer hub |
+| Minisite: information architecture & content scope | Developer hub |
+| SDK strategy: languages, modernize vs. new, OpenAPI-generated | Developer hub |
+| MCP server: scope, capabilities, distribution | Developer hub |
+| OSS: target-project selection & ordering (from the README candidate list) | OSS contributions |
 | OSS: how integrations get built & maintained upstream | OSS contributions |
 
 ## Alternatives
