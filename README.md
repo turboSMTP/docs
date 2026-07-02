@@ -64,5 +64,7 @@ Example target projects (final list & ordering to be defined together):
 ## Decision Log
 
 <!-- BEGIN DECISION LOG -->
-_No RFCs yet._
+| RFC | Title | Status | Date |
+|-----|-------|--------|------|
+| [0001](rfcs/0001-program-vision-rfc-roadmap.md) | Program vision & RFC roadmap | accepted | 2026-07-01 |
 <!-- END DECISION LOG -->
