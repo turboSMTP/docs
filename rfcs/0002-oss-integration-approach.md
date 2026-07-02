@@ -9,8 +9,9 @@ date: 2026-07-02
 
 ## Context / Problem
 
-The charter (*Program vision & RFC roadmap*) commits us to upstreaming native
-TurboSMTP providers into open-source projects. Before we pick *which* projects,
+The charter ([Program vision & RFC roadmap](0001-program-vision-rfc-roadmap.md))
+commits us to upstreaming native TurboSMTP providers into open-source projects.
+Before we pick *which* projects,
 we need a shared answer to *how* we build these integrations — otherwise each
 one gets built differently, and some get rejected upstream for reasons we could
 have avoided.
