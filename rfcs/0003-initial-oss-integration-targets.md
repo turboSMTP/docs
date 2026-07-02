@@ -1,5 +1,5 @@
 ---
-id: 0000
+id: 0003
 title: Initial OSS integration targets
 status: proposed
 date: 2026-07-02
