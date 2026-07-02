@@ -1,5 +1,5 @@
 ---
-id: 0000
+id: 0002
 title: OSS integration approach
 status: proposed
 date: 2026-07-02
