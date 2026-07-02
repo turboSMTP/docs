@@ -1,7 +1,7 @@
 ---
 id: 0001
 title: Program vision & RFC roadmap
-status: proposed
+status: accepted
 date: 2026-07-01
 ---
 
