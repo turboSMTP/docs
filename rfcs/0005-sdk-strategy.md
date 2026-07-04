@@ -1,5 +1,5 @@
 ---
-id: 0000
+id: 0005
 title: SDK strategy
 status: proposed
 date: 2026-07-04
