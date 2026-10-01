@@ -28,7 +28,7 @@ The send endpoint (`POST https://api.turbo-smtp.com/api/v2/mail/send`) returns d
 
 | Error | Cause | Fix |
 |---|---|---|
-| Missing username/password | `consumerKey` or `consumerSecret` header was not included | Add both `consumerKey` (your account email) and `consumerSecret` (your Consumer Secret) as request headers. |
+| Missing username/password | `consumerKey` or `consumerSecret` header was not included | Add both `consumerKey` (your Consumer Key) and `consumerSecret` (your Consumer Secret) as request headers. |
 | Invalid credentials | The `consumerKey`/`consumerSecret` values are wrong | Verify both values in your [dashboard](https://dashboard.serversmtp.com). The password is your **Consumer Secret**, not your account login password. |
 | Missing sender | The `from` field is absent or invalid | Include a valid `from` email address in the request body. |
 | Missing recipients | The `to` field is absent | Include at least one valid recipient in the `to` field. |
@@ -45,8 +45,9 @@ The send endpoint (`POST https://api.turbo-smtp.com/api/v2/mail/send`) returns d
   **Cause:** Your SMTP client is sending wrong credentials to `pro.turbo-smtp.com`.
 
   **Fix:**
-  - Set your SMTP **username** to your full turboSMTP account email address.
-  - Set your SMTP **password** to your **Consumer Secret** — this is NOT the same as your dashboard login password. Find your Consumer Secret in the [dashboard](https://dashboard.serversmtp.com) under your account credentials section.
+  - Set your SMTP **username** to your **Consumer Key**, not your account email address.
+  - Set your SMTP **password** to your **Consumer Secret**, not your dashboard login password. Both are created in the [dashboard](https://dashboard.serversmtp.com) under **Settings → Integrations → API Keys**.
+  - Make sure the API key has the **SMTP Sending** service enabled and, if you restricted it to specific IPs, that your server's IP is allowed.
   - Confirm you are connecting to `pro.turbo-smtp.com` on port `587` (STARTTLS), `465` (SSL), or `2525` (fallback).
 </Accordion>
 
@@ -70,7 +71,7 @@ The send endpoint (`POST https://api.turbo-smtp.com/api/v2/mail/send`) returns d
   **Fix:**
   1. Open your email client's outgoing server (SMTP) settings.
   2. Enable **SMTP authentication** (sometimes labelled "My outgoing server requires authentication").
-  3. Verify your **username** is your turboSMTP account email.
+  3. Verify your **username** is your Consumer Key (not your account email).
   4. Verify your **password** is your Consumer Secret (not your account login password).
   5. Save the settings and attempt to send again.
 </Accordion>

@@ -81,6 +81,14 @@
         "tab": "Guides",
         "menu": [
           {
+            "item": "Overview",
+            "icon": "compass",
+            "description": "Start here: all integrations, comparisons, and migration guides",
+            "pages": [
+              "guides/overview"
+            ]
+          },
+          {
             "item": "Integrations",
             "icon": "plug",
             "description": "Frameworks, libraries, and apps that work with turboSMTP",

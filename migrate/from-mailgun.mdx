@@ -33,8 +33,19 @@ Switching from Mailgun to turboSMTP comes down to two changes: new SMTP credenti
 | --- | --- | --- |
 | Host | `smtp.mailgun.org` | `pro.turbo-smtp.com` (EU: `pro.eu.turbo-smtp.com`) |
 | Port | 587 | 587 (or 465 / 2525) |
-| Username | Your per-domain SMTP user | Your turboSMTP account email |
+| Username | Your per-domain SMTP user | Your turboSMTP Consumer Key |
 | Password | Your per-domain SMTP password | Your turboSMTP Consumer Secret |
+
+```bash .env
+SMTP_HOST=smtp.mailgun.org # [!code --]
+SMTP_HOST=pro.eu.turbo-smtp.com # [!code ++]
+SMTP_PORT=587 # [!code --]
+SMTP_PORT=465 # [!code ++]
+SMTP_USER=postmaster@YOUR_DOMAIN_NAME # [!code --]
+SMTP_USER=YOUR_CONSUMER_KEY # [!code ++]
+SMTP_PASS=YOUR_MAILGUN_SMTP_PASSWORD # [!code --]
+SMTP_PASS=YOUR_CONSUMER_SECRET # [!code ++]
+```
 
 <Note>
   For the EU host `pro.eu.turbo-smtp.com`, use port 465 (SSL/TLS). See [SMTP Setup](/get-started/smtp-configuration) for all ports on the global host.
@@ -46,10 +57,10 @@ Remove any `X-Mailgun-*` headers (for example `X-Mailgun-Tag` or `X-Mailgun-Vari
 
 Mailgun sends form fields to a per-domain URL with Basic auth. turboSMTP takes a JSON body on a single endpoint with header authentication.
 
-<CodeGroup>
+**1. Replace Basic auth and form fields with headers and a JSON body:**
 
-```bash Mailgun
-curl -s --user 'api:YOUR_API_KEY' \
+```bash Request
+curl -s --user 'api:YOUR_API_KEY' \ # [!code --:8]
   https://api.eu.mailgun.net/v3/YOUR_DOMAIN_NAME/messages \
   -F from='Shop <orders@yourdomain.com>' \
   -F to='recipient-1@example.com' \
@@ -57,23 +68,24 @@ curl -s --user 'api:YOUR_API_KEY' \
   -F subject='Your order has shipped' \
   -F text='Your order is on its way.' \
   --form-string html='<p>Your order is on its way.</p>'
-```
-
-```bash turboSMTP
-curl -X POST https://api.eu.turbo-smtp.com/api/v2/mail/send \
+curl -X POST https://api.eu.turbo-smtp.com/api/v2/mail/send \ # [!code ++:5]
   -H "consumerKey: YOUR_CONSUMER_KEY" \
   -H "consumerSecret: YOUR_CONSUMER_SECRET" \
   -H "Content-Type: application/json" \
-  -d '{
-    "from": "orders@yourdomain.com",
-    "to": "recipient-1@example.com,recipient-2@example.com",
-    "subject": "Your order has shipped",
-    "content": "Your order is on its way.",
-    "html_content": "<p>Your order is on its way.</p>"
-  }'
+  -d @payload.json
 ```
 
-</CodeGroup>
+**2. Move the form fields into the JSON payload:**
+
+```json payload.json
+{
+  "from": "orders@yourdomain.com",
+  "to": "recipient-1@example.com,recipient-2@example.com",
+  "subject": "Your order has shipped",
+  "content": "Your order is on its way.",
+  "html_content": "<p>Your order is on its way.</p>"
+}
+```
 
 ### Field mapping
 

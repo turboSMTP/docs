@@ -49,7 +49,7 @@ When you send an email through your own mail server, your messages compete with 
 
 turboSMTP gives you two integration paths:
 
-- **SMTP relay** — Update the outgoing mail server settings in your application, mail client, or CMS to point at `pro.turbo-smtp.com` on port 587 (or 465 for SSL, 2525 as a fallback). Authenticate with your turboSMTP account email and your Consumer Secret. No code changes are needed beyond configuration.
+- **SMTP relay** — Update the outgoing mail server settings in your application, mail client, or CMS to point at `pro.turbo-smtp.com` on port 587 (or 465 for SSL, 2525 as a fallback). Authenticate with your Consumer Key as the username and your Consumer Secret as the password. No code changes are needed beyond configuration.
 - **REST API** — Send email programmatically by making HTTPS POST requests to `https://api.turbo-smtp.com/api/v2/mail/send`. For EU data residency, use `https://api.eu.turbo-smtp.com/api/v2/mail/send` instead. Authenticate each request with your `consumerKey` and `consumerSecret` headers. This path is ideal for custom applications, microservices, and high-volume automated sending.
 
 Both paths route through the same delivery infrastructure and give you access to the same analytics, tracking, and management features.

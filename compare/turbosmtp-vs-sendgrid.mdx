@@ -22,11 +22,12 @@ turboSMTP is a European alternative to SendGrid: an Italian email provider that 
 | **Support** | Human support 24/7 by ticket, chat, and phone | Varies by plan |
 | **Deliverability help** | Tailor-made deliverability consultancy | Varies by plan |
 | **SMTP host** | `pro.turbo-smtp.com` | `smtp.sendgrid.net` |
-| **SMTP username** | Your account email | The literal string `apikey` |
+| **SMTP username** | Consumer Key | The literal string `apikey` |
 | **SMTP password** | Consumer Secret | API key |
-| **SMTP ports** | 587, 465, 2525 | 25, 587, 2525 (TLS), 465 (SSL) |
+| **SMTP ports** | 25, 587, 2525 (STARTTLS), 465, 25025 (SSL) | 25, 587, 2525 (TLS), 465 (SSL) |
 | **API endpoint** | `POST /api/v2/mail/send` | `POST /v3/mail/send` |
 | **API authentication** | `consumerKey` and `consumerSecret` headers | `Authorization: Bearer` header |
+| **Credentials** | One Consumer Key and Secret pair for SMTP and API, scoped per service (SMTP, HTTP API, statistics, management) with optional IP restriction | API keys with configurable permissions |
 | **Free plan** | 6,000 emails per month, no credit card | See SendGrid pricing |
 
 <Note>

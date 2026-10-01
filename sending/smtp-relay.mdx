@@ -17,12 +17,12 @@ Use these settings in any email client, application, or plugin that asks for SMT
 | **Port (SSL)**    | `465`                        |
 | **Port (fallback)**| `2525`                      |
 | **Authentication**| Required                     |
-| **Username**      | Your turboSMTP account email |
+| **Username** | Your Consumer Key |
 | **Password**      | Your Consumer Secret         |
 | **Encryption**    | STARTTLS or SSL/TLS          |
 
 <Note>
-  Your SMTP password is your **Consumer Secret**, not your turboSMTP account login password. Find your Consumer Secret in the [dashboard](https://dashboard.serversmtp.com) under **Settings → Integrations → API Keys**.
+  Your SMTP username is your **Consumer Key** and your SMTP password is your **Consumer Secret**, not your account email and login password. Find both in the [dashboard](https://dashboard.serversmtp.com) under **Settings → Integrations → API Keys**.
 </Note>
 
 ## Supported ports
@@ -72,7 +72,7 @@ Follow these steps to start sending through turboSMTP's SMTP relay.
     Log in to the [dashboard](https://dashboard.serversmtp.com) and navigate to **Settings → Integrations → API Keys**. Copy your **Consumer Secret** — this is the password you will use for SMTP authentication.
   </Step>
   <Step title="Configure your client or application">
-    Open your email client, plugin, or application's SMTP settings. Enter the connection details from the table above, using your account email as the username and your Consumer Secret as the password. For step-by-step walkthroughs for specific clients and platforms, see the [SMTP Configuration guide](/get-started/smtp-configuration).
+    Open your email client, plugin, or application's SMTP settings. Enter the connection details from the table above, using your Consumer Key as the username and your Consumer Secret as the password. For step-by-step walkthroughs for specific clients and platforms, see the [SMTP Configuration guide](/get-started/smtp-configuration).
   </Step>
   <Step title="Send a test email">
     Send a test message and verify it appears in your [dashboard](https://dashboard.serversmtp.com) statistics. If it does not arrive, check that your credentials are correct and that your chosen port is not blocked by your firewall.

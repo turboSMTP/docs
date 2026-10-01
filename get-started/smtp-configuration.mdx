@@ -18,11 +18,11 @@ Use the following settings when configuring any client or application to send th
 | **Port (SSL)** | `465` — SSL/TLS |
 | **Port (fallback)** | `2525` — use if 587 and 465 are blocked |
 | **Authentication** | Required — PLAIN or LOGIN |
-| **Username** | Your turboSMTP account email address |
+| **Username** | Your **Consumer Key** (from Settings → Integrations → API Keys) |
 | **Password** | Your **Consumer Secret** (from Settings → Integrations → API Keys) |
 
 <Warning>
-  Use your **Consumer Secret** as the SMTP password — **not** your turboSMTP account login password. The Consumer Secret is generated in your dashboard under **Settings → Integrations → API Keys**. If you haven't created an API key yet, see [Create and Manage API Keys](/get-started/api-keys).
+  Use your **Consumer Key** as the SMTP username and your **Consumer Secret** as the SMTP password, **not** your account email and login password. The Consumer Secret is generated in your dashboard under **Settings → Integrations → API Keys**. If you haven't created an API key yet, see [Create and Manage API Keys](/get-started/api-keys).
 </Warning>
 
 <Note>
@@ -69,7 +69,7 @@ Use the following settings when configuring any client or application to send th
         - **Port**: `587`
         - **Connection Security**: STARTTLS
         - **Authentication Method**: Normal password
-        - **User Name**: your turboSMTP account email address
+        - **User Name**: your turboSMTP Consumer Key
       </Step>
       <Step title="Save and assign">
         Click **OK** to save. Back in Account Settings, select your email account, scroll to **Outgoing Server (SMTP)**, and choose the turboSMTP server you just created from the dropdown.
@@ -93,7 +93,7 @@ Use the following settings when configuring any client or application to send th
         Click **Add another rule**. Set the **SMTP server** to `pro.turbo-smtp.com`, port `587`, and enable **Require SMTP Authentication** with TLS encryption.
       </Step>
       <Step title="Enter turboSMTP credentials">
-        Enter your turboSMTP account email as the username and your **Consumer Secret** as the password.
+        Enter your **Consumer Key** as the username and your **Consumer Secret** as the password.
       </Step>
       <Step title="Save the route">
         Click **Save**. Allow a few minutes for the change to propagate across Google's infrastructure.
@@ -102,7 +102,7 @@ Use the following settings when configuring any client or application to send th
 
     **For personal Gmail (Send mail as):**
 
-    Go to **Gmail Settings → Accounts and Import → Send mail as → Add another email address**. Enter your sender address, then on the SMTP configuration screen use `pro.turbo-smtp.com`, port `587`, your turboSMTP account email as the username, and your Consumer Secret as the password.
+    Go to **Gmail Settings → Accounts and Import → Send mail as → Add another email address**. Enter your sender address, then on the SMTP configuration screen use `pro.turbo-smtp.com`, port `587`, your Consumer Key as the username, and your Consumer Secret as the password.
   </Tab>
 
   <Tab title="WordPress">
@@ -112,7 +112,7 @@ Use the following settings when configuring any client or application to send th
     - **SMTP Host**: `pro.turbo-smtp.com`
     - **SMTP Port**: `587`
     - **Encryption**: TLS
-    - **Username**: your turboSMTP account email
+    - **Username**: your Consumer Key
     - **Password**: your Consumer Secret
 
     For full integration instructions for WordPress and other platforms, see the [Integrations](/integrations/overview) section of the documentation.
@@ -129,7 +129,7 @@ smtp:
   port: 587
   encryption: starttls
   auth: true
-  username: "you@yourdomain.com"       # your turboSMTP account email
+  username: "YOUR_CONSUMER_KEY"        # your Consumer Key from API Keys
   password: "YOUR_CONSUMER_SECRET"     # your Consumer Secret from API Keys
 ```
 
@@ -149,6 +149,6 @@ After configuring your SMTP settings, send a test message to confirm everything 
     Navigate to **Reports → Email Log**. Any email you've sent through turboSMTP will appear here with its delivery status (delivered, bounced, deferred, etc.).
   </Step>
   <Step title="Confirm delivery">
-    If you see your test message listed with a **Delivered** status, your SMTP configuration is working correctly. If the message shows as bounced or deferred, check that your username and Consumer Secret are entered correctly and that the port you selected is not blocked by your network or firewall.
+    If you see your test message listed with a **Delivered** status, your SMTP configuration is working correctly. If the message shows as bounced or deferred, check that your Consumer Key and Consumer Secret are entered correctly and that the port you selected is not blocked by your network or firewall.
   </Step>
 </Steps>

@@ -104,11 +104,11 @@ Once you have a Consumer Key and Consumer Secret, use them as follows depending 
     ```text SMTP credentials
     SMTP Host:     pro.turbo-smtp.com
     Port:          587 (STARTTLS) or 465 (SSL)
-    Username:      you@yourdomain.com       ← your turboSMTP account email
+    Username:      YOUR_CONSUMER_KEY        ← Consumer Key (not your account email)
     Password:      YOUR_CONSUMER_SECRET     ← Consumer Secret (not your login password)
     ```
 
-    The Consumer Key is not used directly for SMTP — only the Consumer Secret is required as the SMTP password.
+    The Consumer Key is your SMTP username and the Consumer Secret is your SMTP password. The key must have the **SMTP Sending** service enabled.
   </Tab>
   <Tab title="API — Send Email">
     The `POST /mail/send` endpoint requires both the Consumer Key and Consumer Secret passed as request headers. Do **not** use an `Authorization` header for this endpoint — requests with `Authorization` will be rejected with a `401` error.

@@ -20,8 +20,9 @@ turboSMTP and Mailgun both offer SMTP relay and an HTTP email API with a Europea
 | **EU endpoints** | `api.eu.turbo-smtp.com` and `pro.eu.turbo-smtp.com` | `api.eu.mailgun.net` for EU-region domains |
 | **Support** | Human support 24/7 by ticket, chat, and phone | Varies by plan |
 | **SMTP host** | `pro.turbo-smtp.com` | `smtp.mailgun.org` |
-| **SMTP credentials** | Account email and Consumer Secret | Per-domain SMTP credentials |
-| **SMTP ports** | 587, 465, 2525 | 25, 465, 587, 2525 |
+| **SMTP credentials** | Consumer Key and Consumer Secret (one pair for all domains) | Per-domain SMTP credentials |
+| **SMTP ports** | 25, 587, 2525 (STARTTLS), 465, 25025 (SSL) | 25, 465, 587, 2525 |
+| **Key scoping** | Each API key is limited to chosen services (SMTP, HTTP API, statistics, management) with optional IP restriction | Account and domain-level keys |
 | **API endpoint** | `POST /api/v2/mail/send` | `POST /v3/{domain}/messages` |
 | **Request format** | JSON body | Form data (`multipart/form-data`) |
 | **API authentication** | `consumerKey` and `consumerSecret` headers | HTTP Basic auth (`api:YOUR_API_KEY`) |

@@ -37,7 +37,7 @@ pnpm add nodemailer
 
 ## Send the first message
 
-Authenticate with your turboSMTP account email as the username and your [Consumer Secret](/get-started/api-keys) as the password, as on any [SMTP connection](/get-started/smtp-configuration).
+Authenticate with your [Consumer Key](/get-started/api-keys) as the username and your Consumer Secret as the password, as on any [SMTP connection](/get-started/smtp-configuration).
 
 ```javascript send.js
 import nodemailer from "nodemailer";
@@ -45,8 +45,8 @@ import nodemailer from "nodemailer";
 const transporter = nodemailer.createTransport({
   service: "TurboSMTP", // or "TurboSMTP-EU" for European servers
   auth: {
-    user: process.env.TURBOSMTP_USER,
-    pass: process.env.TURBOSMTP_SECRET,
+    user: process.env.TURBOSMTP_CONSUMER_KEY,
+    pass: process.env.TURBOSMTP_CONSUMER_SECRET,
   },
 });
 

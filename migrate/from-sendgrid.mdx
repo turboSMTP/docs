@@ -35,26 +35,19 @@ If your application, CMS, or framework sends through `smtp.sendgrid.net`, replac
 | --- | --- | --- |
 | Host | `smtp.sendgrid.net` | `pro.turbo-smtp.com` (EU: `pro.eu.turbo-smtp.com`) |
 | Port | 587 | 587 (or 465 / 2525) |
-| Username | `apikey` | Your turboSMTP account email |
+| Username | `apikey` | Your turboSMTP Consumer Key |
 | Password | Your SendGrid API key | Your turboSMTP Consumer Secret |
 
-<CodeGroup>
-
-```bash .env (before)
-SMTP_HOST=smtp.sendgrid.net
-SMTP_PORT=587
-SMTP_USER=apikey
-SMTP_PASS=SG.xxxxxxxx
+```bash .env
+SMTP_HOST=smtp.sendgrid.net # [!code --]
+SMTP_HOST=pro.eu.turbo-smtp.com # [!code ++]
+SMTP_PORT=587 # [!code --]
+SMTP_PORT=465 # [!code ++]
+SMTP_USER=apikey # [!code --]
+SMTP_USER=YOUR_CONSUMER_KEY # [!code ++]
+SMTP_PASS=SG.xxxxxxxx # [!code --]
+SMTP_PASS=YOUR_CONSUMER_SECRET # [!code ++]
 ```
-
-```bash .env (after)
-SMTP_HOST=pro.eu.turbo-smtp.com
-SMTP_PORT=465
-SMTP_USER=you@yourdomain.com
-SMTP_PASS=YOUR_CONSUMER_SECRET
-```
-
-</CodeGroup>
 
 <Note>
   For the EU host `pro.eu.turbo-smtp.com`, use port 465 (SSL/TLS). See [SMTP Setup](/get-started/smtp-configuration) for all ports on the global host.
@@ -64,44 +57,40 @@ SMTP_PASS=YOUR_CONSUMER_SECRET
 
 Replace `https://api.sendgrid.com/v3/mail/send` with `https://api.turbo-smtp.com/api/v2/mail/send` (EU: `https://api.eu.turbo-smtp.com/api/v2/mail/send`) and send your credentials as headers instead of a Bearer token.
 
-<CodeGroup>
+**1. Change the endpoint and authentication headers:**
 
-```bash SendGrid
+```bash Request
 curl --request POST \
-  --url https://api.sendgrid.com/v3/mail/send \
-  --header 'Authorization: Bearer YOUR_API_KEY' \
+  --url https://api.sendgrid.com/v3/mail/send \ # [!code --]
+  --url https://api.eu.turbo-smtp.com/api/v2/mail/send \ # [!code ++]
+  --header 'Authorization: Bearer YOUR_API_KEY' \ # [!code --]
+  --header 'consumerKey: YOUR_CONSUMER_KEY' \ # [!code ++]
+  --header 'consumerSecret: YOUR_CONSUMER_SECRET' \ # [!code ++]
   --header 'Content-Type: application/json' \
-  --data '{
-    "personalizations": [{
-      "to": [{ "email": "recipient@example.com" }],
-      "cc": [{ "email": "team@example.com" }]
-    }],
-    "from": { "email": "you@yourdomain.com" },
-    "subject": "Your order has shipped",
-    "content": [
-      { "type": "text/plain", "value": "Your order is on its way." },
-      { "type": "text/html", "value": "<p>Your order is on its way.</p>" }
-    ]
-  }'
+  --data @payload.json
 ```
 
-```bash turboSMTP
-curl --request POST \
-  --url https://api.eu.turbo-smtp.com/api/v2/mail/send \
-  --header 'consumerKey: YOUR_CONSUMER_KEY' \
-  --header 'consumerSecret: YOUR_CONSUMER_SECRET' \
-  --header 'Content-Type: application/json' \
-  --data '{
-    "from": "you@yourdomain.com",
-    "to": "recipient@example.com",
-    "cc": "team@example.com",
-    "subject": "Your order has shipped",
-    "content": "Your order is on its way.",
-    "html_content": "<p>Your order is on its way.</p>"
-  }'
-```
+**2. Flatten the payload:**
 
-</CodeGroup>
+```json payload.json
+{
+  "personalizations": [{ // [!code --:5]
+    "to": [{ "email": "recipient@example.com" }],
+    "cc": [{ "email": "team@example.com" }]
+  }],
+  "from": { "email": "you@yourdomain.com" },
+  "from": "you@yourdomain.com", // [!code ++:3]
+  "to": "recipient@example.com",
+  "cc": "team@example.com",
+  "subject": "Your order has shipped",
+  "content": [ // [!code --:4]
+    { "type": "text/plain", "value": "Your order is on its way." },
+    { "type": "text/html", "value": "<p>Your order is on its way.</p>" }
+  ]
+  "content": "Your order is on its way.", // [!code ++:2]
+  "html_content": "<p>Your order is on its way.</p>"
+}
+```
 
 <Warning>
   turboSMTP rejects the `Authorization` header with `401 Unauthorized`. Always send `consumerKey` and `consumerSecret` as separate headers.
