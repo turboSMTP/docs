@@ -1,0 +1,212 @@
+---
+title: "Send Transactional Email — POST /mail/send Reference"
+sidebarTitle: "Send Email"
+description: "Send transactional or marketing emails via HTTP POST. Supports HTML, plain text, CC, BCC, custom headers, attachments, and per-message reference IDs."
+---
+
+The `/mail/send` endpoint is the core of turboSMTP's HTTP API. Use it to send transactional receipts, password resets, marketing campaigns, or any other programmatic email from your application. You submit a JSON payload containing the sender, recipients, subject, and body content, and turboSMTP queues and delivers the message through its global relay infrastructure. Unlike most turboSMTP API endpoints, this endpoint uses a dedicated sending host and requires Consumer Key authentication rather than a standard API key.
+
+## Endpoint
+
+```text Global endpoint
+POST https://api.turbo-smtp.com/api/v2/mail/send
+```
+
+For EU infrastructure, use:
+
+```text EU endpoint
+POST https://api.eu.turbo-smtp.com/api/v2/mail/send
+```
+
+<Warning>
+  This endpoint requires `consumerKey` and `consumerSecret` request headers. Sending an `Authorization` header instead will result in a `401 Unauthorized` response. Your Consumer Secret is **not** your account login password — generate a key pair from your [dashboard](https://dashboard.serversmtp.com) or via the [Consumer Keys API](/api-reference/consumer-keys).
+</Warning>
+
+## Request headers
+
+| Header | Required | Description |
+|---|---|---|
+| `consumerKey` | Yes | Your Consumer Key (public identifier) |
+| `consumerSecret` | Yes | Your Consumer Secret (credential) |
+| `Content-Type` | Yes | Must be `application/json` |
+
+## Request body parameters
+
+<ParamField body="from" type="string" required>
+  The sender's email address. Use a domain you have verified with turboSMTP.
+</ParamField>
+
+<ParamField body="to" type="string" required>
+  One or more recipient email addresses, comma-separated (e.g. `alice@example.com, bob@example.com`).
+</ParamField>
+
+<ParamField body="subject" type="string">
+  The email subject line displayed in the recipient's inbox.
+</ParamField>
+
+<ParamField body="content" type="string">
+  The plain-text body of the email. Recommended for maximum deliverability — include this alongside `html_content` whenever possible.
+</ParamField>
+
+<ParamField body="html_content" type="string">
+  The HTML body of the email. Use alongside `content` to provide a plain-text fallback.
+</ParamField>
+
+<ParamField body="cc" type="string">
+  Comma-separated list of email addresses to CC on the message.
+</ParamField>
+
+<ParamField body="bcc" type="string">
+  Comma-separated list of email addresses to BCC. Recipients in this field are hidden from all other recipients.
+</ParamField>
+
+<ParamField body="custom_headers" type="object">
+  A JSON object of additional SMTP headers to attach to the message. Example: `{"X-Campaign-ID": "welcome-flow", "X-Mailer": "MyApp"}`.
+</ParamField>
+
+<ParamField body="reference_id" type="string">
+  A custom identifier you define. turboSMTP passes this value back in every webhook event payload for this message, making it easy to correlate API sends with your own database records.
+</ParamField>
+
+<ParamField body="mime_raw" type="string">
+  A fully-formed raw MIME message string. When provided, `content` and `html_content` are ignored. Use this for advanced cases where you generate the MIME payload yourself.
+</ParamField>
+
+<ParamField body="attachments" type="array">
+  An array of attachment objects. See the [Attachment object](#attachment-object) section below.
+</ParamField>
+
+## Attachment object
+
+Each item in the `attachments` array must be an object with the following fields:
+
+<ParamField body="name" type="string" required>
+  The filename of the attachment as it will appear to the recipient, including extension (e.g. `invoice-2024.pdf`).
+</ParamField>
+
+<ParamField body="type" type="string" required>
+  The MIME type of the file content (e.g. `application/pdf`, `image/png`, `image/gif`).
+</ParamField>
+
+<ParamField body="content" type="string" required>
+  The Base64-encoded content of the file. Encode the raw binary of the file before including it here.
+</ParamField>
+
+## Example request
+
+```bash Terminal
+curl -X POST 'https://api.turbo-smtp.com/api/v2/mail/send' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "from": "hello@your-company.com",
+    "to": "recipient@example.com",
+    "subject": "Welcome!",
+    "content": "Thanks for signing up.",
+    "html_content": "<p>Thanks for <strong>signing up</strong>.</p>"
+  }'
+```
+
+### Example with attachment
+
+```bash Terminal
+curl -X POST 'https://api.turbo-smtp.com/api/v2/mail/send' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "from": "billing@your-company.com",
+    "to": "customer@example.com",
+    "subject": "Your Invoice",
+    "content": "Please find your invoice attached.",
+    "html_content": "<p>Please find your invoice attached.</p>",
+    "reference_id": "inv-00123",
+    "attachments": [
+      {
+        "name": "invoice-00123.pdf",
+        "type": "application/pdf",
+        "content": "BASE64_ENCODED_PDF_CONTENT"
+      }
+    ]
+  }'
+```
+
+### Successful response
+
+```json
+{
+  "message": "OK",
+  "mid": 1475205839938715648
+}
+```
+
+## Response codes
+
+| Code | Status | Description |
+|---|---|---|
+| `200` | OK | turboSMTP successfully received and queued your message. |
+| `400` | Bad Request | The request body or parameters are malformed or missing required fields. |
+| `401` | Unauthorized | Authentication failed — invalid, missing, or wrong type of credentials. |
+| `500` | Server Unavailable | An unexpected error occurred on the turboSMTP server. |
+
+## Error responses
+
+turboSMTP returns a JSON error body for all non-200 responses. The `errors` field contains a human-readable description of what went wrong.
+
+<Accordion title="Missing or invalid credentials">
+```json
+{
+  "errorCode": 3,
+  "message": "Invalid authorization token",
+  "details": "No authorization key was specified for request: POST /api/v2/mail/send"
+}
+```
+</Accordion>
+
+<Accordion title="Invalid recipient address">
+```json
+{
+  "message": "error",
+  "errors": [
+    ["'bad-email' 'to' email not valid"]
+  ]
+}
+```
+</Accordion>
+
+<Accordion title="Missing sender address">
+```json
+{
+  "message": "error",
+  "errors": [
+    "missing or not valid sender email (from)"
+  ]
+}
+```
+</Accordion>
+
+<Accordion title="Insufficient sending credits">
+```json
+{
+  "message": "error",
+  "errors": {
+    "message": "error",
+    "errors": "nocredit"
+  }
+}
+```
+</Accordion>
+
+<Accordion title="Deactivated account">
+```json
+{
+  "error": 3,
+  "message": "Account for test@domain.com is inactive"
+}
+```
+</Accordion>
+
+<Note>
+  The maximum total email size, including all attachments, is **24 MB**. Requests exceeding this limit will be rejected with a 400 error.
+</Note>

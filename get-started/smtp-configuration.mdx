@@ -1,0 +1,153 @@
+---
+title: "Configure Your Email Client with turboSMTP SMTP Settings"
+sidebarTitle: "SMTP Setup"
+description: "Set up turboSMTP as your outgoing mail server. Configure SMTP host, port, and credentials for any email client, CMS, or application in minutes."
+---
+
+turboSMTP works as a drop-in outgoing mail server (SMTP relay) for any email client, CMS, or application that supports SMTP authentication. Instead of relying on your ISP's mail server — which often has poor deliverability, strict rate limits, or blocked ports — you route outgoing email through turboSMTP's infrastructure to benefit from whitelisted IPs, real-time tracking, and high inbox placement rates. All you need are the server settings and your credentials, and you can be sending in minutes.
+
+## SMTP server settings
+
+Use the following settings when configuring any client or application to send through turboSMTP:
+
+| Setting | Value |
+|---|---|
+| **SMTP Host** | `pro.turbo-smtp.com` |
+| **Port (recommended)** | `587` — TLS / STARTTLS |
+| **Port (SSL)** | `465` — SSL/TLS |
+| **Port (fallback)** | `2525` — use if 587 and 465 are blocked |
+| **Authentication** | Required — PLAIN or LOGIN |
+| **Username** | Your turboSMTP account email address |
+| **Password** | Your **Consumer Secret** (from Settings → Integrations → API Keys) |
+
+<Warning>
+  Use your **Consumer Secret** as the SMTP password — **not** your turboSMTP account login password. The Consumer Secret is generated in your dashboard under **Settings → Integrations → API Keys**. If you haven't created an API key yet, see [Create and Manage API Keys](/get-started/api-keys).
+</Warning>
+
+<Note>
+  If your ISP blocks port 25 (the default SMTP port), use port **587** or **2525** instead. Port 587 with STARTTLS is the recommended choice for most environments.
+</Note>
+
+## Set up in popular email clients
+
+<Tabs>
+  <Tab title="Microsoft Outlook">
+    These steps apply to Outlook for Microsoft 365, Outlook 2019, 2021, and Outlook Classic. The menu labels may vary slightly between versions.
+
+    <Steps>
+      <Step title="Open account settings">
+        In Outlook, go to **File → Account Settings → Account Settings**. Select your email account and click **Change**.
+      </Step>
+      <Step title="Open More Settings">
+        Click **More Settings** (bottom-right of the change account dialog), then select the **Outgoing Server** tab.
+      </Step>
+      <Step title="Enable SMTP authentication">
+        Check **My outgoing server (SMTP) requires authentication** and select **Use same settings as my incoming mail server** (or enter your turboSMTP credentials manually).
+      </Step>
+      <Step title="Set the outgoing server">
+        Go to the **Advanced** tab. Set the **Outgoing server (SMTP)** to `pro.turbo-smtp.com`. Set the port to `587` and choose **STARTTLS** (or `465` with **SSL**) from the encryption dropdown.
+      </Step>
+      <Step title="Save and test">
+        Click **OK**, then **Next**, and use the built-in **Test Account Settings** button to verify that Outlook can authenticate and send a test message through turboSMTP.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Mozilla Thunderbird">
+    <Steps>
+      <Step title="Open account settings">
+        In Thunderbird, go to **Tools → Account Settings** (Windows/Linux) or **Thunderbird → Account Settings** (macOS).
+      </Step>
+      <Step title="Configure outgoing server">
+        In the left panel, click **Outgoing Server (SMTP)**, then click **Add** to create a new server entry.
+      </Step>
+      <Step title="Enter SMTP details">
+        Fill in the following values:
+        - **Description**: turboSMTP (or any label you prefer)
+        - **Server Name**: `pro.turbo-smtp.com`
+        - **Port**: `587`
+        - **Connection Security**: STARTTLS
+        - **Authentication Method**: Normal password
+        - **User Name**: your turboSMTP account email address
+      </Step>
+      <Step title="Save and assign">
+        Click **OK** to save. Back in Account Settings, select your email account, scroll to **Outgoing Server (SMTP)**, and choose the turboSMTP server you just created from the dropdown.
+      </Step>
+      <Step title="Send a test email">
+        Compose a new message and send it. Thunderbird will prompt you for your SMTP password on first use — enter your **Consumer Secret**.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Gmail / Google Workspace">
+    You can configure Gmail or Google Workspace to relay outgoing mail through turboSMTP using the **SMTP relay service** in the Google Admin console (Google Workspace) or Gmail's **Send mail as** feature (personal Gmail).
+
+    **For Google Workspace (Admin console):**
+
+    <Steps>
+      <Step title="Open the SMTP relay settings">
+        Log in to [admin.google.com](https://admin.google.com), go to **Apps → Google Workspace → Gmail → Routing**, and click **Configure** under **SMTP relay service**.
+      </Step>
+      <Step title="Add a relay route">
+        Click **Add another rule**. Set the **SMTP server** to `pro.turbo-smtp.com`, port `587`, and enable **Require SMTP Authentication** with TLS encryption.
+      </Step>
+      <Step title="Enter turboSMTP credentials">
+        Enter your turboSMTP account email as the username and your **Consumer Secret** as the password.
+      </Step>
+      <Step title="Save the route">
+        Click **Save**. Allow a few minutes for the change to propagate across Google's infrastructure.
+      </Step>
+    </Steps>
+
+    **For personal Gmail (Send mail as):**
+
+    Go to **Gmail Settings → Accounts and Import → Send mail as → Add another email address**. Enter your sender address, then on the SMTP configuration screen use `pro.turbo-smtp.com`, port `587`, your turboSMTP account email as the username, and your Consumer Secret as the password.
+  </Tab>
+
+  <Tab title="WordPress">
+    WordPress does not support authenticated SMTP out of the box, so you'll need an SMTP plugin such as **WP Mail SMTP**, **Post SMTP**, or **FluentSMTP**.
+
+    Install your preferred SMTP plugin, then enter the turboSMTP settings:
+    - **SMTP Host**: `pro.turbo-smtp.com`
+    - **SMTP Port**: `587`
+    - **Encryption**: TLS
+    - **Username**: your turboSMTP account email
+    - **Password**: your Consumer Secret
+
+    For full integration instructions for WordPress and other platforms, see the [Integrations](/account/integrations) section of the documentation.
+  </Tab>
+</Tabs>
+
+## Set up in your application
+
+For applications that send email programmatically, configure your SMTP library using the same credentials. Here's an example configuration block you can adapt to your language or framework:
+
+```yaml Configuration example
+smtp:
+  host: pro.turbo-smtp.com
+  port: 587
+  encryption: starttls
+  auth: true
+  username: "you@yourdomain.com"       # your turboSMTP account email
+  password: "YOUR_CONSUMER_SECRET"     # your Consumer Secret from API Keys
+```
+
+<Note>
+  For production applications that send transactional or bulk email, consider using the [turboSMTP REST API](/api-reference/send-email) instead of SMTP. The API offers more control, better performance, and supports features like per-message tracking headers that aren't available over plain SMTP.
+</Note>
+
+## Verify your connection
+
+After configuring your SMTP settings, send a test message to confirm everything is working:
+
+<Steps>
+  <Step title="Log in to your dashboard">
+    Go to [dashboard.serversmtp.com](https://dashboard.serversmtp.com) and log in.
+  </Step>
+  <Step title="Check the email log">
+    Navigate to **Reports → Email Log**. Any email you've sent through turboSMTP will appear here with its delivery status (delivered, bounced, deferred, etc.).
+  </Step>
+  <Step title="Confirm delivery">
+    If you see your test message listed with a **Delivered** status, your SMTP configuration is working correctly. If the message shows as bounced or deferred, check that your username and Consumer Secret are entered correctly and that the port you selected is not blocked by your network or firewall.
+  </Step>
+</Steps>

@@ -1,0 +1,223 @@
+---
+title: "Sub-Accounts API — Create and Manage Child Accounts"
+sidebarTitle: "Sub-Accounts"
+description: "Create, update, and monitor sub-accounts under your turboSMTP Pro plan. Assign sending credits and track usage across your team or reseller network."
+---
+
+Sub-accounts let you create and manage separate sending identities under a single turboSMTP Pro plan. Each sub-account has its own sending credits, statistics, and credentials, making them ideal for agencies managing multiple clients, SaaS platforms sending on behalf of their users, or teams that need isolated sending environments. The Sub-Accounts API gives you full programmatic control to provision, configure, monitor, and remove child accounts without leaving your own infrastructure.
+
+## Authentication
+
+All Sub-Accounts API requests require your API key passed as a raw value in the `Authorization` header.
+
+```http Authorization header
+Authorization: YOUR_API_KEY
+```
+
+Do not prefix the value with `Bearer` or any other scheme.
+
+**Base URL:** `https://pro.api.serversmtp.com/api/v2`
+
+## Endpoints
+
+<Accordion title="GET /subaccounts/list — List all sub-accounts">
+  Returns a summary of all sub-accounts associated with your master account, including each account's usage statistics and current status.
+
+  **Request**
+
+  ```bash Terminal
+  curl -X GET 'https://pro.api.serversmtp.com/api/v2/subaccounts/list' \
+    -H 'Authorization: YOUR_API_KEY' \
+    -H 'Content-Type: application/json'
+  ```
+
+  **Example response**
+
+  ```json
+  [
+    {
+      "id": 584,
+      "email": "client-a@example.com",
+      "active": true,
+      "sent": 1250,
+      "limit": 5000,
+      "reputation": 9
+    },
+    {
+      "id": 585,
+      "email": "client-b@example.com",
+      "active": true,
+      "sent": 300,
+      "limit": -1,
+      "reputation": 10
+    }
+  ]
+  ```
+</Accordion>
+
+<Accordion title="GET /subaccounts/email-exists — Check if an email is already a sub-account">
+  Check whether a given email address is already registered as a sub-account under your master account. Use this before attempting to create a new sub-account to avoid duplicate errors.
+
+  **Request**
+
+  ```bash Terminal
+  curl -X GET 'https://pro.api.serversmtp.com/api/v2/subaccounts/email-exists?email=client@example.com' \
+    -H 'Authorization: YOUR_API_KEY'
+  ```
+
+  **Query parameters**
+
+  | Parameter | Type | Required | Description |
+  |---|---|---|---|
+  | `email` | string | Yes | The email address to check |
+
+  **Example response**
+
+  ```json
+  {
+    "exists": false
+  }
+  ```
+</Accordion>
+
+<Accordion title="POST /subaccounts — Create a new sub-account">
+  Provision a new sub-account under your master account. Supply the sub-account's email address, initial sending limit, and any other configuration.
+
+  **Request**
+
+  ```bash Terminal
+  curl -X POST 'https://pro.api.serversmtp.com/api/v2/subaccounts' \
+    -H 'Authorization: YOUR_API_KEY' \
+    -H 'Content-Type: application/json' \
+    -d '{
+      "email": "new-client@example.com",
+      "limit": 10000,
+      "active": true
+    }'
+  ```
+
+  **Request body fields**
+
+  | Field | Type | Required | Description |
+  |---|---|---|---|
+  | `email` | string | Yes | Email address for the new sub-account |
+  | `limit` | integer | No | Monthly sending credit limit; `-1` for unlimited |
+  | `active` | boolean | No | Whether the account is active on creation (default: `true`) |
+
+  **Example response**
+
+  ```json
+  {
+    "id": 602,
+    "email": "new-client@example.com",
+    "active": true,
+    "sent": 0,
+    "limit": 10000,
+    "reputation": 10
+  }
+  ```
+</Accordion>
+
+<Accordion title="GET /subaccounts/{Id} — Get sub-account details">
+  Retrieve full details for a single sub-account by its numeric ID.
+
+  **Request**
+
+  ```bash Terminal
+  curl -X GET 'https://pro.api.serversmtp.com/api/v2/subaccounts/584' \
+    -H 'Authorization: YOUR_API_KEY'
+  ```
+
+  **Path parameter**
+
+  | Parameter | Type | Description |
+  |---|---|---|
+  | `Id` | integer | The sub-account's numeric ID |
+
+  **Example response**
+
+  ```json
+  {
+    "id": 584,
+    "email": "client-a@example.com",
+    "active": true,
+    "sent": 1250,
+    "limit": 5000,
+    "reputation": 9
+  }
+  ```
+</Accordion>
+
+<Accordion title="PUT /subaccounts/{Id} — Update a sub-account">
+  Update a sub-account's configuration, such as its sending credit limit or active status. You can use this to top up credits, pause a client's account, or re-enable it after suspension.
+
+  **Request**
+
+  ```bash Terminal
+  curl -X PUT 'https://pro.api.serversmtp.com/api/v2/subaccounts/584' \
+    -H 'Authorization: YOUR_API_KEY' \
+    -H 'Content-Type: application/json' \
+    -d '{
+      "limit": 20000,
+      "active": true
+    }'
+  ```
+
+  **Request body fields**
+
+  | Field | Type | Description |
+  |---|---|---|
+  | `limit` | integer | New monthly sending limit; `-1` for unlimited |
+  | `active` | boolean | Set to `false` to suspend the account |
+</Accordion>
+
+<Accordion title="DELETE /subaccounts/{Id} — Delete a sub-account">
+  Permanently delete a sub-account by its numeric ID. This action cannot be undone — all sending history and credentials for that account will be removed.
+
+  **Request**
+
+  ```bash Terminal
+  curl -X DELETE 'https://pro.api.serversmtp.com/api/v2/subaccounts/584' \
+    -H 'Authorization: YOUR_API_KEY'
+  ```
+
+  **Example response**
+
+  ```json
+  {
+    "success": true
+  }
+  ```
+</Accordion>
+
+## Sub-account response fields
+
+The following fields are returned in sub-account objects across the API:
+
+<ResponseField name="id" type="integer">
+  The unique numeric identifier for the sub-account. Use this ID in path parameters for GET, PUT, and DELETE operations.
+</ResponseField>
+
+<ResponseField name="email" type="string">
+  The email address associated with the sub-account. This is also the SMTP username for that sub-account when sending via SMTP relay.
+</ResponseField>
+
+<ResponseField name="active" type="boolean">
+  Whether the sub-account is currently active. Set to `false` to suspend sending for this account without deleting it.
+</ResponseField>
+
+<ResponseField name="sent" type="integer">
+  The total number of emails sent by this sub-account in the current billing period.
+</ResponseField>
+
+<ResponseField name="limit" type="integer">
+  The maximum number of emails this sub-account can send per month. A value of `-1` means unlimited (capped only by the master plan).
+</ResponseField>
+
+<ResponseField name="reputation" type="number">
+  A score from `0` to `10` reflecting the sub-account's sender reputation. Higher is better. Reputation is calculated based on bounce rates, spam complaints, and delivery success history.
+</ResponseField>
+
+<Note>
+  Sub-accounts are available on **Pro monthly plans** only. If you do not see the sub-accounts option in your dashboard, contact [turboSMTP support](https://dashboard.serversmtp.com) to confirm your plan eligibility.
+</Note>

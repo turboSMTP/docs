@@ -1,0 +1,61 @@
+---
+title: "Real-Time Email Open and Click Tracking for turboSMTP"
+sidebarTitle: "Email Tracking"
+description: "Track when recipients open your emails and click your links in real time. Monitor delivery, opens, clicks, and engagement from the turboSMTP dashboard."
+---
+
+turboSMTP automatically records every meaningful interaction your emails generate — from the moment a message leaves your account to when a recipient opens it or clicks a link. The advanced analytics dashboard gives you both aggregate rates and per-recipient event data, so you always know exactly how your email program is performing in real time.
+
+## What you can track
+
+turboSMTP captures the following events for every email you send:
+
+- **Email delivery status** — whether the message was accepted, deferred, or bounced by the recipient's mail server
+- **Opens** — date, time, and first-open data for each recipient who views your message
+- **Clicks** — per-link and per-recipient click events showing exactly which URLs were clicked and when
+- **Bounces** — hard and soft bounces with the error response from the receiving server
+- **Spam complaints** — recipients who mark your message as spam via their email client's report button
+- **Unsubscribes** — recipients who opt out via your unsubscribe link
+
+## How tracking works
+
+turboSMTP's tracking system is fully automatic — no additional setup is required on your part.
+
+**Open tracking** works by injecting a small, transparent 1×1 pixel image into the HTML body of your email. When a recipient's email client loads the image, turboSMTP records an open event along with the timestamp, recipient address, and user agent.
+
+**Click tracking** works by rewriting each link in your email to pass through turboSMTP's tracking server. When a recipient clicks a link, turboSMTP logs the event — capturing the URL, timestamp, IP address, and user agent — and then immediately redirects the recipient to the original destination. The redirect is seamless and adds no perceptible delay.
+
+## Enable or disable tracking
+
+Click and open tracking are both **enabled by default** on all turboSMTP accounts. You can toggle them at any time without changing your sending configuration.
+
+**Via the dashboard:** Go to your [turboSMTP dashboard](https://dashboard.serversmtp.com) → **Settings** and toggle the click tracking and open tracking switches.
+
+**Via the API:** Tracking preferences can be toggled programmatically. Use the `PUT` method against the click-tracking and open-tracking control endpoints under your account settings path. Include your API key in the `Authorization` header (raw key — no `Bearer` prefix). See the [API reference](/api-reference/analytics) for full endpoint details.
+
+<Note>
+  Tracking requires HTML emails. Plain-text-only emails cannot be tracked for opens or clicks, because neither a tracking pixel nor rewritten links can be embedded in plain text.
+</Note>
+
+## Use cases
+
+<CardGroup cols={2}>
+  <Card title="Transactional Emails" icon="envelope-circle-check">
+    Confirm delivery of password resets, order confirmations, and account alerts. Know the moment a critical message reaches its recipient's inbox.
+  </Card>
+  <Card title="Marketing Campaigns" icon="chart-line">
+    Measure campaign effectiveness with open rates, click-through rates, and per-link performance data. Identify your most engaged subscribers.
+  </Card>
+  <Card title="Business Email" icon="briefcase">
+    Know when important business emails — proposals, offers, invoices — have been read, so you can time your follow-ups with precision.
+  </Card>
+  <Card title="Newsletter & DEM" icon="newspaper">
+    Track which articles and calls-to-action drive the most engagement in your newsletters. Use the data to refine future sends.
+  </Card>
+</CardGroup>
+
+## Custom tracking domain
+
+By default, turboSMTP rewrites your tracking links through a shared tracking domain. To keep your brand consistent and improve deliverability, you can configure a **custom tracking domain** so that tracking URLs appear under your own domain rather than turboSMTP's.
+
+See the [Custom Tracking Domain guide](/deliverability/custom-tracking-domain) for step-by-step setup instructions.

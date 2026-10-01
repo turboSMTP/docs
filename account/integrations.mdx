@@ -1,0 +1,110 @@
+---
+title: "Integrate turboSMTP with WordPress, CMS, and Email Clients"
+sidebarTitle: "Integrations"
+description: "Connect turboSMTP with WordPress, Outlook, Thunderbird, Drupal, Joomla, Magento, and more. Step-by-step setup guides for popular platforms."
+---
+
+turboSMTP works as the sending backbone for virtually any platform, CMS, or email client that supports SMTP configuration. Whether you're routing WordPress notifications, WooCommerce order confirmations, Outlook business email, or custom application mail through turboSMTP, the setup follows the same pattern: point your platform at `pro.turbo-smtp.com`, authenticate with your account email and Consumer Secret, and you're sending through turboSMTP's infrastructure immediately.
+
+## WordPress
+
+WordPress uses PHP's `mail()` function by default, which bypasses authentication entirely and is routinely blocked or filtered by receiving mail servers. Replacing it with turboSMTP SMTP ensures that every WordPress email — contact forms, WooCommerce orders, password resets, admin notifications — is authenticated and delivered reliably.
+
+<Note>
+  WordPress ships with PHP `mail()` which is unreliable and unauthenticated. Many hosting providers block it outright. Using turboSMTP SMTP ensures inbox delivery for all WordPress emails including WooCommerce transactionals, plugin notifications, and form submissions.
+</Note>
+
+<Steps>
+  <Step title="Install the TurboSMTP plugin">
+    In your WordPress admin, go to **Plugins → Add New Plugin**. Search for **TurboSMTP** and click **Install Now**, then **Activate**. Alternatively, search for and install **WP Mail SMTP** if you prefer a third-party plugin — both work with turboSMTP.
+  </Step>
+  <Step title="Configure SMTP settings">
+    Open the plugin's settings page and enter the following:
+
+    | Setting | Value |
+    |---------|-------|
+    | SMTP Host | `pro.turbo-smtp.com` |
+    | Port | `587` (TLS) |
+    | Encryption | `TLS` / `STARTTLS` |
+    | Authentication | `Yes` |
+    | Username | Your turboSMTP account email address |
+    | Password | Your **Consumer Secret** (found in your dashboard under API settings — not your account login password) |
+  </Step>
+  <Step title="Send a test email">
+    Use the plugin's built-in **Send Test Email** feature to verify the configuration. Check that the test message arrives in the recipient's inbox. If it does, all WordPress emails will now route through turboSMTP.
+  </Step>
+</Steps>
+
+## Email clients
+
+Configure your desktop email client to send through turboSMTP's SMTP server for authenticated, high-deliverability sending from Outlook or Thunderbird.
+
+<Tabs>
+  <Tab title="Microsoft Outlook">
+    Open Outlook and navigate to **File → Account Settings → Account Settings → New** (or edit an existing account). Enter the following SMTP settings in the outgoing mail server section:
+
+    | Setting | Value |
+    |---------|-------|
+    | SMTP Server | `pro.turbo-smtp.com` |
+    | Port | `587` |
+    | Encryption | `STARTTLS` |
+    | Authentication required | `Yes` |
+    | Username | Your turboSMTP account email address |
+    | Password | Your **Consumer Secret** |
+
+    Save the settings and send a test message to confirm the connection.
+  </Tab>
+  <Tab title="Mozilla Thunderbird">
+    In Thunderbird, go to **Account Settings → Outgoing Server (SMTP) → Add**. Enter the following details:
+
+    | Setting | Value |
+    |---------|-------|
+    | Server Name | `pro.turbo-smtp.com` |
+    | Port | `587` |
+    | Connection Security | `STARTTLS` |
+    | Authentication Method | `Normal password` |
+    | Username | Your turboSMTP account email address |
+
+    Save the outgoing server, then assign it to your account under **Account Settings → [Your Account] → Outgoing Server**. Thunderbird will prompt for your Consumer Secret on the first send.
+  </Tab>
+</Tabs>
+
+<Tip>
+  If port 587 is blocked by your network or ISP, use port **465** (SSL/TLS) or the fallback port **2525**. All three ports are supported by `pro.turbo-smtp.com`.
+</Tip>
+
+## Other CMS platforms
+
+turboSMTP works with any CMS that supports SMTP configuration via a plugin or built-in settings. Install the appropriate SMTP plugin for your platform and enter the standard turboSMTP settings:
+
+- **SMTP host:** `pro.turbo-smtp.com`
+- **Port:** `587` (or `465` / `2525`)
+- **Username:** your turboSMTP account email
+- **Password:** your Consumer Secret
+
+| Platform | Recommended plugin |
+|----------|--------------------|
+| **Drupal** | SMTP Authentication Support (`drupal.org/project/smtp`) |
+| **Joomla** | SMTP Mailer (built-in under **System → Global Configuration → Mail**) |
+| **Magento** | Configure under **Stores → Configuration → Advanced → System → Mail Sending Settings** |
+
+For each platform, set the SMTP credentials as above and send a test email to confirm delivery.
+
+## SDKs and libraries
+
+If you're integrating turboSMTP programmatically, official SDKs are available for C# and PHP:
+
+<CardGroup cols={2}>
+  <Card title="C# SDK" icon="code" href="https://github.com/turboSMTP/turboSMTP-csharp">
+    The official turboSMTP C# library for .NET applications. Wraps the REST API with strongly typed methods for sending email, managing suppressions, and retrieving analytics.
+  </Card>
+  <Card title="PHP SDK" icon="php" href="https://github.com/turboSMTP/turboSMTP-php">
+    The official turboSMTP PHP library. Use it in Laravel, Symfony, WordPress plugins, or any PHP application to send via the API without hand-crafting HTTP requests.
+  </Card>
+</CardGroup>
+
+## Email validation for WordPress
+
+If you collect email addresses through WordPress forms, consider pairing the turboSMTP SMTP plugin with the **TurboSMTP Email Validator** plugin. It validates every email address in real time at the moment a visitor submits a form — blocking invalid, disposable, and spamtrap addresses before they enter your database.
+
+It works with Contact Form 7, WPForms, WooCommerce, Gravity Forms, Elementor Forms, and more. See the [Email Validation guide](/account/email-validation) for full setup instructions.

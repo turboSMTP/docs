@@ -1,0 +1,110 @@
+---
+title: "Why Emails Land in Spam and How to Fix Inbox Placement"
+sidebarTitle: "Spam Issues"
+description: "Learn the most common reasons emails end up in the spam folder and the steps you can take with turboSMTP to improve inbox placement and sender reputation."
+---
+
+Ending up in the spam folder is one of the most frustrating problems in email delivery — your message was sent, your server accepted it, but your recipient never sees it in their inbox. The good news is that the most common causes are well understood and fixable. turboSMTP gives you every tool you need to diagnose and resolve spam placement issues: domain authentication, list validation, bounce and complaint management, custom tracking domains, and real-time analytics to measure your progress.
+
+## Top Causes of Spam Placement
+
+<CardGroup cols={2}>
+  <Card title="Missing Authentication" icon="shield-xmark">
+    Without SPF, DKIM, and DMARC records on your sending domain, receiving servers have no cryptographic proof that you are who you claim to be. Unauthenticated email is treated with deep suspicion and often routed directly to spam — or rejected outright.
+  </Card>
+  <Card title="Poor List Quality" icon="list-xmark">
+    Sending to stale, purchased, or unverified lists exposes you to invalid addresses, spam traps, and role accounts. High bounce rates signal to mailbox providers that you do not maintain your list, which damages your sender reputation across all your sends.
+  </Card>
+  <Card title="Spam Complaints" icon="flag">
+    Every time a recipient clicks "Mark as spam," the mailbox provider records a complaint against your sending domain and IP. A complaint rate above roughly 0.1% can trigger filtering for your entire sending domain, not just the individual campaign.
+  </Card>
+  <Card title="Content Issues" icon="file-xmark">
+    Spam filters score your message content. Trigger words ("free money", "guaranteed", "cash prize"), excessive ALL CAPS, multiple exclamation marks, image-only emails with no text, and broken HTML all raise your spam score and increase the chance of filtering.
+  </Card>
+</CardGroup>
+
+---
+
+## Fix 1: Configure Email Authentication
+
+The single most effective step you can take is adding SPF, DKIM, and DMARC DNS records for your sending domain. These records let receiving servers verify that turboSMTP is authorized to send on your behalf, and that the message has not been tampered with in transit.
+
+- **SPF** — Add a TXT record to your domain that lists turboSMTP's servers as authorized senders.
+- **DKIM** — Add a TXT record containing turboSMTP's public key so receiving servers can validate the message signature.
+- **DMARC** — Add a policy record that tells receiving servers what to do when SPF or DKIM checks fail.
+
+For the exact DNS values and step-by-step instructions, see [Email Authentication (SPF, DKIM & DMARC)](/deliverability/spf-dkim-dmarc).
+
+<Tip>
+  Use turboSMTP's AI-powered SPF/DKIM/DMARC analyzer at [https://serversmtp.com/spf-dkim-dmarc-dns-gdpr-analysis](https://serversmtp.com/spf-dkim-dmarc-dns-gdpr-analysis) to instantly retrieve your domain's current DNS records, identify gaps, check GDPR compliance of third-party services, and get personalized, actionable recommendations powered by GPT-4.
+</Tip>
+
+---
+
+## Fix 2: Clean Your Email List
+
+Sending to invalid, duplicate, or inactive addresses generates hard bounces that erode your sender reputation quickly. turboSMTP's built-in email validation tool checks your list before you send, identifying addresses that do not exist, domains that are not accepting mail, role accounts (like `info@` or `admin@`), and known spam traps.
+
+Clean your list regularly — especially before large campaigns — to keep your bounce rate low and your reputation strong. For instructions, see [Email Validation](/account/email-validation).
+
+---
+
+## Fix 3: Set Up an Unsubscribe Link
+
+If recipients want to stop receiving your emails and cannot find an unsubscribe link, they will click "Mark as spam" instead. Every spam complaint counts against your reputation. Adding a clear, one-click unsubscribe link to your email footer gives recipients a clean exit and protects your sender score.
+
+turboSMTP handles suppression automatically: when a recipient unsubscribes, their address is added to your suppression list and future sends to that address are blocked — no manual list management required. To learn how bounce and unsubscribe suppression works, see [Bounce & Spam Management](/deliverability/bounce-spam-management).
+
+---
+
+## Fix 4: Use a Custom Tracking Domain
+
+When you enable open and click tracking, turboSMTP rewrites your links and embeds a tracking pixel using a tracking domain. By default, this is a shared turboSMTP domain. If other senders on that shared domain have poor reputations, spam filters may penalize your emails by association.
+
+Setting up a **custom tracking domain** — a subdomain you own, such as `track.yourcompany.com` — means all tracking URLs carry your domain's reputation rather than a shared one. This is a straightforward DNS configuration change that can meaningfully improve inbox placement. For setup instructions, see [Custom Tracking Domain](/deliverability/custom-tracking-domain).
+
+---
+
+## Fix 5: Verify Your Sender Domain
+
+If you have not yet verified your sender domain in turboSMTP, your emails are sent using a **re-enveloped sender** technique: the envelope sender address is rewritten to a `turbo-smtp.com` address so SPF checks pass. This means your recipients may see a string like `sender=yourdomain.com@turbo-smtp.com On behalf of you@yourdomain.com` in the sender field of their email client.
+
+This display reduces trust with recipients and can trigger spam filters. Verifying your sender domain resolves the issue: once verified, turboSMTP sends directly from your domain with no re-enveloping, and the "On behalf of" string disappears. Configure SPF, DKIM, and DMARC as described in [Fix 1](#fix-1-configure-email-authentication) to complete domain verification.
+
+---
+
+## Fix 6: Register with the Yahoo Complaint Feedback Loop
+
+If your emails are being delayed, queued, or blocked for recipients at Yahoo, AOL, or Verizon Media, you are likely hitting Yahoo's complaint rate threshold. The solution is to register your sender domain with the **Yahoo Complaint Feedback Loop (YFBL)**.
+
+Once registered, when a Yahoo user marks your email as spam, that complaint is automatically recorded as an unsubscribe in your turboSMTP account rather than silently damaging your reputation. This keeps your complaint rate visible and your list clean.
+
+To register:
+
+<Steps>
+  <Step title="Create a postmaster mailbox">
+    Create the mailbox `postmaster@yoursendingdomain.com`. Yahoo will send a verification code to this address during registration.
+  </Step>
+  <Step title="Open the Yahoo FBL registration page">
+    Go to the [Yahoo Feedback Loop registration page](https://io.help.yahoo.com/contact/index?page=contactform&locale=en_US&token=Zh%2FBBVqXzLHlIbokbUqVWTUbuuQeXGkGnZzhKR2JQ4O6mMQdy9JSWdtWFXvjthcYCRj9bUIFfycOfG%2B4GOHPHoOGa8HwDO2%2B0kYRtTcdR8Nja5P9HWkKh3VWfS3pyu4UdjhvwG%2BBCvnYFl5dToDK%2Fw%3D%3D&selectedChannel=email-icon).
+  </Step>
+  <Step title="Complete the registration form">
+    Fill in the fields as follows:
+    - **Company Name:** `turbo-smtp.com`
+    - **Contact Name:** `Deliverability Team`
+    - **Contact email:** `info@turbo-smtp.com`
+    - **Reporting email:** `loop@turbo-smtp.com`
+    - **Selector:** `turbo-smtp._domainkey`
+    - **Request type:** `Add`
+    - **Domain:** your sender domain (e.g., `yourcompany.com`)
+  </Step>
+  <Step title="Verify with the code">
+    Click **Get Verification Code**. Yahoo sends a code to `postmaster@yoursendingdomain.com`. Retrieve the code, enter it on the YFBL page, and click **Create Request** to complete registration.
+  </Step>
+</Steps>
+
+After registration, Yahoo and Verizon Media complaint reports appear in your turboSMTP dashboard under **Reports → Spam Reports**, giving you full visibility into complaint activity.
+
+<Note>
+  If you have followed all the steps above and your emails are still landing in spam, contact the turboSMTP support team — they can review your account's sending history, reputation data, and configuration to diagnose issues specific to your domain and IP. Reach support 24/7 via the [dashboard](https://dashboard.serversmtp.com) (click the **question mark (?)** icon → **Submit a ticket**).
+</Note>

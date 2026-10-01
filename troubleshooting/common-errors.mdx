@@ -1,0 +1,124 @@
+---
+title: "turboSMTP Common Errors: API, SMTP, and Account Issues"
+sidebarTitle: "Common Errors"
+description: "Diagnose and fix the most common turboSMTP API errors, SMTP authentication failures, credential problems, and account activation issues."
+---
+
+When something goes wrong with email sending, a clear error code or failure message is your first clue to a fast resolution. This page catalogs every turboSMTP API error code, the most common SMTP connection errors, typical account issues, and HTTP status codes — along with the steps you need to take to fix each one.
+
+## API Error Codes
+
+### General Errors
+
+The following error codes appear in the JSON response body of any turboSMTP API call (except `/mail/send`) when a request cannot be completed.
+
+| Error Code | Meaning | What to Do |
+|---|---|---|
+| `1` | Invalid authorization credentials | Regenerate or double-check your API key in the dashboard. Ensure you pass it as `Authorization: <api_key>` with no "Bearer" prefix. |
+| `2` | Inactive account | Your account has been deactivated or banned. Contact support to review your account status. |
+| `3` | Invalid authorization token | The token you supplied does not exist or has been revoked. Re-authenticate or generate a new API key. |
+| `4` | Resource not found | The endpoint path or resource ID in your request does not exist. Check the URL and parameters. |
+| `5` | Server system error | An internal error occurred on turboSMTP's servers. Wait a moment and retry. If the problem persists, contact support. |
+| `6` | Concurrent modification exception | Two requests tried to modify the same resource simultaneously. Retry after a brief delay. |
+| `7` | Access denied | Your API key does not have permission to access the requested resource. Check key scopes in your dashboard. |
+
+### Send API Errors
+
+The send endpoint (`POST https://api.turbo-smtp.com/api/v2/mail/send`) returns descriptive error payloads. The table below maps each error to its cause and fix.
+
+| Error | Cause | Fix |
+|---|---|---|
+| Missing username/password | `consumerKey` or `consumerSecret` header was not included | Add both `consumerKey` (your account email) and `consumerSecret` (your Consumer Secret) as request headers. |
+| Invalid credentials | The `consumerKey`/`consumerSecret` values are wrong | Verify both values in your [dashboard](https://dashboard.serversmtp.com). The password is your **Consumer Secret**, not your account login password. |
+| Missing sender | The `from` field is absent or invalid | Include a valid `from` email address in the request body. |
+| Missing recipients | The `to` field is absent | Include at least one valid recipient in the `to` field. |
+| Invalid recipients | One or more addresses in `to`, `cc`, or `bcc` are malformed | Validate and correct all recipient email addresses before sending. |
+| Invalid Mime | The `mime_raw` field contains an unparseable MIME message | Validate your raw MIME content or switch to `content`/`html_content` fields instead. |
+| No credit (`nocredit`) | Your account has no remaining email credits | Upgrade your plan or purchase additional credits in the [dashboard](https://dashboard.serversmtp.com). |
+| Deactivated account | The account associated with the credentials is inactive | Contact support — your account may require reactivation. |
+
+---
+
+## Common SMTP Errors
+
+<Accordion title="Authentication failed / 535 Incorrect authentication data">
+  **Cause:** Your SMTP client is sending wrong credentials to `pro.turbo-smtp.com`.
+
+  **Fix:**
+  - Set your SMTP **username** to your full turboSMTP account email address.
+  - Set your SMTP **password** to your **Consumer Secret** — this is NOT the same as your dashboard login password. Find your Consumer Secret in the [dashboard](https://dashboard.serversmtp.com) under your account credentials section.
+  - Confirm you are connecting to `pro.turbo-smtp.com` on port `587` (STARTTLS), `465` (SSL), or `2525` (fallback).
+</Accordion>
+
+<Accordion title="Port 25 connection refused / Cannot connect to SMTP server">
+  **Cause:** Your ISP or network firewall is blocking outbound connections on port 25, which is the default SMTP port.
+
+  **Fix:** Switch to an alternate port in your email client's outgoing server settings:
+
+  | Port | Protocol |
+  |---|---|
+  | `587` | STARTTLS (recommended) |
+  | `465` | SSL/TLS |
+  | `2525` | Fallback (plain SMTP) |
+
+  The SMTP server hostname remains `pro.turbo-smtp.com` for all ports.
+</Accordion>
+
+<Accordion title="Relay access denied / 550 5.7.1 Relaying denied">
+  **Cause:** Your SMTP client is not authenticating correctly before attempting to send, or the username/password entered in the client settings is incorrect.
+
+  **Fix:**
+  1. Open your email client's outgoing server (SMTP) settings.
+  2. Enable **SMTP authentication** (sometimes labelled "My outgoing server requires authentication").
+  3. Verify your **username** is your turboSMTP account email.
+  4. Verify your **password** is your Consumer Secret (not your account login password).
+  5. Save the settings and attempt to send again.
+</Accordion>
+
+<Accordion title="550 Recipient rejected / Address suppressed">
+  **Cause:** The recipient address previously generated a hard bounce. turboSMTP adds it to the suppression list to protect your sender reputation, and future sends to that address are blocked.
+
+  **Fix:**
+  - In the [dashboard](https://dashboard.serversmtp.com), navigate to **Reports → Bounces** to review suppressed addresses.
+  - If an address was suppressed in error (e.g., a temporary server issue was mistaken for a hard bounce), you can remove it from the suppression list.
+  - If the address is genuinely invalid, remove it from your sending list permanently.
+</Accordion>
+
+---
+
+## Account Issues
+
+<Accordion title="I just purchased a plan but I still can't send emails">
+  **Cause:** Plan activation is not immediate. After you complete payment, turboSMTP's team reviews and confirms payment approval before activating your account.
+
+  **Fix:** Wait for a confirmation email from turboSMTP. Activation typically completes within a short time after payment approval. If you have been waiting for more than a few hours without confirmation, contact support via the dashboard and provide your payment reference.
+</Accordion>
+
+<Accordion title="My email counter hasn't updated after renewing my plan">
+  **Cause:** This is expected behavior. The dashboard email counter does not reset until your current plan period expires and the renewed plan takes effect.
+
+  **Fix:** No action is needed. Once your current plan period ends, the counter will refresh automatically to reflect your renewed quota. If the counter does not update after the expected renewal date, contact support.
+</Accordion>
+
+<Accordion title="Free emails are still being consumed even though I upgraded to a paid plan">
+  **Cause:** By design, turboSMTP uses your free daily allowance (200 emails/day) before drawing from your paid plan credits. This is standard behavior, not a billing error.
+
+  **Fix:** No action required. Your free daily quota is consumed first; once it is exhausted each day, turboSMTP automatically draws from your paid plan. You are not losing paid credits — the free allowance is a bonus on top of your paid plan.
+</Accordion>
+
+---
+
+## HTTP Response Codes
+
+The turboSMTP send API and REST API return standard HTTP status codes alongside JSON error bodies.
+
+| HTTP Status | Meaning | What to Do |
+|---|---|---|
+| `200 OK` | Request accepted; email received by turboSMTP | No action needed. Check dashboard statistics for delivery status. |
+| `400 Bad Request` | Something is wrong with the request body or parameters | Review the error message in the response body. Check required fields (`from`, `to`, `consumerKey`, `consumerSecret`) and validate all parameter values. |
+| `401 Unauthorized` | Authentication failed | For `/mail/send`: confirm `consumerKey` and `consumerSecret` headers are present and correct. For other endpoints: confirm your `Authorization` header contains your raw API key with no "Bearer" prefix. |
+| `500 Server Error` | An error occurred on turboSMTP's servers | Wait a moment and retry the request. If the error persists across multiple retries, contact support. |
+
+<Note>
+  For persistent or unexplained errors, contact the turboSMTP support team 24/7. Log in to the [dashboard](https://dashboard.serversmtp.com), click the **question mark (?)** icon, and select **Submit a ticket** — include the full error message, request details, and timestamp for the fastest resolution.
+</Note>

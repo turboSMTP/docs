@@ -1,0 +1,142 @@
+---
+title: "turboSMTP API Keys: Create, Manage, and Revoke Keys"
+sidebarTitle: "API Keys"
+description: "Generate Consumer Key and Consumer Secret pairs for authenticating your apps with turboSMTP. Manage key permissions, IP restrictions, and revocation."
+---
+
+API keys are how turboSMTP identifies and authenticates your applications. Every request you make — whether you're sending email over SMTP, calling the REST API, or accessing analytics — is authenticated using credentials derived from an API key pair. Each key pair consists of a **Consumer Key** (a public identifier) and a **Consumer Secret** (a private credential). Generating and managing these keys is the essential first step before you can send a single message through turboSMTP.
+
+## Consumer Key vs Consumer Secret
+
+Every API key you create in turboSMTP has two parts that work together:
+
+<CardGroup cols={2}>
+  <Card title="Consumer Key" icon="key">
+    A public identifier for your application or integration. You pass it as the `consumerKey` header in API requests. It is safe to store alongside your application code and can be viewed at any time from the API Keys list in your dashboard.
+  </Card>
+  <Card title="Consumer Secret" icon="lock">
+    A private credential that proves your application is authorized to use turboSMTP. It functions as your password — both for SMTP sending (as the SMTP password field) and for API email sending (as the `consumerSecret` header). **It is shown only once, at creation time.**
+  </Card>
+</CardGroup>
+
+<Warning>
+  The **Consumer Secret is shown only once** — on the confirmation screen immediately after you create the key. turboSMTP cannot retrieve it for you later. Copy it and store it securely (for example, in a password manager or secrets vault) before you close that screen. If you lose it, you must delete the key and generate a new one.
+</Warning>
+
+## Create an API key
+
+<Steps>
+  <Step title="Log in to your dashboard">
+    Go to [dashboard.serversmtp.com](https://dashboard.serversmtp.com) and log in with your turboSMTP account credentials.
+  </Step>
+  <Step title="Open the API Keys settings">
+    In the left-hand navigation menu, click **Settings**. On the Settings page, select the **Integrations** tab. Locate the **API Keys** block and click the **Edit** button.
+  </Step>
+  <Step title="Start a new key">
+    Click the **Create API Key** button to open the key configuration form.
+  </Step>
+  <Step title="Configure the key">
+    Fill in the configuration options:
+    - **Name**: Enter a descriptive label for this key (e.g., "Production App", "WordPress Site"). This name is for your reference only and does not affect how the key works.
+    - **Permissions**: Check the services this key should be allowed to access. See [API key permissions](#api-key-permissions) below for details on each option.
+    - **IP Restrictions** *(optional)*: Enter one or more IP addresses to restrict this key to. Requests from other IPs will be rejected. Leave blank to allow access from any IP.
+  </Step>
+  <Step title="Generate the key">
+    Click **Generate API Key** in the bottom-right corner of the form. turboSMTP will create the key pair immediately.
+  </Step>
+  <Step title="Copy and store your credentials">
+    The confirmation screen displays your new **Consumer Key** and **Consumer Secret**. Copy both values now and store them securely. Click **OK** to return to the API Keys list.
+  </Step>
+</Steps>
+
+## First-time setup
+
+<Note>
+  When you log in to turboSMTP for the first time as a new customer, a popup will appear prompting you to create your first API key pair. This step is required before you can send any emails — turboSMTP uses these keys for all authentication, including SMTP. Click **Generate API Keys** in the popup to create your first pair instantly.
+</Note>
+
+## API key permissions
+
+When creating a key, you select which services it can access. You can grant one, two, or all three permissions to the same key, or create separate keys with narrow permissions for different parts of your infrastructure.
+
+<AccordionGroup>
+  <Accordion title="SMTP Sending">
+    Allows the key to authenticate SMTP connections to `pro.turbo-smtp.com`. Use this permission for any email client, CMS plugin, or application that sends email over SMTP. The Consumer Secret associated with this key becomes your SMTP password.
+  </Accordion>
+  <Accordion title="HTTP API Sending">
+    Allows the key to call the `POST /mail/send` endpoint on the turboSMTP REST API. Use this permission for applications that send transactional email programmatically via HTTP. Requests to `/mail/send` must include both the `consumerKey` and `consumerSecret` headers.
+  </Accordion>
+  <Accordion title="Statistics and Management APIs">
+    Allows the key to access account management and reporting endpoints — including analytics, suppressions, email validation, sub-accounts, alerts, and billing. Use this permission for dashboards, monitoring tools, or automation scripts that read or modify account data.
+  </Accordion>
+</AccordionGroup>
+
+## IP restrictions
+
+For extra security, you can lock an API key to one or more specific IP addresses. When an IP restriction is set, turboSMTP rejects any request using that key that originates from an unlisted IP — even if the key and secret are correct.
+
+This is especially useful for server-side integrations where your application runs on a known, static IP address. To apply a restriction, enter the allowed IP addresses in the **IP Restrictions** field during key creation. You can list multiple addresses separated by commas.
+
+<Tip>
+  IP restrictions are a best practice for production keys used by server applications. Keys used by email clients on laptops or mobile devices should generally be left unrestricted, since the originating IP changes frequently.
+</Tip>
+
+## Revoke a key
+
+If a key is compromised, no longer needed, or you want to rotate credentials, delete it from the dashboard:
+
+1. Log in to [dashboard.serversmtp.com](https://dashboard.serversmtp.com).
+2. Go to **Settings → Integrations → API Keys → Edit**.
+3. Find the key you want to remove in the API Keys list.
+4. Click the **Delete** (trash) icon next to the key.
+5. Confirm the deletion.
+
+The key becomes invalid immediately. Any application still using it will start receiving authentication errors. Make sure to update your integration with a new key pair before deleting an active one.
+
+## Using your keys
+
+Once you have a Consumer Key and Consumer Secret, use them as follows depending on how you're connecting to turboSMTP:
+
+<Tabs>
+  <Tab title="SMTP Authentication">
+    When configuring an email client or application to use SMTP, enter your credentials like this:
+
+    ```text SMTP credentials
+    SMTP Host:     pro.turbo-smtp.com
+    Port:          587 (STARTTLS) or 465 (SSL)
+    Username:      you@yourdomain.com       ← your turboSMTP account email
+    Password:      YOUR_CONSUMER_SECRET     ← Consumer Secret (not your login password)
+    ```
+
+    The Consumer Key is not used directly for SMTP — only the Consumer Secret is required as the SMTP password.
+  </Tab>
+  <Tab title="API — Send Email">
+    The `POST /mail/send` endpoint requires both the Consumer Key and Consumer Secret passed as request headers. Do **not** use an `Authorization` header for this endpoint — requests with `Authorization` will be rejected with a `401` error.
+
+    ```bash Send email via API
+    curl -X POST https://api.turbo-smtp.com/api/v2/mail/send \
+      -H "consumerKey: YOUR_CONSUMER_KEY" \
+      -H "consumerSecret: YOUR_CONSUMER_SECRET" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "from": "you@yourdomain.com",
+        "to": "recipient@example.com",
+        "subject": "Hello from turboSMTP",
+        "html_content": "<p>This is a test email sent via the turboSMTP API.</p>"
+      }'
+    ```
+
+    Use `https://api.eu.turbo-smtp.com/api/v2/mail/send` if you need to send via the EU infrastructure.
+  </Tab>
+  <Tab title="API — Management Endpoints">
+    For all other API endpoints (analytics, suppressions, account management, etc.), authenticate using the `Authorization` header with the raw API key value. Do **not** prefix it with `Bearer`.
+
+    ```bash Management API request
+    curl -X GET https://pro.api.serversmtp.com/api/v2/suppressions \
+      -H "Authorization: YOUR_API_KEY" \
+      -H "Content-Type: application/json"
+    ```
+
+    You obtain the API key value by calling `POST /authorize` with your account email and password. The key is returned in the `auth` field and is valid for 2 hours by default.
+  </Tab>
+</Tabs>

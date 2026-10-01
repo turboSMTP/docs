@@ -1,0 +1,162 @@
+---
+title: "Email Validation API — Verify Addresses Programmatically"
+sidebarTitle: "Email Validation"
+description: "Validate single or bulk email lists via turboSMTP's API. Addresses are classified as Valid, Invalid, Catch-All, Spamtrap, Abuse, Do Not Mail, or Unknown."
+---
+
+Sending to invalid or risky email addresses damages your sender reputation, inflates your bounce rate, and wastes sending credits. The turboSMTP Email Validation API lets you verify addresses before you send — either one at a time for real-time form validation or in bulk by uploading a CSV or TXT list for batch processing. Each address is classified with a risk level so you can decide which to keep, which to remove, and which to approach with caution.
+
+## Authentication
+
+All Email Validation API requests require your API key passed as a raw value in the `Authorization` header.
+
+```http Authorization header
+Authorization: YOUR_API_KEY
+```
+
+Do not prefix the value with `Bearer` or any other scheme.
+
+**Base URL:** `https://pro.api.serversmtp.com/api/v2`
+
+## Validate a single email
+
+<Accordion title="POST /emailvalidation/validateEmail — Validate one address">
+  Submit a single email address for immediate validation. The API checks syntax, DNS records, mailbox existence, and known spam traps, then returns a classification status.
+
+  **Request**
+
+  ```bash Terminal
+  curl -X POST 'https://pro.api.serversmtp.com/api/v2/emailvalidation/validateEmail' \
+    -H 'Authorization: YOUR_API_KEY' \
+    -H 'Content-Type: application/json' \
+    -d '{
+      "email": "user@example.com"
+    }'
+  ```
+
+  **Request body**
+
+  | Field | Type | Required | Description |
+  |---|---|---|---|
+  | `email` | string | Yes | The email address to validate |
+
+  **Example response**
+
+  ```json
+  {
+    "email": "user@example.com",
+    "status": "Valid",
+    "sub_status": "",
+    "free_email": false,
+    "domain": "example.com"
+  }
+  ```
+
+  **Response status values**
+
+  | Status | Meaning |
+  |---|---|
+  | `Valid` | Address exists and is safe to send to |
+  | `Invalid` | Address does not exist or has permanent errors — remove it |
+  | `Catch-All` | Domain accepts all addresses; delivery not guaranteed |
+  | `Spamtrap` | Known spam trap address — do not send |
+  | `Abuse` | Address belongs to a known complainer |
+  | `Do Not Mail` | Address is on a do-not-mail list |
+  | `Unknown` | Could not determine status — proceed with caution |
+</Accordion>
+
+## Upload a list for batch validation
+
+<Accordion title="POST /emailvalidation/upload — Upload a list for batch processing">
+  Upload a CSV or TXT file containing email addresses to validate in bulk. turboSMTP processes the list asynchronously and returns a job ID you can use to poll for results.
+
+  **Request**
+
+  ```bash Terminal
+  curl -X POST 'https://pro.api.serversmtp.com/api/v2/emailvalidation/upload' \
+    -H 'Authorization: YOUR_API_KEY' \
+    -F 'file=@/path/to/email-list.csv' \
+    -F 'name=My Contact List'
+  ```
+
+  Upload your file as a multipart form. The file must be a `.csv` or `.txt` file with one email address per line.
+
+  **Example response**
+
+  ```json
+  {
+    "id": "vld_abc123",
+    "name": "My Contact List",
+    "status": "processing",
+    "total": 5000,
+    "processed": 0,
+    "created_at": "2024-04-24T10:00:00.000Z"
+  }
+  ```
+
+  Use the returned `id` to poll `GET /emailvalidation/lists/{Id}` for job status and completion.
+
+  **Poll for job status**
+
+  ```bash Terminal
+  curl -X GET 'https://pro.api.serversmtp.com/api/v2/emailvalidation/lists/vld_abc123' \
+    -H 'Authorization: YOUR_API_KEY'
+  ```
+
+  Poll this endpoint until the `status` field returns `completed`. At that point, download your results using the [CSV download endpoint](#download-results).
+</Accordion>
+
+## List validation jobs
+
+Use `GET /emailvalidation/lists` to retrieve all validation jobs associated with your account, including their status and progress.
+
+```bash Terminal
+curl -X GET 'https://pro.api.serversmtp.com/api/v2/emailvalidation/lists' \
+  -H 'Authorization: YOUR_API_KEY'
+```
+
+**Example response**
+
+```json
+[
+  {
+    "id": "vld_abc123",
+    "name": "My Contact List",
+    "status": "completed",
+    "total": 5000,
+    "processed": 5000,
+    "created_at": "2024-04-24T10:00:00.000Z",
+    "completed_at": "2024-04-24T10:15:42.000Z"
+  }
+]
+```
+
+## Download results
+
+Once a validation job reaches `completed` status, download the classified results as a CSV file.
+
+```bash Terminal
+curl -X GET 'https://pro.api.serversmtp.com/api/v2/emailvalidation/lists/vld_abc123/csv' \
+  -H 'Authorization: YOUR_API_KEY' \
+  -o validation-results.csv
+```
+
+The exported CSV contains each address alongside its validation status, sub-status, and domain information. You can then segment the results to keep only `Valid` addresses for sending and archive or discard the rest.
+
+## Validation statuses
+
+Use these classification outcomes to decide how to handle each address in your list:
+
+| Status | Bounce Risk | Recommended Action |
+|---|---|---|
+| `Valid` | Less than 2% | Safe to send — keep on your list |
+| `Invalid` | 100% | Remove immediately — address does not exist |
+| `Catch-All` | Unknown | Send with caution — domain accepts all, outcome unpredictable |
+| `Spamtrap` | Dangerous | Remove immediately — will harm sender reputation |
+| `Abuse` | High | Remove — known high-complaint address |
+| `Do Not Mail` | High | Remove — address has requested no contact |
+| `Unknown` | Unknown | Suppress or test cautiously before bulk sending |
+
+<Note>
+  Email validation credits are separate from email sending credits. Professional and Enterprise plans include **3,000 validations per month**. You can purchase additional validation credits from your [dashboard](https://dashboard.serversmtp.com) at any time.
+</Note>

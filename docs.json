@@ -1,0 +1,111 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "luma",
+  "name": "turboSMTP",
+  "colors": {
+    "primary": "#005293",
+    "light": "#005293",
+    "dark": "#555658"
+  },
+  "favicon": "/favicon.svg",
+  "logo": {
+    "light": "https://media.brand.dev/b6fe266a-6828-4df2-bbae-600501981e8e.jpg",
+    "dark": "https://media.brand.dev/b6fe266a-6828-4df2-bbae-600501981e8e.jpg"
+  },
+  "navbar": {
+    "primary": {
+      "type": "button",
+      "label": "Get Started Free",
+      "href": "https://serversmtp.com/en/signup"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "get-started/free-trial",
+              "get-started/smtp-configuration",
+              "get-started/api-keys"
+            ]
+          },
+          {
+            "group": "Sending Email",
+            "pages": [
+              "sending/smtp-relay",
+              "sending/email-api",
+              "sending/code-examples",
+              "sending/attachments"
+            ]
+          },
+          {
+            "group": "Deliverability",
+            "pages": [
+              "deliverability/spf-dkim-dmarc",
+              "deliverability/custom-tracking-domain",
+              "deliverability/smart-routing",
+              "deliverability/bounce-spam-management"
+            ]
+          },
+          {
+            "group": "Analytics & Tracking",
+            "pages": [
+              "analytics/email-tracking",
+              "analytics/statistics-dashboard",
+              "analytics/webhooks"
+            ]
+          },
+          {
+            "group": "Account Management",
+            "pages": [
+              "account/subaccounts",
+              "account/email-validation",
+              "account/plans-billing",
+              "account/integrations"
+            ]
+          },
+          {
+            "group": "Troubleshooting",
+            "pages": [
+              "troubleshooting/faq",
+              "troubleshooting/common-errors",
+              "troubleshooting/spam-folder"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/authentication",
+              "api-reference/base-urls"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "pages": [
+              "api-reference/send-email",
+              "api-reference/suppressions",
+              "api-reference/analytics",
+              "api-reference/email-validation",
+              "api-reference/subaccounts",
+              "api-reference/alerts",
+              "api-reference/consumer-keys"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "api": {
+    "openapi": "https://serversmtp.com/turbo-api/turbo-smtp.yaml"
+  }
+}

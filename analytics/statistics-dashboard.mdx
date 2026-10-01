@@ -1,0 +1,76 @@
+---
+title: "Email Analytics and Statistics in the turboSMTP Dashboard"
+sidebarTitle: "Statistics"
+description: "View real-time delivery rates, open and click statistics, bounce reports, and full per-email status logs from your turboSMTP analytics dashboard."
+---
+
+The turboSMTP analytics dashboard gives you a complete, real-time picture of your email program's performance. From high-level summary metrics down to the status of every individual message, you have the data you need to monitor deliverability, troubleshoot issues, and prove the impact of your email campaigns — all without writing a single line of code.
+
+## Overview metrics
+
+The main dashboard panel displays aggregate statistics across your account for any date range you select:
+
+- **Emails sent** — total volume dispatched through your account
+- **Delivered** — messages accepted by the recipient's mail server
+- **Opened** — unique recipients who opened your message (requires HTML email with tracking enabled)
+- **Clicked** — recipients who clicked at least one link in your message
+- **Bounced** — messages that could not be delivered (hard and soft bounces combined)
+- **Spam complaints** — recipients who reported your message as spam via their email client
+
+These headline numbers update in real time as turboSMTP processes and tracks your sends.
+
+## Email feed
+
+Below the overview metrics, the **email feed** lists every individual email your account has sent. For each message you can see:
+
+- Recipient email address
+- Subject line
+- Current status (see [Status definitions](#status-definitions) below)
+- Timestamp of the last status change
+- Full event history for that message (click the row to expand)
+
+The feed lets you drill into a single recipient's journey — from the moment the message was queued through delivery, open, and any clicks — making it easy to diagnose delivery issues or confirm a specific email was received.
+
+## Status definitions
+
+| Status | Description |
+|--------|-------------|
+| **NEW** | The message has been queued and is waiting to be sent. |
+| **DEFER** | Delivery has been temporarily deferred. turboSMTP is retrying automatically. |
+| **SUCCESS** | The message was accepted by the recipient's mail server (delivered). |
+| **OPEN** | The recipient opened the email (tracking pixel loaded). |
+| **CLICK** | The recipient clicked a tracked link in the email. |
+| **REPORT** | The recipient marked the email as spam. |
+| **FAIL** | Hard bounce — the message could not be delivered and will not be retried (e.g., address does not exist). |
+| **SYSFAIL** | System-level bounce — a technical issue prevented delivery; not caused by the recipient's address. |
+| **UNSUB** | The recipient clicked an unsubscribe link and has been added to the suppression list. |
+
+## Date range and filters
+
+Use the **date range picker** at the top of the Statistics page to focus on any time window — today, the last 7 days, a custom range, or any period since account creation.
+
+Apply **status filters** to narrow the feed to only the events you care about. For example, filter by `FAIL` to review all hard bounces, or by `REPORT` to audit spam complaints. You can combine date range and status filters simultaneously.
+
+## Export data
+
+To work with your statistics outside the dashboard, export your email data as a CSV file.
+
+**From the dashboard:** Click the **Export CSV** button on the Statistics page to download all filtered results.
+
+**Via the API:** Retrieve email analytics programmatically with the following endpoint:
+
+```bash Terminal
+GET https://pro.api.serversmtp.com/api/v2/analytics/emails/csv
+```
+
+Include your API key in the `Authorization` header (raw key — do **not** prefix with `Bearer`) and pass query parameters to filter by date range, status, or recipient.
+
+<Tip>
+  Use the statistics API to pull metrics programmatically and integrate turboSMTP data into your own dashboards, reporting tools, or data warehouse. See the [Analytics API reference](/api-reference/analytics) for full parameter documentation.
+</Tip>
+
+## Activity reports
+
+turboSMTP can automatically send you **scheduled activity reports** summarizing your account's email activity. Configure the report frequency — **daily**, **weekly**, or **monthly** — and turboSMTP will email the summary to your account address on schedule.
+
+Activity reports include the same metrics shown in the dashboard overview (sent, delivered, opened, clicked, bounced, spam complaints) condensed into a convenient digest, so you stay informed even when you're not actively logged in to the dashboard. Configure scheduled reports from **Settings → Activity Reports** in your dashboard.
