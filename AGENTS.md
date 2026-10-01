@@ -28,8 +28,9 @@
 
 ## Scalable sections
 
-- **Integrations tab**: one page per integration at `integrations/<slug>`. Add it to "Frameworks & Libraries" or "Apps & Platforms" in `docs.json` and add a card to `integrations/overview`. Each page has: status (Available, Merged upstream, In development), install, Global and EU config, test send, Resources cards, `keywords` frontmatter.
-- **Compare & Migrate tab**: `compare/turbosmtp-vs-<competitor>` and `migrate/from-<competitor>`. Add cards to `compare/overview`. Only state competitor facts from their public docs, add a dated "verify" Note, never disparage, and end with FAQ accordions (AEO).
+- **Guides tab** has a dropdown menu with two items: "Integrations" and "Compare & Migrate".
+- **Integrations menu item**: one page per integration at `integrations/<slug>`. Add it to "Frameworks & Libraries" or "Apps & Platforms" in `docs.json` and add a card to `integrations/overview`. Each page has: status (Available, Merged upstream, In development), install, Global and EU config, test send, Resources cards, `keywords` frontmatter.
+- **Compare & Migrate menu item**: `compare/turbosmtp-vs-<competitor>` and `migrate/from-<competitor>`. Add cards to `compare/overview`. Only state competitor facts from their public docs, add a dated "verify" Note, never disparage, and end with FAQ accordions (AEO).
 - Always mention the EU hosts (`api.eu.turbo-smtp.com`, `pro.eu.turbo-smtp.com`) and that turboSMTP is an Italian company with its own European servers.
 
 ## Content boundaries
