@@ -70,7 +70,9 @@ Mailgun sends form fields to a per-domain URL with Basic auth. turboSMTP takes a
 
 **1. Replace Basic auth and form fields with headers and a JSON body:**
 
-```bash Request
+<CodeGroup>
+
+```bash Changes nocopy
 curl -s --user 'api:YOUR_API_KEY' \ # [!code --:8]
   https://api.eu.mailgun.net/v3/YOUR_DOMAIN_NAME/messages \
   -F from='Shop <orders@yourdomain.com>' \
@@ -85,6 +87,16 @@ curl -X POST https://api.eu.turbo-smtp.com/api/v2/mail/send \ # [!code ++:5]
   -H "Content-Type: application/json" \
   -d @payload.json
 ```
+
+```bash turboSMTP
+curl -X POST https://api.eu.turbo-smtp.com/api/v2/mail/send \
+  -H "consumerKey: YOUR_CONSUMER_KEY" \
+  -H "consumerSecret: YOUR_CONSUMER_SECRET" \
+  -H "Content-Type: application/json" \
+  -d @payload.json
+```
+
+</CodeGroup>
 
 **2. Move the form fields into the JSON payload:**
 
