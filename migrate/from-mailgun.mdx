@@ -36,7 +36,9 @@ Switching from Mailgun to turboSMTP comes down to two changes: new SMTP credenti
 | Username | Your per-domain SMTP user | Your turboSMTP Consumer Key |
 | Password | Your per-domain SMTP password | Your turboSMTP Consumer Secret |
 
-```bash .env
+<CodeGroup>
+
+```bash Changes nocopy
 SMTP_HOST=smtp.mailgun.org # [!code --]
 SMTP_HOST=pro.eu.turbo-smtp.com # [!code ++]
 SMTP_PORT=587 # [!code --]
@@ -46,6 +48,15 @@ SMTP_USER=YOUR_CONSUMER_KEY # [!code ++]
 SMTP_PASS=YOUR_MAILGUN_SMTP_PASSWORD # [!code --]
 SMTP_PASS=YOUR_CONSUMER_SECRET # [!code ++]
 ```
+
+```bash turboSMTP
+SMTP_HOST=pro.eu.turbo-smtp.com
+SMTP_PORT=465
+SMTP_USER=YOUR_CONSUMER_KEY
+SMTP_PASS=YOUR_CONSUMER_SECRET
+```
+
+</CodeGroup>
 
 <Note>
   For the EU host `pro.eu.turbo-smtp.com`, use port 465 (SSL/TLS). See [SMTP Setup](/get-started/smtp-configuration) for all ports on the global host.
