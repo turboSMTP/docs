@@ -1,0 +1,93 @@
+---
+title: "turboSMTP vs Mailgun: Compare EU Email Delivery Options"
+sidebarTitle: "vs Mailgun"
+description: "Compare turboSMTP and Mailgun on European hosting, GDPR, human support, API request format, and SMTP settings before you choose or switch email providers."
+keywords:
+  - "mailgun alternative"
+  - "turbosmtp vs mailgun"
+  - "mailgun alternative europe"
+  - "mailgun replacement"
+  - "gdpr email api"
+---
+
+turboSMTP and Mailgun both offer SMTP relay and an HTTP email API with a European option. turboSMTP is an Italian company that runs its own servers in Italy and Europe, while Mailgun (part of Sinch) offers an EU region for domains created there. This page compares the two on hosting, support, API design, and setup so you can decide which fits your team.
+
+## At a glance
+
+|  | turboSMTP | Mailgun |
+| --- | --- | --- |
+| **Company** | Italian company (EU) | Mailgun, part of Sinch |
+| **EU endpoints** | `api.eu.turbo-smtp.com` and `pro.eu.turbo-smtp.com` | `api.eu.mailgun.net` for EU-region domains |
+| **Support** | Human support 24/7 by ticket, chat, and phone | Varies by plan |
+| **SMTP host** | `pro.turbo-smtp.com` | `smtp.mailgun.org` |
+| **SMTP credentials** | Account email and Consumer Secret | Per-domain SMTP credentials |
+| **SMTP ports** | 587, 465, 2525 | 25, 465, 587, 2525 |
+| **API endpoint** | `POST /api/v2/mail/send` | `POST /v3/{domain}/messages` |
+| **Request format** | JSON body | Form data (`multipart/form-data`) |
+| **API authentication** | `consumerKey` and `consumerSecret` headers | HTTP Basic auth (`api:YOUR_API_KEY`) |
+| **Max message size** | Attachments up to 24 MB total | 25 MB per message |
+| **Free plan** | 6,000 emails per month, no credit card | See Mailgun pricing |
+
+<Note>
+  Mailgun details are based on Mailgun's public documentation as of October 2026. Confirm current plans and regions on Mailgun's website.
+</Note>
+
+## Where turboSMTP stands out
+
+### Europe by default, not by region setting
+
+With turboSMTP, choosing Europe is a matter of using the EU host: the request format and credentials stay identical. turboSMTP is headquartered in Italy and operates its own European infrastructure. See [GDPR and data residency](/api-reference/base-urls#gdpr-and-data-residency).
+
+### JSON instead of form data
+
+Mailgun's messages endpoint takes form fields and puts the sending domain in the URL. turboSMTP accepts a single JSON body on one endpoint for all your domains.
+
+<CodeGroup>
+
+```bash turboSMTP
+curl -X POST https://api.eu.turbo-smtp.com/api/v2/mail/send \
+  -H "consumerKey: YOUR_CONSUMER_KEY" \
+  -H "consumerSecret: YOUR_CONSUMER_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "from": "you@yourdomain.com",
+    "to": "recipient@example.com",
+    "subject": "Hello there!",
+    "content": "Testing turboSMTP"
+  }'
+```
+
+```bash Mailgun
+curl -s --user 'api:YOUR_API_KEY' \
+  https://api.eu.mailgun.net/v3/YOUR_DOMAIN_NAME/messages \
+  -F from='you@YOUR_DOMAIN_NAME' \
+  -F to=recipient@example.com \
+  -F subject='Hello there!' \
+  -F text='Testing Mailgun'
+```
+
+</CodeGroup>
+
+### Human support around the clock
+
+turboSMTP customers reach real people 24/7 by ticket, chat, and phone, with tailor-made deliverability consultancy and a multilingual dashboard.
+
+## Switching from Mailgun
+
+SMTP users change host and credentials. API users move from form data to JSON. Follow the [Mailgun migration guide](/migrate/from-mailgun).
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Is turboSMTP a good Mailgun alternative in Europe?">
+    Yes. turboSMTP is an Italian company with its own servers in Italy and Europe. Use `api.eu.turbo-smtp.com` or `pro.eu.turbo-smtp.com` to keep traffic on European servers.
+  </Accordion>
+
+  <Accordion title="Does turboSMTP need a separate domain per region like Mailgun?">
+    No. You pick the Global or EU endpoint by changing the host. Both endpoints accept identical requests with the same credentials.
+  </Accordion>
+
+  <Accordion title="Does turboSMTP have webhooks like Mailgun?">
+    Yes. turboSMTP [webhooks](/analytics/webhooks) report delivery events (processed, dropped, delivered, deferred, bounced) and engagement events (opened, clicked, unsubscribed, spam report).
+  </Accordion>
+</AccordionGroup>

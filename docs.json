@@ -68,21 +68,60 @@
             ]
           },
           {
-            "group": "Integrations",
-            "pages": [
-              "account/integrations",
-              "integrations/symfony-mailer",
-              "integrations/nodemailer",
-              "integrations/swoosh",
-              "integrations/uptime-kuma"
-            ]
-          },
-          {
             "group": "Troubleshooting",
             "pages": [
               "troubleshooting/faq",
               "troubleshooting/common-errors",
               "troubleshooting/spam-folder"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Integrations",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "integrations/overview",
+              "integrations/sdks"
+            ]
+          },
+          {
+            "group": "Frameworks & Libraries",
+            "pages": [
+              "integrations/symfony-mailer",
+              "integrations/nodemailer",
+              "integrations/swoosh"
+            ]
+          },
+          {
+            "group": "Apps & Platforms",
+            "pages": [
+              "integrations/uptime-kuma",
+              "integrations/wordpress",
+              "integrations/cms-platforms",
+              "integrations/email-clients"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Compare & Migrate",
+        "groups": [
+          {
+            "group": "Comparisons",
+            "pages": [
+              "compare/overview",
+              "compare/turbosmtp-vs-sendgrid",
+              "compare/turbosmtp-vs-mailgun"
+            ]
+          },
+          {
+            "group": "Migration Guides",
+            "pages": [
+              "migrate/from-sendgrid",
+              "migrate/from-mailgun"
             ]
           }
         ]
@@ -116,5 +155,12 @@
   },
   "api": {
     "openapi": "https://serversmtp.com/turbo-api/turbo-smtp.yaml"
-  }
+  },
+  "redirects": [
+    {
+      "source": "/account/integrations",
+      "destination": "/integrations/overview",
+      "permanent": true
+    }
+  ]
 }
