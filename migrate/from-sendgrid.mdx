@@ -40,7 +40,21 @@ If your application, CMS, or framework sends through `smtp.sendgrid.net`, replac
 
 <CodeGroup>
 
-```bash Changes nocopy
+```bash SendGrid
+SMTP_HOST=smtp.sendgrid.net
+SMTP_PORT=587
+SMTP_USER=apikey
+SMTP_PASS=SG.xxxxxxxx
+```
+
+```bash turboSMTP
+SMTP_HOST=pro.eu.turbo-smtp.com
+SMTP_PORT=465
+SMTP_USER=YOUR_CONSUMER_KEY
+SMTP_PASS=YOUR_CONSUMER_SECRET
+```
+
+```bash Diff nocopy
 SMTP_HOST=smtp.sendgrid.net # [!code --]
 SMTP_HOST=pro.eu.turbo-smtp.com # [!code ++]
 SMTP_PORT=587 # [!code --]
@@ -49,13 +63,6 @@ SMTP_USER=apikey # [!code --]
 SMTP_USER=YOUR_CONSUMER_KEY # [!code ++]
 SMTP_PASS=SG.xxxxxxxx # [!code --]
 SMTP_PASS=YOUR_CONSUMER_SECRET # [!code ++]
-```
-
-```bash turboSMTP
-SMTP_HOST=pro.eu.turbo-smtp.com
-SMTP_PORT=465
-SMTP_USER=YOUR_CONSUMER_KEY
-SMTP_PASS=YOUR_CONSUMER_SECRET
 ```
 
 </CodeGroup>
@@ -72,13 +79,10 @@ Replace `https://api.sendgrid.com/v3/mail/send` with `https://api.turbo-smtp.com
 
 <CodeGroup>
 
-```bash Changes nocopy
+```bash SendGrid
 curl --request POST \
-  --url https://api.sendgrid.com/v3/mail/send \ # [!code --]
-  --url https://api.eu.turbo-smtp.com/api/v2/mail/send \ # [!code ++]
-  --header 'Authorization: Bearer YOUR_API_KEY' \ # [!code --]
-  --header 'consumerKey: YOUR_CONSUMER_KEY' \ # [!code ++]
-  --header 'consumerSecret: YOUR_CONSUMER_SECRET' \ # [!code ++]
+  --url https://api.sendgrid.com/v3/mail/send \
+  --header 'Authorization: Bearer YOUR_API_KEY' \
   --header 'Content-Type: application/json' \
   --data @payload.json
 ```
@@ -92,13 +96,50 @@ curl --request POST \
   --data @payload.json
 ```
 
+```bash Diff nocopy
+curl --request POST \
+  --url https://api.sendgrid.com/v3/mail/send \ # [!code --]
+  --url https://api.eu.turbo-smtp.com/api/v2/mail/send \ # [!code ++]
+  --header 'Authorization: Bearer YOUR_API_KEY' \ # [!code --]
+  --header 'consumerKey: YOUR_CONSUMER_KEY' \ # [!code ++]
+  --header 'consumerSecret: YOUR_CONSUMER_SECRET' \ # [!code ++]
+  --header 'Content-Type: application/json' \
+  --data @payload.json
+```
+
 </CodeGroup>
 
 **2. Flatten the payload:**
 
 <CodeGroup>
 
-```json Changes nocopy
+```json SendGrid
+{
+  "personalizations": [{
+    "to": [{ "email": "recipient@example.com" }],
+    "cc": [{ "email": "team@example.com" }]
+  }],
+  "from": { "email": "you@yourdomain.com" },
+  "subject": "Your order has shipped",
+  "content": [
+    { "type": "text/plain", "value": "Your order is on its way." },
+    { "type": "text/html", "value": "<p>Your order is on its way.</p>" }
+  ]
+}
+```
+
+```json turboSMTP
+{
+  "from": "you@yourdomain.com",
+  "to": "recipient@example.com",
+  "cc": "team@example.com",
+  "subject": "Your order has shipped",
+  "content": "Your order is on its way.",
+  "html_content": "<p>Your order is on its way.</p>"
+}
+```
+
+```json Diff nocopy
 {
   "personalizations": [{ // [!code --:5]
     "to": [{ "email": "recipient@example.com" }],
@@ -114,17 +155,6 @@ curl --request POST \
     { "type": "text/html", "value": "<p>Your order is on its way.</p>" }
   ]
   "content": "Your order is on its way.", // [!code ++:2]
-  "html_content": "<p>Your order is on its way.</p>"
-}
-```
-
-```json turboSMTP
-{
-  "from": "you@yourdomain.com",
-  "to": "recipient@example.com",
-  "cc": "team@example.com",
-  "subject": "Your order has shipped",
-  "content": "Your order is on its way.",
   "html_content": "<p>Your order is on its way.</p>"
 }
 ```
