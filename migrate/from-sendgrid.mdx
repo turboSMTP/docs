@@ -96,7 +96,9 @@ curl --request POST \
 
 **2. Flatten the payload:**
 
-```json payload.json
+<CodeGroup>
+
+```json Changes nocopy
 {
   "personalizations": [{ // [!code --:5]
     "to": [{ "email": "recipient@example.com" }],
@@ -115,6 +117,19 @@ curl --request POST \
   "html_content": "<p>Your order is on its way.</p>"
 }
 ```
+
+```json turboSMTP
+{
+  "from": "you@yourdomain.com",
+  "to": "recipient@example.com",
+  "cc": "team@example.com",
+  "subject": "Your order has shipped",
+  "content": "Your order is on its way.",
+  "html_content": "<p>Your order is on its way.</p>"
+}
+```
+
+</CodeGroup>
 
 <Warning>
   turboSMTP rejects the `Authorization` header with `401 Unauthorized`. Always send `consumerKey` and `consumerSecret` as separate headers.
