@@ -64,8 +64,17 @@
             "pages": [
               "account/subaccounts",
               "account/email-validation",
-              "account/plans-billing",
-              "account/integrations"
+              "account/plans-billing"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "account/integrations",
+              "integrations/symfony-mailer",
+              "integrations/nodemailer",
+              "integrations/swoosh",
+              "integrations/uptime-kuma"
             ]
           },
           {

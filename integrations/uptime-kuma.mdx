@@ -1,0 +1,47 @@
+---
+title: "Send Uptime Kuma Monitor Alerts by Email with turboSMTP"
+sidebarTitle: "Uptime Kuma"
+description: "Set up the built-in turboSMTP notification provider in Uptime Kuma 2.5.3 to email monitor alerts via the HTTP API, with Global or EU infrastructure."
+keywords:
+  - "uptime kuma"
+  - "uptime kuma email notification"
+  - "uptime kuma smtp"
+  - "monitoring alerts email"
+---
+
+Uptime Kuma includes a dedicated turboSMTP notification provider, available since version **2.5.3**. It sends monitor notifications through the turboSMTP HTTP API and supports Global or EU infrastructure plus To, Cc, and Bcc recipients.
+
+## Configure notifications
+
+<Steps>
+  <Step title="Open notification settings">
+    In Uptime Kuma, go to **Settings → Notifications**.
+  </Step>
+  <Step title="Create a turboSMTP notification">
+    Create a new notification and select **TurboSMTP** as the notification type.
+  </Step>
+  <Step title="Enter your credentials">
+    Enter your [Consumer Key and Consumer Secret](/get-started/api-keys).
+  </Step>
+  <Step title="Choose infrastructure">
+    Select **Global** or **EU** infrastructure. Choose EU to keep alert data on turboSMTP's European servers.
+  </Step>
+  <Step title="Set sender and recipients">
+    Enter a verified From address and the To, Cc, or Bcc recipients.
+  </Step>
+  <Step title="Test and assign">
+    Use the built-in test, then assign the notification to your monitors.
+  </Step>
+</Steps>
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="Release 2.5.3" icon="tag" href="https://github.com/louislam/uptime-kuma/releases/tag/2.5.3">
+    The Uptime Kuma release that introduced the turboSMTP provider.
+  </Card>
+
+  <Card title="Pull Request 7640" icon="code-merge" href="https://github.com/louislam/uptime-kuma/pull/7640">
+    Implementation history of the turboSMTP notification provider.
+  </Card>
+</CardGroup>

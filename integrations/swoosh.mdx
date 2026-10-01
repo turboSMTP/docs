@@ -1,0 +1,56 @@
+---
+title: "Send Email from Elixir with the turboSMTP Swoosh Adapter"
+sidebarTitle: "Swoosh (Elixir)"
+description: "Configure Swoosh.Adapters.TurboSMTP to send email from Elixir and Phoenix apps through the turboSMTP HTTP API, with Global or EU infrastructure."
+keywords:
+  - "swoosh"
+  - "elixir email"
+  - "phoenix email"
+  - "Swoosh.Adapters.TurboSMTP"
+  - "elixir smtp"
+---
+
+`Swoosh.Adapters.TurboSMTP` is the turboSMTP adapter for Swoosh, the standard email library for Elixir and Phoenix. It is available from **Swoosh 1.28.0** and sends normal Swoosh emails and attachments through the turboSMTP HTTP API. It supports Global and EU infrastructure, provider options, and automatic inline-CID qualification.
+
+## Configure the mailer
+
+Add the adapter to your mailer config and load your [Consumer Key and Consumer Secret](/get-started/api-keys) from environment variables.
+
+```elixir config/runtime.exs
+config :sample, Sample.Mailer,
+  adapter: Swoosh.Adapters.TurboSMTP,
+  consumer_key: System.fetch_env!("TURBOSMTP_CONSUMER_KEY"),
+  consumer_secret: System.fetch_env!("TURBOSMTP_CONSUMER_SECRET")
+
+# Add for EU sending:
+# base_url: "https://api.eu.turbo-smtp.com/api/v2"
+```
+
+<Tip>
+  Set `base_url` to `https://api.eu.turbo-smtp.com/api/v2` to send through turboSMTP's European servers. See [GDPR and data residency](/api-reference/base-urls#gdpr-and-data-residency).
+</Tip>
+
+## Send the first message
+
+```elixir
+import Swoosh.Email
+
+new()
+|> from("noreply@your-domain.example")
+|> to("developer@example.com")
+|> subject("Hello from Elixir")
+|> text_body("The TurboSMTP adapter is working.")
+|> Sample.Mailer.deliver()
+```
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="Adapter Documentation" icon="book-open" href="https://hexdocs.pm/swoosh/Swoosh.Adapters.TurboSMTP.html">
+    Full reference for `Swoosh.Adapters.TurboSMTP` on HexDocs.
+  </Card>
+
+  <Card title="Merged Pull Request" icon="code-merge" href="https://github.com/swoosh/swoosh/pull/1190">
+    The Swoosh pull request that added the turboSMTP adapter.
+  </Card>
+</CardGroup>

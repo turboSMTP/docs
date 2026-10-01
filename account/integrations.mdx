@@ -6,6 +6,28 @@ description: "Connect turboSMTP with WordPress, Outlook, Thunderbird, Drupal, Jo
 
 turboSMTP works as the sending backbone for virtually any platform, CMS, or email client that supports SMTP configuration. Whether you're routing WordPress notifications, WooCommerce order confirmations, Outlook business email, or custom application mail through turboSMTP, the setup follows the same pattern: point your platform at `pro.turbo-smtp.com`, authenticate with your account email and Consumer Secret, and you're sending through turboSMTP's infrastructure immediately.
 
+## Framework and tool integrations
+
+turboSMTP is built into these libraries and tools, so you can connect with a few lines of configuration.
+
+<CardGroup cols={2}>
+  <Card title="Symfony Mailer" icon="symfony" href="/integrations/symfony-mailer">
+    Official bridge for Symfony 8.2 with HTTP API, SMTP relay, EU routing, and delivery webhooks.
+  </Card>
+
+  <Card title="Nodemailer" icon="node-js" href="/integrations/nodemailer">
+    Built-in `TurboSMTP` and `TurboSMTP-EU` service presets for Node.js.
+  </Card>
+
+  <Card title="Swoosh (Elixir)" icon="droplet" href="/integrations/swoosh">
+    `Swoosh.Adapters.TurboSMTP` for Elixir and Phoenix, available in Swoosh 1.28.0.
+  </Card>
+
+  <Card title="Uptime Kuma" icon="heart-pulse" href="/integrations/uptime-kuma">
+    Built-in notification provider for monitor alerts, available in Uptime Kuma 2.5.3.
+  </Card>
+</CardGroup>
+
 ## WordPress
 
 WordPress uses PHP's `mail()` function by default, which bypasses authentication entirely and is routinely blocked or filtered by receiving mail servers. Replacing it with turboSMTP SMTP ensures that every WordPress email — contact forms, WooCommerce orders, password resets, admin notifications — is authenticated and delivered reliably.
