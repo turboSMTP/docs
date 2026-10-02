@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "luma",
+  "theme": "mint",
   "name": "turboSMTP",
   "colors": {
     "primary": "#005293",
@@ -174,7 +174,10 @@
     ]
   },
   "api": {
-    "openapi": "https://serversmtp.com/turbo-api/turbo-smtp.yaml"
+    "openapi": "turbo-smtp.yaml",
+    "examples": {
+      "prefill": true
+    }
   },
   "redirects": [
     {
@@ -182,5 +185,33 @@
       "destination": "/integrations/overview",
       "permanent": true
     }
-  ]
+  ],
+  "description": "turboSMTP developer docs: send transactional and marketing email via SMTP relay or Email API. Italian provider with EU servers and GDPR compliance.",
+  "icons": {
+    "library": "fontawesome"
+  },
+  "background": {
+    "decoration": "gradient"
+  },
+  "footer": {
+    "socials": {
+      "facebook": "https://facebook.com/turboSMTP",
+      "x": "https://x.com/turboSMTP",
+      "youtube": "https://youtube.com/turboSMTP"
+    }
+  },
+  "styling": {
+    "eyebrows": "section",
+    "codeblocks": "system"
+  },
+  "contextual": {
+    "options": [
+      "assistant",
+      "copy"
+    ],
+    "display": "header"
+  },
+  "seo": {
+    "indexing": "navigable"
+  }
 }
