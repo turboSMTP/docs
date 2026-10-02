@@ -12,8 +12,8 @@
     "dark": "/images/favicon.svg"
   },
   "logo": {
-    "light": "/images/logo-turboSMTP-white-colors.png",
-    "dark": "/images/logo-turboSMTP.png"
+    "light": "/images/logo-turboSMTP.png",
+    "dark": "/images/logo-turboSMTP-white-colors.png"
   },
   "navbar": {
     "primary": {
