@@ -7,10 +7,13 @@
     "light": "#005293",
     "dark": "#555658"
   },
-  "favicon": "/favicon.svg",
+  "favicon": {
+    "light": "/images/favicon.svg",
+    "dark": "/images/favicon.svg"
+  },
   "logo": {
-    "light": "https://media.brand.dev/b6fe266a-6828-4df2-bbae-600501981e8e.jpg",
-    "dark": "https://media.brand.dev/b6fe266a-6828-4df2-bbae-600501981e8e.jpg"
+    "light": "/images/logo-turboSMTP-white-colors.png",
+    "dark": "/images/logo-turboSMTP.png"
   },
   "navbar": {
     "primary": {
