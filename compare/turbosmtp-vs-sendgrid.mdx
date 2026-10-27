@@ -1,0 +1,103 @@
+---
+title: "turboSMTP vs SendGrid: A European SendGrid Alternative"
+sidebarTitle: "vs SendGrid"
+description: "Compare turboSMTP and Twilio SendGrid on EU servers, GDPR, human support, API design, and SMTP settings, and learn how quickly you can switch providers."
+keywords:
+  - "sendgrid alternative"
+  - "sendgrid alternative europe"
+  - "turbosmtp vs sendgrid"
+  - "sendgrid gdpr"
+  - "sendgrid replacement"
+  - "european sendgrid alternative"
+---
+
+turboSMTP is a European alternative to SendGrid: an Italian email provider that runs its own servers in Italy and Europe and offers dedicated EU endpoints for both SMTP and the HTTP API. SendGrid is part of Twilio, a US company. This page compares the two services for teams that care about data residency, direct human support, and an easy migration path.
+
+## At a glance
+
+|  | turboSMTP | SendGrid |
+| --- | --- | --- |
+| **Company** | Italian company (EU) | Twilio SendGrid (US) |
+| **EU endpoints** | `api.eu.turbo-smtp.com` and `pro.eu.turbo-smtp.com` | Check SendGrid's current regional offering |
+| **Support** | Human support 24/7 by ticket, chat, and phone | Varies by plan |
+| **Deliverability help** | Tailor-made deliverability consultancy | Varies by plan |
+| **SMTP host** | `pro.turbo-smtp.com` | `smtp.sendgrid.net` |
+| **SMTP username** | Consumer Key | The literal string `apikey` |
+| **SMTP password** | Consumer Secret | API key |
+| **SMTP ports** | 25, 587, 2525 (STARTTLS), 465, 25025 (SSL) | 25, 587, 2525 (TLS), 465 (SSL) |
+| **API endpoint** | `POST /api/v2/mail/send` | `POST /v3/mail/send` |
+| **API authentication** | `consumerKey` and `consumerSecret` headers | `Authorization: Bearer` header |
+| **Credentials** | One Consumer Key and Secret pair for SMTP and API, scoped per service (SMTP, HTTP API, statistics, management) with optional IP restriction | API keys with configurable permissions |
+| **Free plan** | 6,000 emails per month, no credit card | See SendGrid pricing |
+
+<Note>
+  SendGrid details are based on Twilio's public documentation as of October 2026. Plans and features change, so confirm current terms on SendGrid's website.
+</Note>
+
+## Where turboSMTP stands out
+
+### European data residency
+
+turboSMTP is headquartered in Italy and operates its own infrastructure in Europe. Send through `api.eu.turbo-smtp.com` or `pro.eu.turbo-smtp.com` and your email traffic is processed on European servers, which simplifies GDPR documentation and data processing agreements. See [GDPR and data residency](/api-reference/base-urls#gdpr-and-data-residency).
+
+### People, not just tickets
+
+Every turboSMTP customer can reach human support 24/7 through ticket, chat, and phone. The team also offers tailor-made deliverability consultancy, plus a multilingual dashboard.
+
+### A flatter API payload
+
+SendGrid's v3 Mail Send API nests recipients in a `personalizations` array and content in a `content` array of typed objects. turboSMTP uses flat fields: `to` is a comma-separated string, and `content` and `html_content` hold the text and HTML bodies.
+
+<CodeGroup>
+
+```json turboSMTP
+{
+  "from": "you@yourdomain.com",
+  "to": "recipient@example.com",
+  "subject": "Hello, World!",
+  "content": "Heya!",
+  "html_content": "<p>Heya!</p>"
+}
+```
+
+```json SendGrid
+{
+  "personalizations": [{ "to": [{ "email": "recipient@example.com" }] }],
+  "from": { "email": "you@yourdomain.com" },
+  "subject": "Hello, World!",
+  "content": [
+    { "type": "text/plain", "value": "Heya!" },
+    { "type": "text/html", "value": "<p>Heya!</p>" }
+  ]
+}
+```
+
+</CodeGroup>
+
+### Plans that fit your volume
+
+turboSMTP offers customizable plans, whitelisted servers and IPs, real-time statistics, and a newsletter template editor. See [Plans and Billing](/account/plans-billing).
+
+## Switching from SendGrid
+
+Most applications switch by changing SMTP credentials, which takes minutes. API integrations need a small payload change. Follow the [SendGrid migration guide](/migrate/from-sendgrid) for a full checklist.
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="Is turboSMTP a good SendGrid alternative for European companies?">
+    Yes. turboSMTP is an Italian company with its own servers in Italy and Europe. Dedicated EU endpoints for the API and SMTP keep your email traffic in Europe, which helps with GDPR compliance.
+  </Accordion>
+
+  <Accordion title="Can I keep my existing code when moving from SendGrid?">
+    If you send over SMTP, you only change the host, username, and password. If you use SendGrid's v3 API, you change the endpoint, the authentication headers, and flatten the request body. See the [migration guide](/migrate/from-sendgrid).
+  </Accordion>
+
+  <Accordion title="Does turboSMTP support webhooks like SendGrid's Event Webhook?">
+    Yes. turboSMTP sends real-time [webhooks](/analytics/webhooks) for delivery events (processed, dropped, delivered, deferred, bounced) and engagement events (opened, clicked, unsubscribed, spam report).
+  </Accordion>
+
+  <Accordion title="Can I try turboSMTP before switching?">
+    Yes. The free plan includes 6,000 emails per month with no credit card required. [Create an account](https://serversmtp.com/en/signup) and run both providers side by side during your migration.
+  </Accordion>
+</AccordionGroup>

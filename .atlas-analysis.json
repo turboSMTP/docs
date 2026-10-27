@@ -1,0 +1,130 @@
+{
+  "projectType": "saas",
+  "projectName": "turboSMTP",
+  "projectDescription": "turboSMTP is a professional SMTP relay service and email API platform that delivers transactional emails, newsletters, and marketing campaigns with high deliverability, real-time tracking, and developer-friendly integrations.",
+  "theme": "luma",
+  "primaryColor": "#005293",
+  "lightColor": "#e66830",
+  "darkColor": "#555658",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "get-started/free-trial",
+              "get-started/smtp-configuration",
+              "get-started/api-keys"
+            ]
+          },
+          {
+            "group": "Sending Email",
+            "pages": [
+              "sending/smtp-relay",
+              "sending/email-api",
+              "sending/code-examples",
+              "sending/attachments"
+            ]
+          },
+          {
+            "group": "Deliverability",
+            "pages": [
+              "deliverability/spf-dkim-dmarc",
+              "deliverability/custom-tracking-domain",
+              "deliverability/smart-routing",
+              "deliverability/bounce-spam-management"
+            ]
+          },
+          {
+            "group": "Analytics & Tracking",
+            "pages": [
+              "analytics/email-tracking",
+              "analytics/statistics-dashboard",
+              "analytics/webhooks"
+            ]
+          },
+          {
+            "group": "Account Management",
+            "pages": [
+              "account/subaccounts",
+              "account/email-validation",
+              "account/plans-billing",
+              "account/integrations"
+            ]
+          },
+          {
+            "group": "Troubleshooting",
+            "pages": [
+              "troubleshooting/faq",
+              "troubleshooting/common-errors",
+              "troubleshooting/spam-folder"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/authentication",
+              "api-reference/base-urls"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "pages": [
+              "api-reference/send-email",
+              "api-reference/suppressions",
+              "api-reference/analytics",
+              "api-reference/email-validation",
+              "api-reference/subaccounts",
+              "api-reference/alerts",
+              "api-reference/consumer-keys"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "SMTP relay service with 99% deliverability",
+    "REST Email API (v2) with Consumer Key/Secret authentication",
+    "Real-time click and open tracking dashboard",
+    "Bounce, spam, and unsubscribe management",
+    "Smart Routing with adaptive multi-IP delivery",
+    "Custom Tracking Domain with CNAME support",
+    "Email Validation Tool (bulk list, WordPress plugin, API)",
+    "SPF, DKIM, and DMARC configuration support",
+    "Sub-account and white-label system",
+    "Event webhooks (delivery and engagement events)",
+    "Multi-language 24/7 customer support",
+    "Free tier: 6,000 emails/month, no credit card required",
+    "GDPR-compliant worldwide server infrastructure",
+    "SDKs for C#, PHP (GitHub), and code samples for 8+ languages"
+  ],
+  "publicApiSurface": [
+    "POST /api/v2/mail/send (api.turbo-smtp.com / api.eu.turbo-smtp.com)",
+    "POST /api/v2/authorize — obtain API key",
+    "POST /api/v2/deauthorize — revoke API key",
+    "PUT /api/v2/change-password",
+    "POST/GET /api/v2/suppressions — list, import, delete suppressions",
+    "GET /api/v2/suppressions/csv — export suppressions",
+    "GET /api/v2/emailvalidation/lists — list validation jobs",
+    "POST /api/v2/emailvalidation/upload — upload list for validation",
+    "POST /api/v2/emailvalidation/validateEmail — single email validation",
+    "GET /api/v2/subaccounts/list — list subaccounts",
+    "POST /api/v2/subaccounts — create subaccount",
+    "GET/PUT /api/v2/alerts — manage alert settings",
+    "GET /api/v2/analytics — email statistics and reporting",
+    "POST /api/v2/user/consumerKeys — create consumer key/secret pair",
+    "DELETE /api/v2/user/consumerKeys/{id} — delete consumer key",
+    "GET /api/v2/billing/buy_emailvalidation_credits",
+    "Webhooks: PROCESSED, DROPPED, DELIVERED, DEFERRED, BOUNCED, OPENED, CLICKED, UNSUBSCRIBED, REPORT events"
+  ]
+}

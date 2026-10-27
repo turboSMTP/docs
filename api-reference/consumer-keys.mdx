@@ -1,0 +1,200 @@
+---
+title: "Consumer Keys API — Create and Manage API Key Pairs"
+sidebarTitle: "Consumer Keys"
+description: "Generate and revoke Consumer Key/Secret pairs for turboSMTP. Required for POST /mail/send; supports per-key permission scopes and IP address restrictions."
+---
+
+Consumer keys are permanent, revocable credential pairs — a public `consumerKey` and a private `consumerSecret` — that you generate for each application or integration that connects to turboSMTP. Unlike session-based API keys, consumer keys do not expire, survive password changes, and support per-key IP address restrictions to lock down access at the network level. Every production application that sends email via the turboSMTP HTTP API must use a consumer key pair, because the `/mail/send` endpoint exclusively accepts `consumerKey` and `consumerSecret` headers.
+
+<Warning>
+  Consumer key management requires the `Authorization` header (your session API key). You **cannot** create, list, or delete consumer keys while authenticated with a consumer key itself — you must use a session API key obtained from `POST /authorize`.
+</Warning>
+
+## Authentication
+
+All Consumer Keys API requests require your session API key passed as a raw value in the `Authorization` header.
+
+```http Authorization header
+Authorization: YOUR_API_KEY
+```
+
+Do not prefix the value with `Bearer` or any other scheme.
+
+**Base URL:** `https://pro.api.serversmtp.com/api/v2`
+
+## Endpoints
+
+<Accordion title="POST /user/consumerKeys — Create a new consumer key pair">
+  Generate a new consumer key and secret for an application. You can restrict the key to specific IP addresses and assign it a set of permissions to follow the principle of least privilege.
+
+  **Request**
+
+  ```bash Terminal
+  curl -X POST 'https://pro.api.serversmtp.com/api/v2/user/consumerKeys' \
+    -H 'Authorization: YOUR_API_KEY' \
+    -H 'Content-Type: application/json' \
+    -d '{
+      "name": "My Production App",
+      "permissions": ["smtp", "api", "stats"],
+      "ip_restrictions": ["203.0.113.10"]
+    }'
+  ```
+
+  **Request body fields**
+
+  | Field | Type | Required | Description |
+  |---|---|---|---|
+  | `name` | string | Yes | A human-readable label for the key (e.g. "Production Backend", "Marketing Platform") |
+  | `permissions` | array | Yes | List of permission scopes to grant (see [Permissions](#permissions)) |
+  | `ip_restrictions` | array | No | List of allowed IP addresses; leave empty for unrestricted access |
+
+  **Example response**
+
+  ```json
+  {
+    "id": "ck_xkd92la",
+    "name": "My Production App",
+    "consumerKey": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+    "consumerSecret": "s3cr3tV4lue9x8y7z6w5v4u3t2r1q0p",
+    "permissions": ["smtp", "api", "stats"],
+    "ip_restrictions": ["203.0.113.10"],
+    "created_at": "2024-04-24T10:00:00.000Z"
+  }
+  ```
+
+  <Warning>
+    The `consumerSecret` is returned **only once** at creation time and cannot be retrieved again. Copy it immediately and store it in a secure secrets manager such as AWS Secrets Manager, HashiCorp Vault, or your CI/CD platform's secret store. If you lose it, you must delete this key and create a new one.
+  </Warning>
+</Accordion>
+
+<Accordion title="GET /user/consumerKeys — List all consumer keys">
+  Retrieve a list of all consumer keys associated with your account. The response includes the key name, ID, and permissions — the `consumerSecret` is **never** returned in list responses.
+
+  **Request**
+
+  ```bash Terminal
+  curl -X GET 'https://pro.api.serversmtp.com/api/v2/user/consumerKeys' \
+    -H 'Authorization: YOUR_API_KEY'
+  ```
+
+  **Example response**
+
+  ```json
+  [
+    {
+      "id": "ck_xkd92la",
+      "name": "My Production App",
+      "consumerKey": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+      "permissions": ["smtp", "api", "stats"],
+      "ip_restrictions": ["203.0.113.10"],
+      "created_at": "2024-04-24T10:00:00.000Z"
+    },
+    {
+      "id": "ck_mn3p8qr",
+      "name": "Staging Environment",
+      "consumerKey": "z9y8x7w6v5u4t3s2r1q0p9o8n7m6l5k",
+      "permissions": ["smtp", "api"],
+      "ip_restrictions": [],
+      "created_at": "2024-03-10T08:30:00.000Z"
+    }
+  ]
+  ```
+</Accordion>
+
+<Accordion title="DELETE /user/consumerKeys/{id} — Revoke a consumer key">
+  Permanently revoke a consumer key by its ID. Any application using this key will immediately receive `401 Unauthorized` responses. This action cannot be undone.
+
+  **Request**
+
+  ```bash Terminal
+  curl -X DELETE 'https://pro.api.serversmtp.com/api/v2/user/consumerKeys/ck_xkd92la' \
+    -H 'Authorization: YOUR_API_KEY'
+  ```
+
+  **Path parameter**
+
+  | Parameter | Type | Description |
+  |---|---|---|
+  | `id` | string | The consumer key's unique ID (from the `id` field, not the `consumerKey` value) |
+
+  **Example response**
+
+  ```json
+  {
+    "success": true
+  }
+  ```
+</Accordion>
+
+## Permissions
+
+Assign only the permissions your application actually needs. This limits the blast radius if a key is ever compromised.
+
+| Permission | Grants access to |
+|---|---|
+| `smtp` | Sending email via SMTP relay (`pro.turbo-smtp.com`) |
+| `api` | Sending email via the HTTP API (`POST /mail/send`) |
+| `stats` | Reading statistics, analytics, suppressions, and account management APIs |
+
+## IP restrictions
+
+IP restrictions let you lock a consumer key to one or more specific IP addresses. When you set `ip_restrictions`, turboSMTP rejects any request using that key from an IP address not on the list — even if the key and secret are correct. This is especially useful for server-to-server integrations where your sending server has a fixed IP address.
+
+Leave `ip_restrictions` as an empty array (`[]`) to allow the key to be used from any IP address. You can combine IP restrictions with narrow permission scopes for defence-in-depth: for example, create a key with only `api` permission restricted to your application server's IP, and a separate key with `stats` permission for your analytics dashboard.
+
+## Example: Create a consumer key
+
+Create a key for your backend application restricted to your server's IP and limited to API sending only:
+
+```bash Terminal
+curl -X POST 'https://pro.api.serversmtp.com/api/v2/user/consumerKeys' \
+  -H 'Authorization: YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "Backend Mailer — Production",
+    "permissions": ["api"],
+    "ip_restrictions": ["203.0.113.42"]
+  }'
+```
+
+## Example response
+
+The creation response is the **only** time the `consumerSecret` is available. Save it immediately:
+
+```json
+{
+  "id": "ck_xkd92la",
+  "name": "Backend Mailer — Production",
+  "consumerKey": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+  "consumerSecret": "s3cr3tV4lue9x8y7z6w5v4u3t2r1q0p",
+  "permissions": ["api"],
+  "ip_restrictions": ["203.0.113.42"],
+  "created_at": "2024-04-24T10:00:00.000Z"
+}
+```
+
+## Response fields
+
+<ResponseField name="consumerKey" type="string">
+  The public identifier for this key pair. Pass this value in the `consumerKey` request header when sending email via the API or SMTP.
+</ResponseField>
+
+<ResponseField name="consumerSecret" type="string">
+  The private credential for this key pair. Returned **only once** at creation time — store it securely and never expose it in client-side code, version control, or logs.
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  The human-readable label you assigned to this key at creation time.
+</ResponseField>
+
+<ResponseField name="id" type="string">
+  The unique identifier for this consumer key record. Use this value — not `consumerKey` — as the `{id}` path parameter when revoking the key.
+</ResponseField>
+
+<ResponseField name="permissions" type="array">
+  The list of permission scopes granted to this key. Possible values are `smtp` (SMTP relay access), `api` (HTTP API sending via `/mail/send`), and `stats` (analytics, suppressions, and account management APIs). The `consumerSecret` is **not** returned in this field or in list responses.
+</ResponseField>
+
+<ResponseField name="ip_restrictions" type="array">
+  A list of IP addresses from which this key is permitted to make requests. An empty array means the key is unrestricted and may be used from any IP address.
+</ResponseField>

@@ -1,0 +1,77 @@
+---
+title: "Send Email from Symfony with the turboSMTP Mailer Bridge"
+sidebarTitle: "Symfony Mailer"
+description: "Install the official turboSMTP bridge for Symfony Mailer 8.2. Send via HTTP API or SMTP relay, route through EU servers, and consume delivery webhooks."
+keywords:
+  - "symfony mailer"
+  - "symfony turbosmtp"
+  - "turbo-smtp-mailer"
+  - "php email"
+  - "symfony smtp"
+  - "mailer dsn"
+---
+
+The official turboSMTP bridge for Symfony Mailer ships with Symfony 8.2. It supports both the turboSMTP HTTP API and the SMTP relay, EU routing, custom headers, inline images, and delivery-event webhooks through Symfony's RemoteEvent component.
+
+<Note>
+  The bridge is merged upstream and ships with **Symfony 8.2**. Run the install command once Symfony 8.2 packages are available from your configured Composer repositories.
+</Note>
+
+## Install the bridge
+
+```bash
+composer require symfony/turbo-smtp-mailer
+```
+
+## Choose a transport
+
+Set `MAILER_DSN` in your `.env` file. Replace `KEY` and `SECRET` with your [Consumer Key and Consumer Secret](/get-started/api-keys).
+
+```bash .env
+# HTTP API, Global
+MAILER_DSN=turbosmtp+api://KEY:SECRET@default
+
+# HTTP API, EU
+MAILER_DSN=turbosmtp+api://KEY:SECRET@api.eu.turbo-smtp.com
+
+# SMTP relay, Global
+MAILER_DSN=turbosmtp+smtp://KEY:SECRET@default
+
+# SMTP relay, EU
+MAILER_DSN=turbosmtp+smtp://KEY:SECRET@pro.eu.turbo-smtp.com
+```
+
+<Tip>
+  Use the EU DSNs to send through turboSMTP's European servers and keep your email data inside the EU. See [GDPR and data residency](/api-reference/base-urls#gdpr-and-data-residency).
+</Tip>
+
+## Send the first message
+
+```php
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
+
+$email = (new Email())
+    ->from('noreply@your-domain.example')
+    ->to('developer@example.com')
+    ->subject('Hello from Symfony')
+    ->text('The TurboSMTP bridge is working.');
+
+$mailer->send($email);
+```
+
+## Delivery events
+
+Point the [webhook URL](/analytics/webhooks) in your turboSMTP dashboard at a Symfony route and use the `turbosmtp` RemoteEvent consumer. Optional HTTP Basic credentials in the callback URL are checked against the route secret.
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="Bridge Source" icon="github" href="https://github.com/symfony/symfony/tree/8.2/src/Symfony/Component/Mailer/Bridge/TurboSmtp">
+    Full source code and complete configuration options.
+  </Card>
+
+  <Card title="Merged Pull Request" icon="code-merge" href="https://github.com/symfony/symfony/pull/64916">
+    The Symfony pull request that added the turboSMTP bridge.
+  </Card>
+</CardGroup>

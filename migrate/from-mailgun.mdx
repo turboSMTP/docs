@@ -1,0 +1,179 @@
+---
+title: "Migrate from Mailgun to turboSMTP: SMTP and API Guide"
+sidebarTitle: "From Mailgun"
+description: "Step-by-step guide to move from Mailgun to turboSMTP: switch SMTP credentials, convert form-data API calls to JSON, migrate webhooks, and cut over safely."
+keywords:
+  - "migrate from mailgun"
+  - "mailgun migration"
+  - "switch from mailgun"
+  - "mailgun to turbosmtp"
+  - "replace mailgun smtp"
+  - "mailgun api migration"
+---
+
+Switching from Mailgun to turboSMTP comes down to two changes: new SMTP credentials, or converting Mailgun's form-data messages endpoint to turboSMTP's JSON API. This guide walks through both, along with DNS, suppressions, webhooks, and a safe cutover. Mailgun EU-region users can move straight to turboSMTP's EU hosts.
+
+## Before you start
+
+<Steps>
+  <Step title="Create a turboSMTP account">
+    [Sign up for free](https://serversmtp.com/en/signup) and create a Consumer Key and Consumer Secret. See [API Keys](/get-started/api-keys).
+  </Step>
+  <Step title="Authenticate your sending domain">
+    Add turboSMTP's SPF include and DKIM record to your DNS alongside Mailgun's records. See [SPF, DKIM, and DMARC](/deliverability/spf-dkim-dmarc).
+  </Step>
+  <Step title="Export your suppressions">
+    Export bounces, unsubscribes, and complaints from Mailgun and import them with the [Suppressions API](/api-reference/suppressions).
+  </Step>
+</Steps>
+
+## Option 1: Switch SMTP credentials
+
+| Setting | Mailgun | turboSMTP |
+| --- | --- | --- |
+| Host | `smtp.mailgun.org` | `pro.turbo-smtp.com` (EU: `pro.eu.turbo-smtp.com`) |
+| Port | 587 | 587 (or 465 / 2525) |
+| Username | Your per-domain SMTP user | Your turboSMTP Consumer Key |
+| Password | Your per-domain SMTP password | Your turboSMTP Consumer Secret |
+
+<CodeGroup>
+
+```bash Mailgun
+SMTP_HOST=smtp.mailgun.org
+SMTP_PORT=587
+SMTP_USER=postmaster@YOUR_DOMAIN_NAME
+SMTP_PASS=YOUR_MAILGUN_SMTP_PASSWORD
+```
+
+```bash turboSMTP
+SMTP_HOST=pro.eu.turbo-smtp.com
+SMTP_PORT=465
+SMTP_USER=YOUR_CONSUMER_KEY
+SMTP_PASS=YOUR_CONSUMER_SECRET
+```
+
+```bash Diff nocopy
+SMTP_HOST=smtp.mailgun.org # [!code --]
+SMTP_HOST=pro.eu.turbo-smtp.com # [!code ++]
+SMTP_PORT=587 # [!code --]
+SMTP_PORT=465 # [!code ++]
+SMTP_USER=postmaster@YOUR_DOMAIN_NAME # [!code --]
+SMTP_USER=YOUR_CONSUMER_KEY # [!code ++]
+SMTP_PASS=YOUR_MAILGUN_SMTP_PASSWORD # [!code --]
+SMTP_PASS=YOUR_CONSUMER_SECRET # [!code ++]
+```
+
+</CodeGroup>
+
+<Note>
+  For the EU host `pro.eu.turbo-smtp.com`, use port 465 (SSL/TLS). See [SMTP Setup](/get-started/smtp-configuration) for all ports on the global host.
+</Note>
+
+Remove any `X-Mailgun-*` headers (for example `X-Mailgun-Tag` or `X-Mailgun-Variables`) from your messages. They have no effect on turboSMTP.
+
+## Option 2: Convert API calls
+
+Mailgun sends form fields to a per-domain URL with Basic auth. turboSMTP takes a JSON body on a single endpoint with header authentication.
+
+**1. Replace Basic auth and form fields with headers and a JSON body:**
+
+<CodeGroup>
+
+```bash Mailgun
+curl -s --user 'api:YOUR_API_KEY' \
+  https://api.eu.mailgun.net/v3/YOUR_DOMAIN_NAME/messages \
+  -F from='Shop <orders@yourdomain.com>' \
+  -F to='recipient-1@example.com' \
+  -F to='recipient-2@example.com' \
+  -F subject='Your order has shipped' \
+  -F text='Your order is on its way.' \
+  --form-string html='<p>Your order is on its way.</p>'
+```
+
+```bash turboSMTP
+curl -X POST https://api.eu.turbo-smtp.com/api/v2/mail/send \
+  -H "consumerKey: YOUR_CONSUMER_KEY" \
+  -H "consumerSecret: YOUR_CONSUMER_SECRET" \
+  -H "Content-Type: application/json" \
+  -d @payload.json
+```
+
+```bash Diff nocopy
+curl -s --user 'api:YOUR_API_KEY' \ # [!code --:8]
+  https://api.eu.mailgun.net/v3/YOUR_DOMAIN_NAME/messages \
+  -F from='Shop <orders@yourdomain.com>' \
+  -F to='recipient-1@example.com' \
+  -F to='recipient-2@example.com' \
+  -F subject='Your order has shipped' \
+  -F text='Your order is on its way.' \
+  --form-string html='<p>Your order is on its way.</p>'
+curl -X POST https://api.eu.turbo-smtp.com/api/v2/mail/send \ # [!code ++:5]
+  -H "consumerKey: YOUR_CONSUMER_KEY" \
+  -H "consumerSecret: YOUR_CONSUMER_SECRET" \
+  -H "Content-Type: application/json" \
+  -d @payload.json
+```
+
+</CodeGroup>
+
+**2. Move the form fields into the JSON payload:**
+
+```json payload.json
+{
+  "from": "orders@yourdomain.com",
+  "to": "recipient-1@example.com,recipient-2@example.com",
+  "subject": "Your order has shipped",
+  "content": "Your order is on its way.",
+  "html_content": "<p>Your order is on its way.</p>"
+}
+```
+
+### Field mapping
+
+| Mailgun | turboSMTP | Notes |
+| --- | --- | --- |
+| `--user 'api:KEY'` | `consumerKey` + `consumerSecret` headers | `Authorization` header is rejected |
+| `/v3/{domain}/messages` | `/api/v2/mail/send` | One endpoint for all domains |
+| `from` | `from` | Email address |
+| `to` (repeated) | `to` | Comma-separated string |
+| `cc` / `bcc` | `cc` / `bcc` | Comma-separated strings |
+| `text` | `content` | Plain text body |
+| `html` | `html_content` | HTML body |
+| `attachment` (file upload) | `attachments[]` | Base64 `content`, `name`, `type`. See [Attachments](/sending/attachments) |
+| `h:X-Custom-Header` | `custom_headers` | Object of header names and values |
+| `v:my-var` | `reference_id` | Your own ID, returned in webhook events |
+| `/messages.mime` | `mime_raw` | Send a pre-built MIME message |
+
+## Replace webhooks
+
+Configure turboSMTP [webhooks](/analytics/webhooks) and map Mailgun events to turboSMTP's delivery events (`PROCESSED`, `DROPPED`, `DELIVERED`, `DEFERRED`, `BOUNCED`) and engagement events (`OPENED`, `CLICKED`, `UNSUBSCRIBED`, `REPORT`).
+
+## Cut over safely
+
+<Steps>
+  <Step title="Send a test">
+    Send to an internal address and confirm SPF and DKIM pass.
+  </Step>
+  <Step title="Ramp up gradually">
+    Route part of your traffic to turboSMTP and compare results in the [statistics dashboard](/analytics/statistics-dashboard).
+  </Step>
+  <Step title="Switch fully and clean up DNS">
+    Move all traffic, then remove Mailgun's DNS records.
+  </Step>
+</Steps>
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="I use Mailgun's EU region. Which turboSMTP host should I use?">
+    Use `api.eu.turbo-smtp.com` for the API and `pro.eu.turbo-smtp.com` for SMTP. turboSMTP is an Italian company and processes EU endpoint traffic on European infrastructure.
+  </Accordion>
+
+  <Accordion title="Do I need separate credentials per domain like Mailgun?">
+    No. One Consumer Key and Consumer Secret pair works for all your authenticated domains. Use [subaccounts](/account/subaccounts) if you need to separate clients or projects.
+  </Accordion>
+
+  <Accordion title="Can turboSMTP help me migrate?">
+    Yes. [Contact support](https://serversmtp.com/contact-us/) 24/7 by ticket, chat, or phone to plan your migration.
+  </Accordion>
+</AccordionGroup>

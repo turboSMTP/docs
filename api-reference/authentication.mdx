@@ -1,0 +1,153 @@
+---
+title: "turboSMTP API Authentication: Keys and Credentials Guide"
+sidebarTitle: "Authentication"
+description: "Learn how to authenticate turboSMTP API requests using API Keys for account management and Consumer Key/Secret pairs for sending email."
+---
+
+turboSMTP's API uses two distinct authentication methods, and the one you need depends on the endpoint you are calling. For account management tasks — querying analytics, managing suppressions, configuring alerts, and administering sub-accounts — you authenticate with a short-lived **API Key** passed in the `Authorization` header. For sending email via `POST /mail/send`, you must authenticate with a permanent **Consumer Key / Secret** pair passed as two separate headers. Understanding which method applies where will save you from unexpected `401` errors.
+
+## Method 1: API Key (Authorization Header)
+
+An API Key is issued by calling `POST /authorize` with your turboSMTP account email and password. The server returns an `auth` token that you include as the `Authorization` header on subsequent requests. The key expires after **2 hours** by default — set `no_expire: true` in the request body to create a non-expiring key.
+
+**Important:** Pass the raw key value. Do **not** prefix it with `Bearer` or any other scheme.
+
+### Obtain an API Key
+
+Send your account credentials to the `/authorize` endpoint:
+
+```json POST /authorize — Request
+POST https://pro.api.serversmtp.com/api/v2/authorize
+Content-Type: application/json
+
+{
+  "email": "your@email.com",
+  "password": "your-account-password",
+  "no_expire": false
+}
+```
+
+A successful response returns the key in the `auth` field:
+
+```json POST /authorize — Response
+{
+  "auth": "44cf4c36d0e9cbe32f6fd83ff69a9df3b6212828c"
+}
+```
+
+Use the value of `auth` as your `Authorization` header on all subsequent account management requests:
+
+```http Using the API Key
+GET https://pro.api.serversmtp.com/api/v2/user/info
+Authorization: 44cf4c36d0e9cbe32f6fd83ff69a9df3b6212828c
+Content-Type: application/json
+```
+
+<Warning>
+  `/authorize` is rate-limited. Cache your API key and reuse it for its full lifetime — do **not** call `/authorize` before every request. For long-running integrations, use `no_expire: true` or switch to Consumer Key / Secret authentication.
+</Warning>
+
+### Revoke an API Key
+
+To invalidate an API key before it expires, call `POST /deauthorize`. No request body is required — the key to revoke is identified from the `Authorization` header itself.
+
+```http POST /deauthorize — Request
+POST https://pro.api.serversmtp.com/api/v2/deauthorize
+Authorization: 44cf4c36d0e9cbe32f6fd83ff69a9df3b6212828c
+Content-Type: application/json
+```
+
+A successful response confirms the revocation:
+
+```json POST /deauthorize — Response
+{
+  "message": "Token deauthorized"
+}
+```
+
+### Change Account Password
+
+To change your turboSMTP account password programmatically, call `PUT /change-password` while authenticated with a valid API key. This invalidates any active sessions using the old password.
+
+```json PUT /change-password — Request
+PUT https://pro.api.serversmtp.com/api/v2/change-password
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "currentPassword": "your-current-password",
+  "newPassword": "your-new-password"
+}
+```
+
+A successful response confirms the change:
+
+```json PUT /change-password — Response
+{
+  "message": "Password changed successfully"
+}
+```
+
+<Note>
+  After changing your password, any API keys issued via `POST /authorize` with `no_expire: false` will continue to work until they expire. Consumer Key / Secret pairs are **not** affected by a password change — they remain valid and do not need to be rotated.
+</Note>
+
+## Method 2: Consumer Key / Secret
+
+A Consumer Key / Secret pair is a permanent credential tied to your account rather than to your password. Because it does not expire when you change your account password, it is the recommended method for production integrations — and it is **required** for `POST /mail/send`. The API rejects the `Authorization` header on that endpoint entirely.
+
+Pass both values as request headers on every call to `/mail/send`:
+
+```http Sending with Consumer Key / Secret
+POST https://api.turbo-smtp.com/api/v2/mail/send
+Content-Type: application/json
+consumerKey: your-consumer-key
+consumerSecret: your-consumer-secret
+
+{
+  "from": "sender@yourdomain.com",
+  "to": "recipient@example.com",
+  "subject": "Hello from turboSMTP",
+  "html_content": "<p>Your message here.</p>"
+}
+```
+
+Consumer keys support optional IP-based restrictions, so you can lock a key to specific originating IP addresses for an extra layer of security. You can also revoke individual keys without affecting other keys or your account password.
+
+<Warning>
+  The `consumerSecret` is shown **only once** at creation time and cannot be retrieved again. Store it securely in your environment variables or secrets manager immediately after creating it. If you lose the secret, you must delete the key and create a new pair.
+</Warning>
+
+To create a Consumer Key / Secret pair, see the [Consumer Keys](/api-reference/consumer-keys) reference or follow the step-by-step guide in [Create and Manage API Keys](/get-started/api-keys).
+
+## Which Method Should You Use?
+
+| Scenario | Recommended method |
+|---|---|
+| Account management (user info, plans, settings) | API Key (`Authorization` header) |
+| Querying analytics and delivery statistics | API Key (`Authorization` header) |
+| Managing suppressions (bounces, spam, unsubscribes) | API Key (`Authorization` header) |
+| Creating or deleting Consumer Keys | API Key (`Authorization` header) |
+| Sending email via `POST /mail/send` | Consumer Key / Secret (`consumerKey` + `consumerSecret` headers) |
+| Production integrations and automated sending pipelines | Consumer Key / Secret |
+| Integrations that must survive a password change | Consumer Key / Secret |
+
+## Endpoint-Specific Rules
+
+<Note>
+  `POST /mail/send` **only** accepts `consumerKey` and `consumerSecret` headers. Requests that include an `Authorization` header instead will be rejected with `401 Unauthorized`. Conversely, Consumer Key / Secret headers are not accepted by account management endpoints such as `/user/consumerKeys` — those require the `Authorization` header.
+</Note>
+
+A quick summary of the hard rules enforced by the API:
+
+- The `Authorization` value is the **raw key** — no `Bearer`, no `Token`, no other prefix.
+- `POST /mail/send` rejects `Authorization`; it accepts only `consumerKey` + `consumerSecret`.
+- `/user/consumerKeys` (create/delete consumer keys) requires `Authorization`; consumer key headers are not accepted there.
+- Non-expiring API keys (`no_expire: true`) are valid indefinitely until explicitly revoked with `/deauthorize`.
+
+## Create Consumer Keys
+
+You can create and manage Consumer Key / Secret pairs in two ways:
+
+- **Dashboard** — log in to [dashboard.serversmtp.com](https://dashboard.serversmtp.com), navigate to **Settings → API Keys**, and click **Create new key**.
+- **API** — call `POST /user/consumerKeys` with a valid `Authorization` header. See the [Consumer Keys](/api-reference/consumer-keys) reference for the full request/response schema.

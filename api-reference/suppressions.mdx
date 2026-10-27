@@ -1,0 +1,190 @@
+---
+title: "Suppressions API — Manage Bounces, Spam, and Unsubscribes"
+sidebarTitle: "Suppressions"
+description: "List, add, export, and delete suppressed addresses via the turboSMTP API. Covers hard bounces, soft bounces, spam complaints, and unsubscribed contacts."
+---
+
+Suppressions are email addresses that turboSMTP will not deliver to, either because the recipient has bounced, reported your message as spam, or unsubscribed. Managing your suppression list is critical to maintaining a healthy sender reputation — sending to known-bad addresses hurts your deliverability scores and can get your account flagged. The Suppressions API gives you programmatic access to view, add, and remove suppressed addresses so you can keep your sending lists clean and in sync with your own CRM or database.
+
+## Authentication
+
+All Suppressions API requests require your API key passed as a raw value in the `Authorization` header.
+
+```http Authorization header
+Authorization: YOUR_API_KEY
+```
+
+Do not prefix the value with `Bearer` or any other scheme.
+
+**Base URL:** `https://pro.api.serversmtp.com/api/v2`
+
+## Endpoints
+
+<Accordion title="GET /suppressions — List suppressions">
+  Retrieve a paginated list of suppressed email addresses. Use the optional query parameters to filter by suppression type, date range, or email address.
+
+  **Request**
+
+  ```bash Terminal
+  curl -X GET 'https://pro.api.serversmtp.com/api/v2/suppressions?type=bounce&start=2024-01-01&end=2024-12-31&page=1' \
+    -H 'Authorization: YOUR_API_KEY' \
+    -H 'Content-Type: application/json'
+  ```
+
+  **Query parameters**
+
+  | Parameter | Type | Description |
+  |---|---|---|
+  | `type` | string | Filter by suppression type: `bounce`, `hardbounce`, `softbounce`, `spam`, `unsub` |
+  | `start` | string | Start date in `YYYY-MM-DD` format |
+  | `end` | string | End date in `YYYY-MM-DD` format |
+  | `page` | integer | Page number for pagination (20 results per page) |
+  | `filter` | string | Search filter string to match against email addresses |
+  | `tz` | string | Timezone offset, e.g. `+01:00` (default: `+01:00`) |
+
+  **Example response**
+
+  ```json
+  [
+    {
+      "cid": 323223135,
+      "email": "user@example.com",
+      "ts": "2024-03-27T06:31:42.000Z",
+      "response": "550 5.1.1 The email account does not exist."
+    }
+  ]
+  ```
+</Accordion>
+
+<Accordion title="POST /suppressions — Add suppressions">
+  Add one or more email addresses to your suppression list in bulk. Submit an array of suppression objects in the request body.
+
+  **Request**
+
+  ```bash Terminal
+  curl -X POST 'https://pro.api.serversmtp.com/api/v2/suppressions' \
+    -H 'Authorization: YOUR_API_KEY' \
+    -H 'Content-Type: application/json' \
+    -d '{
+      "emails": [
+        { "email": "bad@example.com", "type": "hardbounce" },
+        { "email": "spam-reporter@example.com", "type": "spam" },
+        { "email": "optout@example.com", "type": "unsub" }
+      ]
+    }'
+  ```
+
+  **Request body fields**
+
+  | Field | Type | Description |
+  |---|---|---|
+  | `emails` | array | Array of objects each containing `email` (string) and `type` (suppression type string) |
+
+  **Example response**
+
+  ```json
+  {
+    "success": true,
+    "imported": 3
+  }
+  ```
+</Accordion>
+
+<Accordion title="GET /suppressions/csv — Export suppressions as CSV">
+  Download your full suppression list as a CSV file. Accepts the same filter parameters as `GET /suppressions`. The response body is a CSV-formatted file stream.
+
+  **Request**
+
+  ```bash Terminal
+  curl -X GET 'https://pro.api.serversmtp.com/api/v2/suppressions/csv?type=bounce&start=2024-01-01&end=2024-12-31' \
+    -H 'Authorization: YOUR_API_KEY' \
+    -o suppressions.csv
+  ```
+
+  The response is a plain CSV file with headers for email address, suppression type, timestamp, and bounce response.
+</Accordion>
+
+<Accordion title="DELETE /suppressions/bulk_delete — Delete multiple suppressions">
+  Remove multiple suppression records in a single request by passing an array of suppression IDs.
+
+  **Request**
+
+  ```bash Terminal
+  curl -X DELETE 'https://pro.api.serversmtp.com/api/v2/suppressions/bulk_delete' \
+    -H 'Authorization: YOUR_API_KEY' \
+    -H 'Content-Type: application/json' \
+    -d '{
+      "ids": [323223135, 323223136, 323223137]
+    }'
+  ```
+
+  **Example response**
+
+  ```json
+  {
+    "success": true
+  }
+  ```
+</Accordion>
+
+<Accordion title="DELETE /suppressions/delete — Delete a single suppression">
+  Remove a single email address from your suppression list by its record ID.
+
+  **Request**
+
+  ```bash Terminal
+  curl -X DELETE 'https://pro.api.serversmtp.com/api/v2/suppressions/delete' \
+    -H 'Authorization: YOUR_API_KEY' \
+    -H 'Content-Type: application/json' \
+    -d '{
+      "id": 323223135
+    }'
+  ```
+
+  **Example response**
+
+  ```json
+  {
+    "success": true
+  }
+  ```
+</Accordion>
+
+## Suppression types
+
+turboSMTP classifies suppressed addresses into the following types:
+
+| Type | Description |
+|---|---|
+| `bounce` | Any bounce — a general catch-all for all bounce subtypes |
+| `hardbounce` | Permanent delivery failure (e.g. address does not exist). Never retry. |
+| `softbounce` | Temporary delivery failure (e.g. mailbox full). turboSMTP retries automatically. |
+| `spam` | Recipient marked your message as spam or junk. |
+| `unsub` | Recipient clicked an unsubscribe link or requested removal. |
+
+## Example: List suppressions
+
+Retrieve all hard bounces for the month of January 2024:
+
+```bash Terminal
+curl -X GET 'https://pro.api.serversmtp.com/api/v2/suppressions?type=hardbounce&start=2024-01-01&end=2024-01-31&page=1' \
+  -H 'Authorization: YOUR_API_KEY' \
+  -H 'Content-Type: application/json'
+```
+
+## Example: Add suppressions
+
+Upload a set of known-bad addresses to prevent sending to them:
+
+```bash Terminal
+curl -X POST 'https://pro.api.serversmtp.com/api/v2/suppressions' \
+  -H 'Authorization: YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "emails": [
+      { "email": "noreply@invalid-domain.com", "type": "hardbounce" },
+      { "email": "abuse-reporter@example.org", "type": "spam" },
+      { "email": "unsubscribed-user@example.net", "type": "unsub" }
+    ]
+  }'
+```

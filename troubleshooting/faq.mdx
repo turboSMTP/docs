@@ -1,0 +1,235 @@
+---
+title: "turboSMTP FAQ: Accounts, Plans, Sending & Deliverability"
+sidebarTitle: "FAQ"
+description: "Answers to the most common questions about turboSMTP accounts, plans, sending limits, email clients, DNS settings, and deliverability."
+---
+
+Whether you are just getting started with turboSMTP or managing a mature sending setup, this FAQ covers the questions our users ask most often. Browse by topic to find quick, authoritative answers — and reach out to our 24/7 support team any time you need more help.
+
+## Getting Started
+
+<Accordion title="What is turboSMTP?">
+  turboSMTP is a professional, secure SMTP relay service and email API platform designed to deliver any type of email with the highest possible deliverability. It runs on reliable, high-performance servers and gives you real-time analytics, bounce and spam management, domain authentication tools, and round-the-clock support — everything you need to get your messages to the inbox, whether you send transactional receipts or large marketing campaigns.
+</Accordion>
+
+<Accordion title="Where is turboSMTP based, and where are your servers located?">
+  turboSMTP is an Italian company based in the European Union. We operate email servers and IP addresses in Italy and Europe, as well as in the USA, the Middle East, and Asia. If you need your email data to stay in Europe, use the EU sending infrastructure. See [GDPR and data residency](/api-reference/base-urls#gdpr-and-data-residency).
+</Accordion>
+
+<Accordion title="Is turboSMTP GDPR compliant?">
+  Yes. turboSMTP is 100% compliant with the EU General Data Protection Regulation (Regulation (EU) 2016/679). Our European servers and IP addresses keep email data within the EU, and we follow Privacy by Design, have appointed a Data Protection Officer, and have completed a Data Protection Impact Assessment (DPIA). Read more on our [GDPR page](https://serversmtp.com/regulation-eu-2016-679-gdpr/).
+</Accordion>
+
+<Accordion title="Do you offer a Free Trial?">
+  Yes. All newly registered users can send **6,000 emails per month** (up to 200 per day) at no charge and with no time limit on the free tier. No purchase or credit card is required to start sending.
+</Accordion>
+
+<Accordion title="Do I need a credit card to activate the free plan?">
+  No. You can activate the free plan — 6,000 emails/month — without entering any credit card or payment details. Simply [sign up](https://serversmtp.com/en/signup) with your email address and you are ready to go once your account is reviewed.
+</Accordion>
+
+<Accordion title="Is the free plan automatically activated for all new accounts?">
+  Not instantly. Every new account eligible for the free plan is reviewed by the turboSMTP team before it is activated. You will receive an email notification as soon as your account is ready. This review process usually completes quickly; if you have not heard back within a reasonable time, contact support.
+</Accordion>
+
+<Accordion title="Why was my free account closed?">
+  turboSMTP maintains a quality-of-service policy that applies to all accounts, including free ones. If your account was sending spam, violating the Anti-Spam Policy, or otherwise breaching the Terms and Conditions, it may have been closed. If you believe your account was closed in error, contact the support team and they will review your case.
+</Accordion>
+
+<Accordion title="Can I manage my account online?">
+  Yes. The [turboSMTP dashboard](https://dashboard.serversmtp.com) gives you full control over your account: update personal and billing details, monitor your plan and usage, view real-time sending statistics, manage bounce and spam reports, configure DNS authentication, and open support tickets — all from a single web interface.
+</Accordion>
+
+---
+
+## Account & Email Addresses
+
+<Accordion title="Is the email address I signed up with the only one I can use as a sender?">
+  No. You are free to send from any email address you own. The address you used to register is your account login, but your actual "From" address can be any address you control — whether it matches your signup email or not.
+</Accordion>
+
+<Accordion title="Can I use a different sender address from the one I subscribed with?">
+  Yes. Set any email address you want as the sender in your email client or API call. Keep in mind that for the best deliverability you should use a domain-based address (e.g., `you@yourcompany.com`) rather than a free provider address like Gmail or Yahoo. For full authentication benefits, verify that sender domain in your dashboard.
+</Accordion>
+
+<Accordion title="I have multiple email addresses. Should I open multiple accounts?">
+  No. One turboSMTP account covers all of your email addresses. You can send from any address using the same SMTP credentials or API key. Opening multiple accounts is unnecessary and may complicate your billing and tracking.
+</Accordion>
+
+<Accordion title="How can I change my password?">
+  Log in to the [dashboard](https://dashboard.serversmtp.com), click your name in the top-right corner, and go to **Settings**. From there you can update your password. Changing your password regularly is a good security practice.
+</Accordion>
+
+---
+
+## Plans & Billing
+
+<Accordion title="I want to change my plan. Can I?">
+  Yes. Log in to the [dashboard](https://dashboard.serversmtp.com), click your name in the top-right corner, and navigate to the plan upgrade section. You can switch to any available plan at any time.
+</Accordion>
+
+<Accordion title="How can I cancel the auto-renewal of my plan?">
+  If you purchased via **2Checkout**, log in to your 2Checkout account page using your order number and email address, go to **My Services**, and cancel auto-renewal from there. If you need assistance, contact turboSMTP support.
+</Accordion>
+
+<Accordion title="What if I want to cancel my monthly plan?">
+  All monthly plans auto-renew at the end of each billing cycle to ensure uninterrupted service. To avoid being charged for the next cycle, cancel the auto-renewal before your renewal date. See the question above for instructions.
+</Accordion>
+
+<Accordion title="What payment types do you accept?">
+  turboSMTP accepts all major credit and debit cards, including:
+  - Visa
+  - Mastercard
+  - American Express
+  - Maestro
+  - PayPal
+
+  Wire transfer is also available (see below).
+</Accordion>
+
+<Accordion title="Can I pay by wire transfer?">
+  Yes. Start the normal purchase flow and select wire transfer as your payment method. Complete the order form and then initiate the transfer from your bank using the details provided. Your plan will be activated once the payment is confirmed.
+</Accordion>
+
+<Accordion title="My VAT number is not recognized when paying through 2Checkout. Why?">
+  For EU-based purchases, your VAT number must be verified and active in the **EU VIES database**. If your VAT number has not yet been validated by VIES, 2Checkout will not recognize it. Check your VAT status at the official VIES portal and try again once the number is confirmed as valid.
+</Accordion>
+
+<Accordion title="I made a payment, but my invoice still shows as unpaid. What should I do?">
+  The payment gateway typically takes a few minutes to process transactions and send confirmation. Wait briefly for a confirmation email from the payment provider. If the invoice remains unpaid after 15–20 minutes, contact turboSMTP support with your transaction reference.
+</Accordion>
+
+<Accordion title="Why is turboSMTP still using free emails after I purchased a paid plan?">
+  By design, turboSMTP uses up your free daily allowance (200 emails/day) first, then draws from your paid plan credits. This is normal behavior — you are not losing paid credits. Once the free daily quota is consumed, your paid plan takes over automatically.
+</Accordion>
+
+<Accordion title="I just purchased a plan, but I can't send emails. Why?">
+  Account activation after purchase is not instantaneous. After payment approval, turboSMTP reviews and activates your account. You will receive an email confirmation when your plan is ready. If you have been waiting longer than expected, contact support and reference your payment confirmation.
+</Accordion>
+
+<Accordion title="I renewed my plan, but the email counter hasn't updated yet. Why?">
+  The dashboard counter updates once your current plan period expires and the renewed plan takes effect. If your existing plan still has time remaining, the counter will refresh at the end of that period. This is expected behavior, not a bug.
+</Accordion>
+
+---
+
+## Sending & Configuration
+
+<Accordion title="How many emails can I send per day? What is the maximum attachment size?">
+  Your daily sending limit depends on your plan. The free plan caps at 200 emails per day; paid plans have higher or no daily caps — check your plan details in the dashboard. The maximum total size of any email, including all attachments, is **24 MB**.
+</Accordion>
+
+<Accordion title="Can I use turboSMTP while travelling?">
+  Yes. Configure turboSMTP once in your email client and it works from any internet connection worldwide — home, office, hotel, or mobile broadband. There are no IP restrictions. If your connection blocks port 25, simply use port 587 (STARTTLS), 465 (SSL), or 2525 (fallback) instead.
+</Accordion>
+
+<Accordion title="Which email clients are compatible with turboSMTP?">
+  All major email clients are compatible, including:
+  - All versions of Microsoft Outlook
+  - Mozilla Thunderbird
+  - Apple Mail
+  - Windows Live Mail
+  - The Bat!
+  - Eudora
+  - And any other client that supports SMTP with authentication
+</Accordion>
+
+<Accordion title="Can I use turboSMTP with Outlook or Thunderbird and send mass emails via CC/BCC?">
+  Technically, yes — but we strongly advise against it. Standard email clients are not designed for bulk sending and handling large CC/BCC lists can expose recipient addresses, trigger spam filters, and damage your sender reputation. For sending to a list, use a dedicated bulk email tool or the turboSMTP API instead.
+</Accordion>
+
+<Accordion title="Can I send PDFs as email attachments?">
+  Yes, you can attach PDFs to emails sent through turboSMTP. Be aware that certain versions of Microsoft Outlook may alter the encoding of PDF attachments, which can sometimes cause display or download issues for recipients. If PDF deliverability is critical, test with your target email client before sending at scale.
+</Accordion>
+
+<Accordion title="My ISP blocks port 25. What can I do?">
+  Port 25 is the default SMTP port, but many ISPs block outbound traffic on it. Use one of these alternatives:
+  - **Port 587** — recommended for STARTTLS
+  - **Port 465** — for SSL/TLS
+  - **Port 2525** — fallback option
+
+  Update your email client's SMTP settings to the alternate port and your sending should proceed normally.
+</Accordion>
+
+---
+
+## Deliverability
+
+<Accordion title="How do I keep track of sent emails?">
+  Log in to the [dashboard](https://dashboard.serversmtp.com) to see real-time statistics on every email you send: delivery status, opens, clicks, bounces, spam complaints, and unsubscribes. You can filter by date range, status, or sender address, and export data to CSV for further analysis.
+</Accordion>
+
+<Accordion title="What is a 'dropped' email?">
+  A "dropped" email is one that turboSMTP's system did not attempt to deliver because the recipient address previously generated a hard bounce (usually a non-existent mailbox). To protect your sender reputation, turboSMTP suppresses future sends to bounced addresses automatically. You can review and manage the suppression list in your dashboard under **Reports**.
+</Accordion>
+
+<Accordion title="Why are my emails going to spam?">
+  Emails land in spam for several common reasons. Work through this checklist:
+  1. **Configure SPF, DKIM, and DMARC** for your sender domain — see [Email Authentication](/deliverability/spf-dkim-dmarc).
+  2. **Avoid spam trigger words** in subject lines (e.g., "free money", "guaranteed", excessive ALL CAPS, or multiple `!!!`).
+  3. **Use a domain-based sender address** instead of a free provider like Gmail or Yahoo.
+  4. **Clean your list** — remove invalid, duplicate, and inactive addresses.
+  5. **Include an unsubscribe link** so recipients can opt out rather than marking your email as spam.
+  6. **Check your domain's blacklist status** using a tool such as [MX Toolbox](https://mxtoolbox.com).
+
+  For more detail, see [Why Your Emails Land in Spam](/troubleshooting/spam-folder).
+</Accordion>
+
+<Accordion title="How can I configure DKIM, DMARC, and SPF?">
+  turboSMTP supports all three authentication standards. Full setup instructions are available at [Email Authentication (SPF, DKIM & DMARC)](/deliverability/spf-dkim-dmarc). Configuring these records is strongly recommended and significantly improves inbox placement.
+</Accordion>
+
+<Accordion title="I cannot configure my domain's DNS. What should I do?">
+  If you do not have direct access to your domain's DNS settings, contact your hosting provider or domain registrar and ask them to add the SPF, DKIM, and DMARC records for you. Alternatively, you can use a subdomain that you control. If none of these options is feasible, turboSMTP's re-enveloping technique allows you to send without domain verification, though deliverability will be lower.
+</Accordion>
+
+<Accordion title="What if my sender domain is not verified? (Re-enveloped Sender)">
+  You can send emails before verifying your sender domain. In that case, turboSMTP uses a **re-enveloping** technique: it rewrites the envelope sender to a `turbo-smtp.com` address so that SPF checks pass, and it adds its own DKIM signature. This ensures your messages are deliverable, but it results in a lower deliverability rate than sending from a fully verified domain. Verify your sender domain as soon as possible for best results.
+</Accordion>
+
+<Accordion title="The string 'user@user.com turbo-smtp.com On behalf of user@yourdomain.com' appears in the sender field. What does it mean?">
+  This string is not an error. It is informational text your recipient's email client displays when the sending service (turboSMTP) differs from the apparent From address. It means your sender domain has not yet been fully verified with turboSMTP. Once you verify your sender domain and configure DNS authentication, this string will no longer appear.
+</Accordion>
+
+<Accordion title="How can I get permission to send a newsletter?">
+  Always use **permission-based email marketing** — send only to recipients who have explicitly opted in. You may send an initial welcome or confirmation email to people who have provided their address, asking them to confirm their subscription. Never purchase email lists or send to addresses that have not consented to receive your messages.
+</Accordion>
+
+<Accordion title="How do I get notified about bounces?">
+  Log in to the [dashboard](https://dashboard.serversmtp.com) and navigate to your account notification settings. You can choose to receive bounce notifications by email or let turboSMTP manage them automatically in your Reports section. Hard bounces are added to the suppression list automatically to protect your sender reputation.
+</Accordion>
+
+<Accordion title="Yahoo emails are stuck in queue with a high complaint rate error. What do I do?">
+  This issue affects deliverability to Yahoo, AOL, and Verizon Media addresses. Register your sender domain with the **Yahoo Complaint Feedback Loop (YFBL)** to resolve it. When registered, recipient spam complaints are recorded as unsubscribes in your account rather than hurting your reputation. See [Why Your Emails Land in Spam](/troubleshooting/spam-folder) for step-by-step registration instructions.
+</Accordion>
+
+<Accordion title="What is Smart Routing?">
+  Smart Routing is a turboSMTP feature that automatically rotates sends across a pool of shared IP addresses. If one IP encounters a delay, deferral, or temporary block, the system retries delivery through a different IP in the pool — all transparently, with no manual intervention required. This significantly improves deliverability for senders on shared infrastructure. Learn more at [Smart Routing](/deliverability/smart-routing).
+</Accordion>
+
+<Accordion title="What is the difference between Smart Routing and Dedicated IP Pools?">
+  | Feature | Smart Routing | Dedicated IP Pools |
+  |---|---|---|
+  | IP ownership | Shared pool | Exclusively yours |
+  | Auto-rotation | Yes | No (you control it) |
+  | Setup required | None | IP warm-up needed |
+  | Best for | Most senders | High-volume or compliance-sensitive senders |
+
+  **Smart Routing** automatically retries through multiple shared IPs, making it ideal for senders who want reliable delivery without managing IPs. **Dedicated IP Pools** give you one or more IPs reserved exclusively for your account, offering complete control over sender reputation — recommended for high-volume senders or those with strict compliance requirements.
+</Accordion>
+
+---
+
+## Support
+
+<Accordion title="How can I submit a support ticket?">
+  turboSMTP offers 24/7 support via ticket, live chat, and phone.
+
+  To open a support ticket from the dashboard:
+  1. Log in to the [dashboard](https://dashboard.serversmtp.com).
+  2. Click the **question mark (?)** icon in the navigation.
+  3. Select **Submit a ticket**.
+  4. Fill in the subject and description of your issue and submit.
+
+  You can also reach support directly via live chat from the dashboard or the turboSMTP website.
+</Accordion>

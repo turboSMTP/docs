@@ -1,0 +1,142 @@
+---
+title: "Send Transactional Email via the turboSMTP REST API"
+sidebarTitle: "Email API"
+description: "Make HTTP POST requests to send emails programmatically with turboSMTP's v2 REST API. Supports HTML, plain text, CC, BCC, custom headers, and attachments."
+---
+
+The turboSMTP REST API gives you full programmatic control over email sending — no SMTP client libraries required. Make a single HTTP POST request with a JSON body to dispatch transactional messages, notifications, or bulk campaigns from any language or platform that can speak HTTP. The API supports HTML and plain-text bodies, multiple recipients, CC and BCC, custom headers, per-message tracking IDs for webhook correlation, and file attachments up to a total of 24 MB.
+
+## Endpoints
+
+turboSMTP provides two send endpoints. Choose based on your data-residency requirements.
+
+| Region | Endpoint |
+|--------|----------|
+| **Global** | `https://api.turbo-smtp.com/api/v2/mail/send` |
+| **EU** | `https://api.eu.turbo-smtp.com/api/v2/mail/send` |
+
+<Tip>
+  turboSMTP is an Italian company with its own European servers. Use the **EU** endpoint if you are based in the EU, send to EU recipients, or need GDPR-compliant data residency: your email data is processed and stored on European infrastructure only. See [GDPR and data residency](/api-reference/base-urls#gdpr-and-data-residency).
+</Tip>
+
+<Warning>
+  `POST /mail/send` requires `consumerKey` and `consumerSecret` request headers. The `Authorization` header is **not** accepted for this endpoint — requests that include it will be rejected with `401 UNAUTHORIZED`. See [API Keys](/api-reference/authentication) for how to obtain your Consumer Key and Consumer Secret.
+</Warning>
+
+## Request headers
+
+Send these three headers with every `/mail/send` request.
+
+| Header           | Value                           | Required |
+|------------------|---------------------------------|----------|
+| `consumerKey`    | Your Consumer Key               | ✅ Yes   |
+| `consumerSecret` | Your Consumer Secret            | ✅ Yes   |
+| `Content-Type`   | `application/json`              | ✅ Yes   |
+
+## Request body
+
+The request body must be a JSON object. The `from` and `to` fields are required; all other fields are optional.
+
+<ParamField body="from" type="string" required>
+  The sender's email address. This address must be verified or belong to an authenticated domain in your turboSMTP account. Example: `"hello@your-company.com"`
+</ParamField>
+
+<ParamField body="to" type="string" required>
+  One or more recipient email addresses. Separate multiple addresses with commas. Example: `"alice@example.com,bob@example.com"`
+</ParamField>
+
+<ParamField body="subject" type="string">
+  The subject line of the email.
+</ParamField>
+
+<ParamField body="content" type="string">
+  The plain-text body of the email. Include this field to ensure compatibility with email clients that do not render HTML.
+</ParamField>
+
+<ParamField body="html_content" type="string">
+  The HTML body of the email. You can provide both `content` and `html_content` in the same request; email clients that support HTML will render `html_content` and fall back to `content`.
+</ParamField>
+
+<ParamField body="cc" type="string">
+  One or more CC (carbon copy) email addresses, comma-separated.
+</ParamField>
+
+<ParamField body="bcc" type="string">
+  One or more BCC (blind carbon copy) email addresses, comma-separated. BCC recipients are hidden from all other recipients.
+</ParamField>
+
+<ParamField body="custom_headers" type="object">
+  Additional SMTP headers to include in the message, expressed as a JSON object. Example: `{"X-Campaign-ID": "summer-2024", "X-Mailer": "MyApp/1.0"}`
+</ParamField>
+
+<ParamField body="reference_id" type="string">
+  A custom string you attach to the message. turboSMTP includes this value in all Event Webhook payloads for this email, making it easy to correlate delivery and engagement events back to your own records.
+</ParamField>
+
+<ParamField body="attachments" type="array">
+  An array of attachment objects. Each object must include `name` (filename), `type` (MIME type), and `content` (Base64-encoded file data). The total size of the email including all attachments must be under 24 MB. See [Attachments](/sending/attachments) for full details and examples.
+</ParamField>
+
+<ParamField body="mime_raw" type="string">
+  A complete raw MIME message string. Use this field if you need full control over the MIME structure — for example, to send messages with complex multipart layouts or non-standard headers. When `mime_raw` is provided, the `content`, `html_content`, and `attachments` fields are ignored and the raw MIME payload is used as-is.
+</ParamField>
+
+## Example request
+
+The following cURL command sends a basic email with both a plain-text and an HTML body.
+
+```bash Send an email
+curl -X POST 'https://api.turbo-smtp.com/api/v2/mail/send' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "from": "hello@your-company.com",
+    "to": "recipient@example.com",
+    "subject": "Hello from turboSMTP",
+    "content": "This is a plain text message.",
+    "html_content": "<p>This is an <strong>HTML</strong> message.</p>"
+  }'
+```
+
+A successful response returns HTTP `200` with the following body:
+
+```json Success response
+{
+  "message": "OK",
+  "mid": 1475205839938715648
+}
+```
+
+The `mid` field is the turboSMTP message ID, which you can use to look up delivery status in the dashboard or via the analytics API.
+
+## Response codes
+
+| Code | Status               | Meaning                                                        |
+|------|----------------------|----------------------------------------------------------------|
+| `200`| `OK`                 | turboSMTP successfully received and queued your message.       |
+| `400`| `BAD REQUEST`        | The request body is malformed or a required parameter is missing or invalid. |
+| `401`| `UNAUTHORIZED`       | The `consumerKey` or `consumerSecret` is missing, incorrect, or you used an `Authorization` header instead. |
+| `500`| `SERVER_UNAVAILABLE` | An unexpected error occurred on the turboSMTP server. Retry with exponential back-off. |
+
+An error response body looks like this:
+
+```json Error response
+{
+  "message": "error",
+  "errors": [
+    "missing or not valid sender email (from)"
+  ]
+}
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Code Examples" icon="code" href="/sending/code-examples">
+    Copy-paste examples for cURL, Python, Node.js, PHP, Ruby, Go, Java, and C#.
+  </Card>
+  <Card title="Attachments" icon="paperclip" href="/sending/attachments">
+    Learn how to attach PDFs, images, and other files using Base64 encoding.
+  </Card>
+</CardGroup>

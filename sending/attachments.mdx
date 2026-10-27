@@ -1,0 +1,126 @@
+---
+title: "How to Send Email Attachments with the turboSMTP API"
+sidebarTitle: "Attachments"
+description: "Send PDFs, images, spreadsheets, and other files with the turboSMTP API. Learn Base64 encoding, supported MIME types, and the 24 MB total size limit."
+---
+
+The turboSMTP API lets you attach files of any type to outbound emails by including them as Base64-encoded strings in the request body. You can send PDFs, images, spreadsheets, archives, or any other file format your recipients need — all in a single API call alongside your message content. To add attachments, include an `attachments` array in your `/mail/send` request body, where each element describes one file.
+
+## Attachment limits
+
+<Note>
+  The total size of your email, including all attachments, must be **less than 24 MB**. This limit covers the entire serialized message — headers, body, and all attachment content combined. Base64 encoding inflates binary files by approximately 33%, so a 16 MB binary file will produce roughly a 21 MB encoded string. Plan your attachment sizes accordingly.
+</Note>
+
+## Request format
+
+Add an `attachments` array to your standard `/mail/send` request body. Each object in the array represents one attached file.
+
+<ParamField body="attachments" type="array">
+  An array of attachment objects. Each object must include the three fields below.
+
+  <Expandable title="Attachment object fields">
+    <ParamField body="name" type="string" required>
+      The filename shown to the recipient, including the file extension. Example: `"invoice-2024.pdf"`
+    </ParamField>
+
+    <ParamField body="type" type="string" required>
+      The MIME type of the file. Example: `"application/pdf"` or `"image/png"`. See the [Supported file types](#supported-file-types) section for common values.
+    </ParamField>
+
+    <ParamField body="content" type="string" required>
+      The file content encoded as a Base64 string. Use standard Base64 encoding (not URL-safe). Most languages provide a built-in function for this: `base64_encode()` in PHP, `base64.b64encode()` in Python, `Buffer.from(data).toString('base64')` in Node.js, and `Convert.ToBase64String()` in C#.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Example with attachment
+
+The following request sends an email with a single PDF attachment. Replace the `content` value with your actual Base64-encoded file data.
+
+```bash Send email with a PDF attachment
+curl -X POST 'https://api.turbo-smtp.com/api/v2/mail/send' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "from": "billing@your-company.com",
+    "to": "customer@example.com",
+    "subject": "Your invoice is ready",
+    "content": "Please find your invoice attached.",
+    "html_content": "<p>Please find your invoice attached.</p>",
+    "attachments": [
+      {
+        "name": "invoice-2024.pdf",
+        "type": "application/pdf",
+        "content": "JVBERi0xLjQKJcOkw7zDtsOfCjIgMCBv..."
+      }
+    ]
+  }'
+```
+
+A successful response returns HTTP `200` and the message ID:
+
+```json Success response
+{
+  "message": "OK",
+  "mid": 1475205839938715648
+}
+```
+
+## Supported file types
+
+turboSMTP accepts any valid MIME type in the `type` field. The table below lists the most commonly used formats.
+
+| File type        | MIME type                                                   |
+|------------------|-------------------------------------------------------------|
+| PDF              | `application/pdf`                                           |
+| JPEG image       | `image/jpeg`                                                |
+| PNG image        | `image/png`                                                 |
+| GIF image        | `image/gif`                                                 |
+| ZIP archive      | `application/zip`                                           |
+| Excel spreadsheet| `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` |
+| Word document    | `application/vnd.openxmlformats-officedocument.wordprocessingml.document` |
+| Plain text       | `text/plain`                                                |
+| CSV              | `text/csv`                                                  |
+
+<Warning>
+  Microsoft Outlook may have issues opening PDF attachments that were created or encoded by Outlook itself. If your recipients report that they cannot open a PDF attachment, try sending the message from a non-Outlook client or mail library instead.
+</Warning>
+
+## Multiple attachments
+
+To include more than one file, add additional objects to the `attachments` array. Each object is independent — you can mix different file types in the same request.
+
+```bash Send email with multiple attachments
+curl -X POST 'https://api.turbo-smtp.com/api/v2/mail/send' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "from": "reports@your-company.com",
+    "to": "manager@example.com",
+    "subject": "Monthly report package",
+    "content": "Please find this month'\''s report and supporting images attached.",
+    "html_content": "<p>Please find this month'\''s report and supporting images attached.</p>",
+    "attachments": [
+      {
+        "name": "report-october-2024.pdf",
+        "type": "application/pdf",
+        "content": "JVBERi0xLjQKJcOkw7zDtsOfCjIgMCBv..."
+      },
+      {
+        "name": "chart-revenue.png",
+        "type": "image/png",
+        "content": "iVBORw0KGgoAAAANSUhEUgAAAAUA..."
+      },
+      {
+        "name": "data-export.csv",
+        "type": "text/csv",
+        "content": "TW9udGgsUmV2ZW51ZQpPY3RvYmVyLDEyMzQ1Cg=="
+      }
+    ]
+  }'
+```
+
+Remember that the combined encoded size of all attachments plus the rest of the email must remain under 24 MB. If you need to send large files, consider hosting them on a file storage service and linking to them in the email body instead.

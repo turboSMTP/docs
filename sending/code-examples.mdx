@@ -1,0 +1,209 @@
+---
+title: "Code Examples: Send Email with turboSMTP in Any Language"
+sidebarTitle: "Code Examples"
+description: "Copy-paste sending examples for the turboSMTP REST API covering cURL, Python, Node.js, PHP, Ruby, Go, Java, and C# with full authentication."
+---
+
+The turboSMTP REST API works with any language or tool that can make HTTP requests. Each example below sends a POST request to the global send endpoint with `consumerKey` and `consumerSecret` headers and a JSON body containing the standard message fields. Swap in your own credentials and addresses, then run the code to send your first email.
+
+<Tip>
+  Replace `YOUR_CONSUMER_KEY` and `YOUR_CONSUMER_SECRET` with the keys from your dashboard at **Settings → Integrations → API Keys**. Your Consumer Secret is shown only once at creation time, so store it securely.
+</Tip>
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST 'https://api.turbo-smtp.com/api/v2/mail/send' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "from": "hello@your-company.com",
+    "to": "recipient@example.com",
+    "subject": "Hello from turboSMTP",
+    "content": "This is a plain text message.",
+    "html_content": "<p>This is an <strong>HTML</strong> message.</p>"
+  }'
+```
+
+```python Python
+import requests
+import json
+
+url = 'https://api.turbo-smtp.com/api/v2/mail/send'
+headers = {
+    'consumerKey': 'YOUR_CONSUMER_KEY',
+    'consumerSecret': 'YOUR_CONSUMER_SECRET',
+    'Content-Type': 'application/json'
+}
+payload = {
+    'from': 'hello@your-company.com',
+    'to': 'recipient@example.com',
+    'subject': 'Hello from turboSMTP',
+    'content': 'This is a plain text message.',
+    'html_content': '<p>This is an <strong>HTML</strong> message.</p>'
+}
+response = requests.post(url, headers=headers, data=json.dumps(payload))
+print(response.status_code, response.json())
+```
+
+```javascript Node.js
+const axios = require('axios');
+
+axios.post('https://api.turbo-smtp.com/api/v2/mail/send', {
+  from: 'hello@your-company.com',
+  to: 'recipient@example.com',
+  subject: 'Hello from turboSMTP',
+  content: 'This is a plain text message.',
+  html_content: '<p>This is an <strong>HTML</strong> message.</p>'
+}, {
+  headers: {
+    consumerKey: 'YOUR_CONSUMER_KEY',
+    consumerSecret: 'YOUR_CONSUMER_SECRET',
+    'Content-Type': 'application/json'
+  }
+}).then(res => console.log(res.data));
+```
+
+```php PHP
+<?php
+$curl = curl_init();
+curl_setopt_array($curl, [
+  CURLOPT_URL => 'https://api.turbo-smtp.com/api/v2/mail/send',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_POST => true,
+  CURLOPT_HTTPHEADER => [
+    'consumerKey: YOUR_CONSUMER_KEY',
+    'consumerSecret: YOUR_CONSUMER_SECRET',
+    'Content-Type: application/json'
+  ],
+  CURLOPT_POSTFIELDS => json_encode([
+    'from' => 'hello@your-company.com',
+    'to'   => 'recipient@example.com',
+    'subject' => 'Hello from turboSMTP',
+    'content' => 'This is a plain text message.',
+    'html_content' => '<p>This is an <strong>HTML</strong> message.</p>'
+  ])
+]);
+$response = curl_exec($curl);
+curl_close($curl);
+echo $response;
+```
+
+```ruby Ruby
+require 'net/http'
+require 'json'
+
+uri = URI('https://api.turbo-smtp.com/api/v2/mail/send')
+http = Net::HTTP.new(uri.host, uri.port)
+http.use_ssl = true
+
+request = Net::HTTP::Post.new(uri.path)
+request['consumerKey'] = 'YOUR_CONSUMER_KEY'
+request['consumerSecret'] = 'YOUR_CONSUMER_SECRET'
+request['Content-Type'] = 'application/json'
+request.body = {
+  from: 'hello@your-company.com',
+  to: 'recipient@example.com',
+  subject: 'Hello from turboSMTP',
+  content: 'This is a plain text message.',
+  html_content: '<p>This is an <strong>HTML</strong> message.</p>'
+}.to_json
+
+response = http.request(request)
+puts response.body
+```
+
+```go Go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "net/http"
+)
+
+func main() {
+    payload := map[string]string{
+        "from":         "hello@your-company.com",
+        "to":           "recipient@example.com",
+        "subject":      "Hello from turboSMTP",
+        "content":      "This is a plain text message.",
+        "html_content": "<p>This is an <strong>HTML</strong> message.</p>",
+    }
+    body, _ := json.Marshal(payload)
+    req, _ := http.NewRequest("POST", "https://api.turbo-smtp.com/api/v2/mail/send", bytes.NewBuffer(body))
+    req.Header.Set("consumerKey", "YOUR_CONSUMER_KEY")
+    req.Header.Set("consumerSecret", "YOUR_CONSUMER_SECRET")
+    req.Header.Set("Content-Type", "application/json")
+    client := &http.Client{}
+    resp, _ := client.Do(req)
+    fmt.Println(resp.Status)
+}
+```
+
+```java Java
+import java.net.http.*;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+
+public class SendEmail {
+    public static void main(String[] args) throws Exception {
+        String json = "{\"from\":\"hello@your-company.com\"," +
+            "\"to\":\"recipient@example.com\"," +
+            "\"subject\":\"Hello from turboSMTP\"," +
+            "\"content\":\"This is a plain text message.\"," +
+            "\"html_content\":\"<p>This is an <strong>HTML</strong> message.</p>\"}";
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create("https://api.turbo-smtp.com/api/v2/mail/send"))
+            .header("consumerKey", "YOUR_CONSUMER_KEY")
+            .header("consumerSecret", "YOUR_CONSUMER_SECRET")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+            .build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+    }
+}
+```
+
+```csharp C#
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+
+var client = new HttpClient();
+client.DefaultRequestHeaders.Add("consumerKey", "YOUR_CONSUMER_KEY");
+client.DefaultRequestHeaders.Add("consumerSecret", "YOUR_CONSUMER_SECRET");
+
+var payload = new {
+    from = "hello@your-company.com",
+    to = "recipient@example.com",
+    subject = "Hello from turboSMTP",
+    content = "This is a plain text message.",
+    html_content = "<p>This is an <strong>HTML</strong> message.</p>"
+};
+
+var json = JsonSerializer.Serialize(payload);
+var content = new StringContent(json, Encoding.UTF8, "application/json");
+var response = await client.PostAsync("https://api.turbo-smtp.com/api/v2/mail/send", content);
+Console.WriteLine(await response.Content.ReadAsStringAsync());
+```
+
+</CodeGroup>
+
+## SDKs
+
+If you prefer a native library over raw HTTP calls, turboSMTP provides official SDKs that wrap the v2 API and handle authentication, serialization, and error handling for you.
+
+<CardGroup cols={2}>
+  <Card title="C# SDK" icon="microsoft" href="https://github.com/turboSMTP/turboSMTP-csharp">
+    Official .NET SDK for turboSMTP. Available on GitHub at `turboSMTP/turboSMTP-csharp`.
+  </Card>
+  <Card title="PHP SDK" icon="php" href="https://github.com/turboSMTP/turboSMTP-php">
+    Official PHP SDK for turboSMTP. Available on GitHub at `turboSMTP/turboSMTP-php`.
+  </Card>
+</CardGroup>

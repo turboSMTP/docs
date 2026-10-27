@@ -1,0 +1,33 @@
+---
+title: "Official turboSMTP SDKs for C# and PHP Applications"
+sidebarTitle: "Official SDKs"
+description: "Use the official turboSMTP client libraries for C# and PHP to send email, manage suppressions, and fetch analytics without hand-crafting HTTP requests."
+keywords:
+  - "turbosmtp sdk"
+  - "turbosmtp php"
+  - "turbosmtp c#"
+  - "email sdk"
+  - ".net email library"
+---
+
+If you're integrating turboSMTP programmatically, official SDKs are available for C# and PHP. They wrap the [turboSMTP REST API](/api-reference/overview) so you can send email and manage your account with typed methods instead of raw HTTP calls.
+
+<CardGroup cols={2}>
+  <Card title="C# SDK" icon="code" href="https://github.com/turboSMTP/turboSMTP-csharp">
+    The official turboSMTP C# library for .NET applications. Wraps the REST API with strongly typed methods for sending email, managing suppressions, and retrieving analytics.
+  </Card>
+
+  <Card title="PHP SDK" icon="php" href="https://github.com/turboSMTP/turboSMTP-php">
+    The official turboSMTP PHP library. Use it in Laravel, Symfony, WordPress plugins, or any PHP application to send via the API without hand-crafting HTTP requests.
+  </Card>
+</CardGroup>
+
+## Prefer a framework integration?
+
+If your framework already has a mail abstraction, use the native integration instead of an SDK:
+
+- **Symfony**: [Symfony Mailer bridge](/integrations/symfony-mailer)
+- **Node.js**: [Nodemailer service presets](/integrations/nodemailer)
+- **Elixir and Phoenix**: [Swoosh adapter](/integrations/swoosh)
+
+For any other language, see the [code examples](/sending/code-examples) for cURL, Python, Node.js, PHP, Ruby, Go, Java, and C#.

@@ -1,0 +1,9 @@
+# Source: https://serversmtp.com/en/submitticket.php
+
+### Submit Ticket
+
+### Open Support Tickets
+
+If you can't find a solution to your problems in our knowledgebase, you can submit a ticket by selecting the appropriate department below.
+
+[**Technical Support** - Technical Support](https://serversmtp.com/en/submitticket.php?step=2&deptid=1) [**Customer Service** - Customer Service](https://serversmtp.com/en/submitticket.php?step=2&deptid=2) [**Pre-Sales** - Any inquiry before actually purchasing](https://serversmtp.com/en/submitticket.php?step=2&deptid=7) [**Supporto Italiano** - Assistenza in lingua italiana](https://serversmtp.com/en/submitticket.php?step=2&deptid=8) [**Русский язык** - Russian Support.](https://serversmtp.com/en/submitticket.php?step=2&deptid=13) [**Украинский язык** - Ukrainian Support.](https://serversmtp.com/en/submitticket.php?step=2&deptid=14) [**le soutien français** - French Support](https://serversmtp.com/en/submitticket.php?step=2&deptid=15) [**الدعم العربى** - Arabic Support](https://serversmtp.com/en/submitticket.php?step=2&deptid=16) [**Deutsch Unterstützung** - German Support.](https://serversmtp.com/en/submitticket.php?step=2&deptid=17) [**Soporte español** - Spanish Support](https://serversmtp.com/en/submitticket.php?step=2&deptid=18) [**Complain.** - Submit a complain regarding any support agent.](https://serversmtp.com/en/submitticket.php?step=2&deptid=19) [**API support** - API support](https://serversmtp.com/en/submitticket.php?step=2&deptid=22) [**SDK Support** - Support for SDK integration](https://serversmtp.com/en/submitticket.php?step=2&deptid=58)

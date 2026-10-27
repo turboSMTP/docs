@@ -1,0 +1,172 @@
+---
+title: "Alerts API — Configure Email Activity Notifications"
+sidebarTitle: "Alerts"
+description: "Manage turboSMTP alert settings via API. Get notified when bounce rates, spam complaints, or low credits cross your thresholds to protect deliverability."
+---
+
+turboSMTP can proactively notify you when your sending activity crosses important thresholds — high bounce rates, a surge in spam complaints, an unsubscribe spike, or low remaining credits. The Alerts API lets you retrieve your current alert configuration and update notification recipients and thresholds programmatically, so you can keep your monitoring setup in sync with your infrastructure-as-code or deployment pipelines rather than manually updating the dashboard.
+
+## Authentication
+
+All Alerts API requests require your API key passed as a raw value in the `Authorization` header.
+
+```http Authorization header
+Authorization: YOUR_API_KEY
+```
+
+Do not prefix the value with `Bearer` or any other scheme.
+
+**Base URL:** `https://pro.api.serversmtp.com/api/v2`
+
+## Endpoints
+
+<Accordion title="GET /alerts — Retrieve current alert configuration">
+  Returns your account's current alert settings, including which alert types are enabled, the notification email address, and the configured thresholds.
+
+  **Request**
+
+  ```bash Terminal
+  curl -X GET 'https://pro.api.serversmtp.com/api/v2/alerts' \
+    -H 'Authorization: YOUR_API_KEY' \
+    -H 'Content-Type: application/json'
+  ```
+
+  **Example response**
+
+  ```json
+  {
+    "notification_email": "ops@your-company.com",
+    "alerts": [
+      {
+        "type": "bounce_rate",
+        "enabled": true,
+        "threshold": 5
+      },
+      {
+        "type": "spam_rate",
+        "enabled": true,
+        "threshold": 1
+      },
+      {
+        "type": "unsub_rate",
+        "enabled": false,
+        "threshold": 10
+      },
+      {
+        "type": "credit_low",
+        "enabled": true,
+        "threshold": 500
+      }
+    ]
+  }
+  ```
+</Accordion>
+
+<Accordion title="PUT /alerts — Update alert settings">
+  Update your alert configuration. You can change the notification email address, enable or disable specific alert types, and adjust thresholds. Submit only the fields you want to change — the rest retain their existing values.
+
+  **Request**
+
+  ```bash Terminal
+  curl -X PUT 'https://pro.api.serversmtp.com/api/v2/alerts' \
+    -H 'Authorization: YOUR_API_KEY' \
+    -H 'Content-Type: application/json' \
+    -d '{
+      "notification_email": "deliverability@your-company.com",
+      "alerts": [
+        {
+          "type": "bounce_rate",
+          "enabled": true,
+          "threshold": 3
+        },
+        {
+          "type": "spam_rate",
+          "enabled": true,
+          "threshold": 0.5
+        },
+        {
+          "type": "credit_low",
+          "enabled": true,
+          "threshold": 1000
+        }
+      ]
+    }'
+  ```
+
+  **Request body fields**
+
+  | Field | Type | Description |
+  |---|---|---|
+  | `notification_email` | string | Email address that receives alert notifications |
+  | `alerts` | array | Array of alert configuration objects |
+  | `alerts[].type` | string | Alert type identifier (see [What triggers alerts](#what-triggers-alerts)) |
+  | `alerts[].enabled` | boolean | Whether this alert type is active |
+  | `alerts[].threshold` | number | The value that triggers the alert (percentage or count depending on type) |
+
+  **Example response**
+
+  ```json
+  {
+    "success": true,
+    "notification_email": "deliverability@your-company.com"
+  }
+  ```
+</Accordion>
+
+## What triggers alerts
+
+turboSMTP can alert you on the following account events:
+
+- **High bounce rate** — Your bounce percentage for a sending period exceeds the configured threshold. Hard bounces above 5% can trigger inbox provider restrictions, so configure this threshold conservatively.
+- **Spam complaint threshold exceeded** — Recipients are reporting your emails as spam at a rate above your threshold. Complaint rates above 0.1% can affect deliverability at major providers like Gmail.
+- **Unsubscribe spike** — An unusual number of recipients are unsubscribing, which may indicate content or targeting issues in a recent campaign.
+- **Account credit running low** — Your remaining monthly sending credits fall below the configured threshold, giving you time to upgrade your plan before delivery is interrupted.
+
+## Example: Get alerts
+
+Retrieve your current alert settings to inspect which notifications are active:
+
+```bash Terminal
+curl -X GET 'https://pro.api.serversmtp.com/api/v2/alerts' \
+  -H 'Authorization: YOUR_API_KEY' \
+  -H 'Content-Type: application/json'
+```
+
+## Example: Update alerts
+
+Tighten your bounce rate threshold and direct notifications to a dedicated inbox:
+
+```bash Terminal
+curl -X PUT 'https://pro.api.serversmtp.com/api/v2/alerts' \
+  -H 'Authorization: YOUR_API_KEY' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "notification_email": "deliverability-ops@your-company.com",
+    "alerts": [
+      {
+        "type": "bounce_rate",
+        "enabled": true,
+        "threshold": 3
+      },
+      {
+        "type": "spam_rate",
+        "enabled": true,
+        "threshold": 0.5
+      },
+      {
+        "type": "unsub_rate",
+        "enabled": true,
+        "threshold": 5
+      },
+      {
+        "type": "credit_low",
+        "enabled": true,
+        "threshold": 1000
+      }
+    ]
+  }'
+```
+
+<Tip>
+  Configure alerts before you start sending in production. Getting notified proactively about a deliverability issue — rather than discovering it through dropped open rates days later — gives you a much faster path to diagnosing and fixing the problem before it seriously damages your sender reputation.
+</Tip>

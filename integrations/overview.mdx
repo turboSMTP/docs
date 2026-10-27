@@ -1,0 +1,70 @@
+---
+title: "turboSMTP Integrations: Frameworks, Libraries, and Apps"
+sidebarTitle: "All Integrations"
+description: "Browse every turboSMTP integration: official SDKs, framework mailers like Symfony and Swoosh, Nodemailer presets, Uptime Kuma, WordPress, and email clients."
+keywords:
+  - "turbosmtp integrations"
+  - "smtp integration"
+  - "email api integrations"
+  - "transactional email plugins"
+---
+
+turboSMTP plugs into the frameworks, libraries, and apps you already use. Each integration below has its own setup guide with install steps, Global and EU configuration, and a first test message. If a tool supports SMTP but is not listed, you can still connect it with the [standard SMTP settings](/get-started/smtp-configuration).
+
+## Frameworks and libraries
+
+<CardGroup cols={2}>
+  <Card title="Symfony Mailer" icon="symfony" href="/integrations/symfony-mailer">
+    Official bridge for Symfony 8.2 with HTTP API, SMTP relay, EU routing, and delivery webhooks.
+  </Card>
+
+  <Card title="Nodemailer" icon="node-js" href="/integrations/nodemailer">
+    Built-in `TurboSMTP` and `TurboSMTP-EU` service presets for Node.js.
+  </Card>
+
+  <Card title="Swoosh (Elixir)" icon="droplet" href="/integrations/swoosh">
+    `Swoosh.Adapters.TurboSMTP` for Elixir and Phoenix, available in Swoosh 1.28.0.
+  </Card>
+
+  <Card title="Official SDKs" icon="code" href="/integrations/sdks">
+    turboSMTP client libraries for C# and PHP.
+  </Card>
+</CardGroup>
+
+## Apps and platforms
+
+<CardGroup cols={2}>
+  <Card title="Uptime Kuma" icon="heart-pulse" href="/integrations/uptime-kuma">
+    Built-in notification provider for monitor alerts, available in Uptime Kuma 2.5.3.
+  </Card>
+
+  <Card title="WordPress" icon="wordpress" href="/integrations/wordpress">
+    Route every WordPress and WooCommerce email through turboSMTP with the official plugin.
+  </Card>
+
+  <Card title="Drupal, Joomla, and Magento" icon="layer-group" href="/integrations/cms-platforms">
+    Connect other CMS and ecommerce platforms through their SMTP settings.
+  </Card>
+
+  <Card title="Outlook and Thunderbird" icon="envelope" href="/integrations/email-clients">
+    Send from desktop email clients through the turboSMTP relay.
+  </Card>
+</CardGroup>
+
+## Integration status
+
+Every integration page shows its release status at the top, so you know whether you can use it in production today.
+
+| Status | Meaning |
+| --- | --- |
+| **Available** | Released in an official version of the framework or tool. Ready for production. |
+| **Merged upstream** | Accepted by the project and shipping in its next release. Check package availability before installing. |
+| **In development** | Implemented but not yet published. Use the suggested alternative until it is released. |
+
+## Connect any other tool
+
+Any app that lets you set a custom SMTP server works with turboSMTP. Use `pro.turbo-smtp.com` (or `pro.eu.turbo-smtp.com` for European servers), authenticate with your [Consumer Key and Consumer Secret](/get-started/api-keys), and see [SMTP Setup](/get-started/smtp-configuration) for ports. For custom code, call the [Email API](/sending/email-api) directly.
+
+<Tip>
+  Missing an integration you need? [Contact turboSMTP support](https://serversmtp.com/contact-us/) and tell us which framework or tool you use.
+</Tip>

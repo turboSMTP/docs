@@ -1,0 +1,46 @@
+---
+title: "Send from Outlook and Thunderbird with turboSMTP SMTP"
+sidebarTitle: "Email Clients"
+description: "Configure Microsoft Outlook and Mozilla Thunderbird to send through the turboSMTP SMTP server for authenticated, high-deliverability desktop email sending."
+keywords:
+  - "outlook smtp settings"
+  - "thunderbird smtp"
+  - "email client smtp relay"
+  - "outgoing mail server"
+---
+
+Configure your desktop email client to send through turboSMTP's SMTP server for authenticated, high-deliverability sending from Outlook or Thunderbird. For Apple Mail, Gmail, and more clients, see [SMTP Setup](/get-started/smtp-configuration).
+
+<Tabs>
+  <Tab title="Microsoft Outlook">
+    Open Outlook and navigate to **File → Account Settings → Account Settings → New** (or edit an existing account). Enter the following SMTP settings in the outgoing mail server section:
+
+    | Setting | Value |
+    | --- | --- |
+    | SMTP Server | `pro.turbo-smtp.com` |
+    | Port | `587` |
+    | Encryption | `STARTTLS` |
+    | Authentication required | `Yes` |
+    | Username | Your **Consumer Key** |
+    | Password | Your **Consumer Secret** |
+
+    Save the settings and send a test message to confirm the connection.
+  </Tab>
+  <Tab title="Mozilla Thunderbird">
+    In Thunderbird, go to **Account Settings → Outgoing Server (SMTP) → Add**. Enter the following details:
+
+    | Setting | Value |
+    | --- | --- |
+    | Server Name | `pro.turbo-smtp.com` |
+    | Port | `587` |
+    | Connection Security | `STARTTLS` |
+    | Authentication Method | `Normal password` |
+    | Username | Your **Consumer Key** |
+
+    Save the outgoing server, then assign it to your account under **Account Settings → [Your Account] → Outgoing Server**. Thunderbird will prompt for your Consumer Secret on the first send.
+  </Tab>
+</Tabs>
+
+<Tip>
+  If port 587 is blocked by your network or ISP, use port **465** (SSL/TLS) or the fallback port **2525**. All three ports are supported by `pro.turbo-smtp.com`.
+</Tip>

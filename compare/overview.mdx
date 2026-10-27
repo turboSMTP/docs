@@ -1,0 +1,79 @@
+---
+title: "turboSMTP Alternatives: Compare Email Providers Side by Side"
+sidebarTitle: "Why turboSMTP"
+description: "See how turboSMTP compares to SendGrid, Mailgun, and other email providers on EU data residency, GDPR, support, API design, and migration effort."
+keywords:
+  - "sendgrid alternative"
+  - "mailgun alternative"
+  - "european email provider"
+  - "gdpr smtp provider"
+  - "eu smtp relay"
+  - "transactional email provider comparison"
+---
+
+turboSMTP is a transactional and marketing email provider built and operated by an Italian company, with its own servers in Italy and Europe. If you are evaluating email providers or planning to switch, these pages compare turboSMTP with other popular services and walk you through a migration step by step.
+
+## Why teams switch to turboSMTP
+
+<CardGroup cols={2}>
+  <Card title="European company, European servers" icon="earth-europe" href="/api-reference/base-urls#gdpr-and-data-residency">
+    Route API and SMTP traffic through dedicated EU endpoints to keep email data in Europe.
+  </Card>
+
+  <Card title="GDPR compliant" icon="shield-check" href="https://serversmtp.com/regulation-eu-2016-679-gdpr/">
+    Built under EU data protection law from day one, not retrofitted for it.
+  </Card>
+
+  <Card title="Human support 24/7" icon="headset" href="https://serversmtp.com/contact-us/">
+    Reach real people by ticket, chat, and phone, plus tailor-made deliverability consultancy.
+  </Card>
+
+  <Card title="Drop-in SMTP and simple API" icon="plug" href="/sending/email-api">
+    Standard SMTP on ports 587, 465, and 2525 and a flat JSON API that is quick to adopt.
+  </Card>
+</CardGroup>
+
+## Comparisons
+
+<CardGroup cols={2}>
+  <Card title="turboSMTP vs SendGrid" icon="scale-balanced" href="/compare/turbosmtp-vs-sendgrid">
+    Data residency, support, API design, and SMTP settings compared.
+  </Card>
+
+  <Card title="turboSMTP vs Mailgun" icon="scale-balanced" href="/compare/turbosmtp-vs-mailgun">
+    EU hosting, request format, support, and SMTP settings compared.
+  </Card>
+</CardGroup>
+
+## Migration guides
+
+<CardGroup cols={2}>
+  <Card title="Migrate from SendGrid" icon="right-left" href="/migrate/from-sendgrid">
+    Map SendGrid SMTP credentials and v3 Mail Send payloads to turboSMTP.
+  </Card>
+
+  <Card title="Migrate from Mailgun" icon="right-left" href="/migrate/from-mailgun">
+    Map Mailgun SMTP credentials and form-data requests to turboSMTP.
+  </Card>
+</CardGroup>
+
+## A typical migration in four steps
+
+<Steps>
+  <Step title="Create your account">
+    [Sign up for free](https://serversmtp.com/en/signup) (6,000 emails per month, no credit card) and generate your [API keys](/get-started/api-keys).
+  </Step>
+  <Step title="Authenticate your domain">
+    Add turboSMTP's SPF and DKIM records next to your current provider's records. See [SPF, DKIM, and DMARC](/deliverability/spf-dkim-dmarc).
+  </Step>
+  <Step title="Swap credentials or endpoints">
+    Point your SMTP host or API calls at turboSMTP. Choose the EU endpoints if your data must stay in Europe.
+  </Step>
+  <Step title="Ramp up and cut over">
+    Move a share of traffic first, watch [statistics](/analytics/statistics-dashboard), then send everything through turboSMTP.
+  </Step>
+</Steps>
+
+<Tip>
+  Planning a large move? turboSMTP's team helps businesses migrate from other providers. [Contact support](https://serversmtp.com/contact-us/) to plan your switch.
+</Tip>

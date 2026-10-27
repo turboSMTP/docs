@@ -1,0 +1,220 @@
+---
+title: "Event Webhooks for Real-Time Email Delivery Notifications"
+sidebarTitle: "Webhooks"
+description: "Receive real-time HTTP notifications when turboSMTP processes, delivers, or bounces your emails. Configure delivery and engagement event webhooks."
+---
+
+Webhooks let your application receive instant, server-to-server notifications every time something meaningful happens to one of your emails. Instead of polling the turboSMTP API for status updates, you configure a URL on your server and turboSMTP sends an HTTP POST request to it — with a JSON payload — the moment each event occurs. This makes webhooks the most efficient way to build real-time delivery pipelines, suppress bounced addresses, trigger follow-up workflows, or feed your own analytics systems.
+
+## Event types
+
+turboSMTP webhooks fall into two categories:
+
+- **Delivery events** — fired when turboSMTP processes or attempts delivery of your email
+- **Engagement events** — fired when a recipient interacts with your email after it has been delivered
+
+## Delivery events
+
+Delivery events tell you what happened to your email on its journey to the recipient's mail server.
+
+### PROCESSED
+
+The email has been received by turboSMTP and queued for sending.
+
+```json Example payload
+{
+  "id": "5943788912",
+  "mid": "5520611177",
+  "status": "PROCESSED",
+  "email": "example@turbo-smtp.com",
+  "subject": "Test Email",
+  "timestamp": 1576709777
+}
+```
+
+### DROPPED
+
+The email was dropped before sending — for example, because the recipient is on your suppression list due to a previous spam complaint or unsubscribe.
+
+```json Example payload
+{
+  "id": "5943799537",
+  "mid": "5520621607",
+  "status": "DROPPED",
+  "email": "example@turbo-smtp.com",
+  "subject": null,
+  "timestamp": 1576710200,
+  "reason": {
+    "0": "Dropped due to complaining recipient",
+    "response": "Dropped due to complaining recipient"
+  }
+}
+```
+
+### DELIVERED
+
+The email was accepted by the recipient's mail server.
+
+```json Example payload
+{
+  "id": "5943788912",
+  "mid": "5520611177",
+  "status": "DELIVERED",
+  "email": "example@turbo-smtp.com",
+  "subject": "Test Email",
+  "timestamp": 1576709777
+}
+```
+
+### DEFERRED
+
+The recipient's mail server temporarily rejected delivery. turboSMTP will continue retrying. The `attempt` field shows how many delivery attempts have been made so far.
+
+```json Example payload
+{
+  "id": "5943788913",
+  "mid": "5520611177",
+  "status": "DEFERRED",
+  "email": "example@turbo-smtp.com",
+  "subject": "Test Email",
+  "timestamp": 1576709777,
+  "reason": "400 try again later",
+  "attempt": 2
+}
+```
+
+### BOUNCED
+
+The email hard-bounced — the recipient's mail server permanently rejected it. Remove bounced addresses from your list to protect your sender reputation.
+
+```json Example payload
+{
+  "id": "5943830007",
+  "mid": "5520650288",
+  "status": "BOUNCED",
+  "email": "example@turbo-smtp.com",
+  "subject": "Test Email",
+  "timestamp": 1576711314,
+  "reason": {
+    "0": "104.47.38.36 does not like recipient. Remote host said: 550 5.4.1 Recipient address rejected: Access denied. AS(201806281) [BL2NAM02FT016.eop-nam02.prod.protection.outlook.com] {199.244.74.162} Giving up on 104.47.38.36.",
+    "response": "104.47.38.36 does not like recipient. Remote host said: 550 5.4.1 Recipient address rejected: Access denied. AS(201806281) [BL2NAM02FT016.eop-nam02.prod.protection.outlook.com] {199.244.74.162} Giving up on 104.47.38.36."
+  }
+}
+```
+
+## Engagement events
+
+Engagement events fire when a recipient interacts with your email after delivery. These events require click and open tracking to be enabled on your account.
+
+### OPENED
+
+The recipient opened the email (the tracking pixel was loaded by their email client).
+
+```json Example payload
+{
+  "id": "5943788913",
+  "mid": "5520611177",
+  "status": "OPENED",
+  "email": "example@turbo-smtp.com",
+  "subject": "Test Email",
+  "timestamp": 1576709777,
+  "useragent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36",
+  "ip": "40.101.136.165"
+}
+```
+
+### CLICKED
+
+The recipient clicked a tracked link in the email. The `url` field contains the destination URL that was clicked.
+
+```json Example payload
+{
+  "id": "5943788913",
+  "mid": "5520611177",
+  "status": "CLICKED",
+  "email": "example@turbo-smtp.com",
+  "subject": "Test Email",
+  "timestamp": 1576709777,
+  "useragent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36",
+  "url": "https://serversmtp.com",
+  "ip": "156.218.154.17"
+}
+```
+
+### UNSUBSCRIBED
+
+The recipient clicked your unsubscribe link. turboSMTP automatically adds them to your suppression list.
+
+```json Example payload
+{
+  "id": "5943788913",
+  "mid": "5520611177",
+  "status": "UNSUBSCRIBED",
+  "email": "example@turbo-smtp.com",
+  "subject": "Test Email",
+  "timestamp": 1576709777
+}
+```
+
+### REPORT
+
+The recipient reported the email as spam using their email client's report button.
+
+```json Example payload
+{
+  "id": "5943788913",
+  "mid": "5520611177",
+  "status": "REPORT",
+  "email": "example@turbo-smtp.com",
+  "subject": "Test Email",
+  "timestamp": 1576709777
+}
+```
+
+## Event fields reference
+
+Every webhook payload may include the following fields depending on event type:
+
+| Field | Description |
+|-------|-------------|
+| `id` | Unique identifier for this specific event. |
+| `mid` | Identifier tied to the original message. Multiple events for the same email share the same `mid`. |
+| `status` | The event type: `PROCESSED`, `DROPPED`, `DELIVERED`, `DEFERRED`, `BOUNCED`, `OPENED`, `CLICKED`, `UNSUBSCRIBED`, or `REPORT`. |
+| `email` | The recipient's email address. |
+| `subject` | The email subject line. May be `null` for DROPPED events. |
+| `timestamp` | Unix timestamp (UTC/GMT+0) of when the event occurred. |
+| `reason` | The error or status message returned by the receiving server. Present on `DROPPED`, `DEFERRED`, and `BOUNCED` events. |
+| `attempt` | Number of delivery attempts made so far. Present on `DEFERRED` events. |
+| `useragent` | The browser or mail client user agent string. Present on `OPENED` and `CLICKED` events. |
+| `ip` | IP address of the recipient who triggered the event. Present on `OPENED` and `CLICKED` events. |
+| `url` | The destination URL that was clicked. Present on `CLICKED` events only. |
+
+## Setting up webhooks
+
+Configure your webhook endpoint from the turboSMTP dashboard:
+
+<Steps>
+  <Step title="Open Settings">
+    Log in to your [turboSMTP dashboard](https://dashboard.serversmtp.com) and navigate to **Settings**.
+  </Step>
+  <Step title="Go to Integrations → Webhooks">
+    Select the **Integrations** section, then open the **Webhooks** tab.
+  </Step>
+  <Step title="Enter your endpoint URL">
+    Paste the HTTPS URL of your webhook receiver endpoint. turboSMTP will POST JSON payloads to this URL for every event.
+  </Step>
+  <Step title="Select event types">
+    Choose which delivery and engagement events you want to receive. You can subscribe to all events or only the ones relevant to your workflow.
+  </Step>
+  <Step title="Save and test">
+    Save your configuration. Use the **Send Test** button to fire a sample payload to your endpoint and verify it is receiving events correctly.
+  </Step>
+</Steps>
+
+<Warning>
+  Your webhook endpoint must respond with an HTTP `2xx` status code within a reasonable timeout window. If turboSMTP does not receive a successful response, it will retry delivery of the event. Ensure your endpoint is idempotent and handles duplicate deliveries gracefully.
+</Warning>
+
+<Tip>
+  Use the `reference_id` field when sending emails via the API to attach a custom identifier (such as your internal order ID or user ID) to each message. This identifier will appear in webhook payloads, making it easy to correlate email events with records in your own database without having to look up turboSMTP message IDs.
+</Tip>

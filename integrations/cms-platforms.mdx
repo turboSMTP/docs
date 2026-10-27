@@ -1,0 +1,30 @@
+---
+title: "Connect Drupal, Joomla, and Magento to turboSMTP via SMTP"
+sidebarTitle: "Drupal, Joomla & Magento"
+description: "Configure Drupal, Joomla, Magento, and other CMS platforms to send transactional email through the turboSMTP SMTP relay with authenticated delivery."
+keywords:
+  - "drupal smtp"
+  - "joomla smtp"
+  - "magento smtp"
+  - "cms email delivery"
+  - "ecommerce smtp"
+---
+
+turboSMTP works with any CMS that supports SMTP configuration via a plugin or built-in settings. Install the appropriate SMTP plugin for your platform and enter the standard turboSMTP settings:
+
+- **SMTP host:** `pro.turbo-smtp.com` (or `pro.eu.turbo-smtp.com` for European servers)
+- **Port:** `587` (or `465` / `2525`)
+- **Username:** your [Consumer Key](/get-started/api-keys)
+- **Password:** your [Consumer Secret](/get-started/api-keys)
+
+| Platform | Recommended plugin |
+| --- | --- |
+| **Drupal** | SMTP Authentication Support (`drupal.org/project/smtp`) |
+| **Joomla** | SMTP Mailer (built-in under **System → Global Configuration → Mail**) |
+| **Magento** | Configure under **Stores → Configuration → Advanced → System → Mail Sending Settings** |
+
+For each platform, set the SMTP credentials as above and send a test email to confirm delivery.
+
+<Tip>
+  Using WordPress? See the dedicated [WordPress guide](/integrations/wordpress) for the official turboSMTP plugin.
+</Tip>

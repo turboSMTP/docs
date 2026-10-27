@@ -1,0 +1,76 @@
+---
+title: "Manage turboSMTP Sub-Accounts and White-Label Reselling"
+sidebarTitle: "Sub-Accounts"
+description: "Create sub-accounts to distribute email credits among team members or resell turboSMTP under your own brand. Available on Pro monthly plans and above."
+---
+
+turboSMTP's sub-account system lets you divide a single email plan into multiple independent accounts, each with its own dashboard, sending credentials, and analytics. Whether you're coordinating a team's email usage or building a white-label reselling business, sub-accounts give you the control and visibility you need — all from a single parent account.
+
+## Use cases
+
+<CardGroup cols={2}>
+  <Card title="Team Distribution" icon="users">
+    Purchase a large monthly plan and distribute a precise allocation of email credits to each coworker or department. Each team member gets their own dashboard access and sending credentials, while you retain full oversight.
+  </Card>
+  <Card title="White-Label Reselling" icon="store">
+    Buy email volume at wholesale and resell it to your own customers under your brand. Each customer gets a personalized interface and their own statistics, and you control the pricing and allocation.
+  </Card>
+</CardGroup>
+
+## How sub-accounts work
+
+When you create a sub-account from a Pro plan, you assign a specific number of email credits to it. The sub-account holder receives an invitation and gains access to their own personal turboSMTP dashboard — they can view their statistics, manage their sending settings, and use their assigned credits independently.
+
+As the parent account owner, you retain full visibility across all sub-accounts. You can monitor each sub-account's usage and activity from your own dashboard, reassign credits, or deactivate a sub-account at any time. Sub-accounts cannot exceed the credit allocation you assign; they draw only from their own pool, not from the parent account's remaining balance.
+
+## Create a sub-account
+
+<Steps>
+  <Step title="Log in to your Pro plan dashboard">
+    Sign in to your turboSMTP account at [dashboard.serversmtp.com](https://dashboard.serversmtp.com). Sub-accounts require a Pro monthly plan or higher.
+  </Step>
+  <Step title="Go to Sub-accounts">
+    In the left-hand navigation menu, click **Sub-accounts**.
+  </Step>
+  <Step title="Click Add sub-account">
+    Click the **Add sub-account** button to open the creation form.
+  </Step>
+  <Step title="Enter details and assign credits">
+    Enter the sub-account holder's email address and specify the number of email credits to assign to this sub-account.
+  </Step>
+  <Step title="Send the invitation">
+    Click **Save**. The sub-account holder receives an invitation email with instructions to set their password and access their personal dashboard.
+  </Step>
+</Steps>
+
+## Monitor sub-accounts
+
+Your parent account dashboard includes a **Sub-accounts overview** that shows real-time usage data for every sub-account you have created:
+
+- Credits assigned vs. credits used
+- Emails sent, delivered, bounced, and opened per sub-account
+- Last activity timestamp
+
+Use this view to identify which sub-accounts are approaching their credit limit so you can top them up before sending is interrupted, or to spot unusual activity patterns early.
+
+<Note>
+  Sub-accounts require a **Pro monthly plan or higher**. They are not available on the free tier or on prepaid/pay-as-you-go plans. Upgrade your plan from the dashboard before attempting to create sub-accounts.
+</Note>
+
+## Manage sub-accounts via API
+
+You can create, update, list, and delete sub-accounts programmatically using the turboSMTP REST API. All sub-account endpoints require your API key in the `Authorization` header (raw key — no `Bearer` prefix).
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/v2/subaccounts/list` | List all sub-accounts on your plan |
+| `POST` | `/api/v2/subaccounts` | Create a new sub-account |
+| `GET` | `/api/v2/subaccounts/{Id}` | Retrieve a specific sub-account |
+| `PUT` | `/api/v2/subaccounts/{Id}` | Update a sub-account's settings or credit allocation |
+| `DELETE` | `/api/v2/subaccounts/{Id}` | Delete a sub-account |
+
+See the [API reference](/api-reference/subaccounts) for full request and response documentation.
+
+## White-label branding
+
+When you operate as a reseller, your sub-account users see a personalized interface branded to your company rather than turboSMTP's. The parent account can configure the branding that sub-account holders experience, so your customers interact entirely with your brand throughout the dashboard — from the logo to the support contact details. This makes it straightforward to offer a professional, branded email relay service to your clients without building any infrastructure of your own.
