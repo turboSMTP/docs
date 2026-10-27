@@ -1,0 +1,27 @@
+---
+title: "Account Security and Two-Factor Authentication"
+sidebarTitle: "Account Security"
+description: "Protect dashboard access with Keycloak two-factor authentication and use separate Consumer Key credentials for your integrations."
+---
+
+The turboSMTP dashboard uses **Keycloak** for sign-in and two-factor authentication. Two-factor authentication is available on Free, Basic, Pro, and Enterprise plans.
+
+## Enable two-factor authentication
+
+Use the Keycloak account security interface associated with your dashboard login. Follow its setup prompts to register an authenticator app and confirm a temporary code. Contact support if you need help accessing your account security settings.
+
+Two-factor authentication protects dashboard sign-in. SMTP and HTTP API integrations continue to authenticate with their **Consumer Key** and **Consumer Secret**.
+
+## Protect integration credentials
+
+Create credentials under **Settings → Integrations → API Keys → Edit**. Enable only the services your integration needs:
+
+- **SMTP Sending** for SMTP relay.
+- **HTTP API Sending** for the send API.
+- **Statistics & Management APIs** for management operations.
+
+Use IP restrictions when your application's outbound IP addresses are known. Store secrets in your application's secret manager or environment, and replace credentials if they are exposed. See [API keys](/get-started/api-keys) for creation, limits, and rotation.
+
+## Dashboard passwords and API access
+
+Use the dashboard's Keycloak flow to manage your login password. Use Consumer credentials for integrations; see [API authentication](/api-reference/authentication) for the legacy login endpoint's limitations and the operations that require a session.

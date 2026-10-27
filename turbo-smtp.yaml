@@ -6,73 +6,49 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
   description: |
-    This document describes all public turboSMTP **V2** API and offers endpoints Descriptions, Parameters, Requests, Responses and Samples of usage.
-
-    [Click here to view the previous version of turboSMTP Public API Version 1.0](https://www.serversmtp.com/turbo-api-1)
-
-
-    # Useful Links for Developers
-
-    - [Email SDKs for Developers](https://serversmtp.com/email-sdks-for-developers)
-    - [Webhooks Reference](https://serversmtp.com/event-webhook-reference/)
-    - [Email API for Developers](https://serversmtp.com/email-api-for-developers)
-
-
-    # Security
-
-    For the most part (and where not otherwise explicit) turboSMTP's API requires authorization.
-    Both methods are passed as HTTP request headers.
+    This document describes turboSMTP's public v2 API.
 
     ## Base URLs
 
-    Different endpoints live on different hosts:
-
     | Host | Used for |
     |---|---|
-    | `https://pro.api.serversmtp.com/api/v2` | All endpoints **except** `/mail/send` |
-    | `https://api.turbo-smtp.com/api/v2` | `POST /mail/send` only |
-    | `https://api.eu.turbo-smtp.com/api/v2` | `POST /mail/send` only — EU sending infrastructure |
+    | `https://pro.api.serversmtp.com/api/v2` | Management, analytics, and account endpoints |
+    | `https://api.turbo-smtp.com/api/v2` | `POST /mail/send`, Global |
+    | `https://api.eu.turbo-smtp.com/api/v2` | `POST /mail/send`, EU |
 
-    ## Authentication Methods
+    ## Authentication
 
-    | Method | Headers | Lifetime | Best for |
-    |---|---|---|---|
-    | **API Key** | `Authorization: <key>` | 2 hours (or non-expiring with `no_expire: true`) | Interactive sessions, account administration |
-    | **Consumer Key / Secret** | `consumerKey: <key>` + `consumerSecret: <secret>` | Permanent until deleted | Production integrations, sending email |
+    Use `consumerKey` and `consumerSecret` request headers for production integrations.
+    Management endpoints require the Statistics & Management APIs (`APIS`) permission;
+    sending requires `SEND_API` for HTTP or `SEND_SMTP` for SMTP. Key IP restrictions must allow the caller.
+    Manage keys in Settings > Integrations > API Keys > Edit.
 
-    **Endpoint-specific rules:**
+    `POST /mail/send` authenticates only with Consumer credentials. An `Authorization`
+    header is ignored; a request carrying only that header is refused.
 
-    - **`POST /mail/send` accepts only `consumerKey`/`consumerSecret`** — requests with an `Authorization` header will be rejected with `401`.
-    - **Consumer key management (`/user/consumerKeys`) requires the `Authorization` header** — you cannot create or delete consumer keys while authenticated with a consumer key.
-    - **The `Authorization` value is the raw key** — do not prefix it with `Bearer` or any other scheme.
+    Consumer-key management (`/user/consumerKeys` and its key-specific routes),
+    `/change-password`, and `/update-password` refuse Consumer credentials. These
+    operations require a session API key in the raw `Authorization` header, without `Bearer`.
 
-    ## * API Key
+    The legacy `POST /authorize` endpoint returns an `auth` value for session requests.
+    It can fail after a password change through Keycloak even when dashboard login succeeds. A `200` response does not guarantee
+    a usable token: unknown emails can receive a token that subsequent calls reject.
+    Prefer Consumer credentials and use the dashboard to manage keys when session login fails.
 
-    Issued by `POST /authorize` upon a successful email + password challenge. Returned as the `auth` field.
-    With `no_expire: false` (default) the key expires after **2 hours**; set `no_expire: true` for a non-expiring key.
-    To revoke a key call `POST /deauthorize`.
+    `/authorize` permits 10 calls per IP within 2 minutes, successful or not. Exceeding
+    the limit blocks the IP until support clears it; there is no automatic unblock.
+    This legacy login limit does not apply to Consumer-key authentication.
 
-    > `/authorize` is rate-limited — cache and reuse the key rather than calling it before every request.
+    Session keys expire after 2 hours by default; `no_expire: true` requests a non-expiring
+    session. `POST /deauthorize` revokes a session key. Store secrets securely.
 
-    (Use [/authorize](#/authentication/AuthenticationLogin) to obtain an API Key)
+    ## Developer resources
 
-    ## * Consumer Key / Secret
+    - [API documentation](https://serversmtp.com/turbo-api/)
+    - [Email SDKs](https://serversmtp.com/email-sdks-for-developers)
+    - [Webhook reference](https://serversmtp.com/event-webhook-reference/)
 
-    A permanent key/secret pair tied to your account (not to your password). Consumer keys support IP-based
-    restrictions and can be revoked individually — they are the recommended method for production and are
-    **required** for `/mail/send`.
-
-    > The `consumerSecret` is returned **only at creation time** and cannot be retrieved later — store it securely.
-
-    (Use [/user/consumerKeys](#/consumerkey/createConsumerKey) to create a Consumer Key / Secret pair)
-
-    # Data Interchange Format
-
-    For the most part (and where not otherwise explicit) turboSMTP’s API uses JSON as the data format of choice when it comes to request and response bodies.
-
-
-
-      
+    Request and response bodies use JSON unless an operation specifies another format.
   contact:
     email: api@turbo-smtp.com
 servers:
@@ -105,14 +81,17 @@ paths:
       security: []
       tags:
         - authentication
-      summary: Login - Get API Key
+      summary: Legacy login - get a session API key
       operationId: AuthenticationLogin
       description: |
-        **This endpoint allows you to get an API Key**
+        Password changes through Keycloak can cause wrong_credentials_specified despite a working dashboard login.
+        Use Consumer credentials for integrations and the dashboard to manage keys.
 
-        By providing your turboSMTP authentication details you will be able to get an API Key.
+        Unknown emails can receive an unusable token or wrong_credentials_specified.
+        A 200 response alone does not establish that the token works.
 
-        Use your API Key to consume APIs that require authorization.
+        The limit is 10 calls per IP in 2 minutes, successful or not. Exceeding it blocks
+        the IP with api_limit_reached until support clears the block; it does not expire automatically.
       requestBody:
         required: true
         content:
@@ -124,7 +103,7 @@ paths:
           description: |
             Sucess
 
-            User logged in sucessfully, use the auth value as API Key from request body in future API calls.
+            Returns an auth value. For an unknown email, the token may be unusable.
           content:
             application/json:
               schema:
@@ -161,9 +140,9 @@ paths:
         - authentication
       summary: Logout - Revoke API Key
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       operationId: AuthenticationLogout
       description: |
         **This endpoint allows you to revoke your API Key**
@@ -420,7 +399,6 @@ paths:
         - mail
       summary: Send email message
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
       operationId: sendEmail
@@ -432,10 +410,12 @@ paths:
         | Host | Region |
         |---|---|
         | `https://api.turbo-smtp.com/api/v2` | Global (default) |
-        | `https://api.eu.turbo-smtp.com/api/v2` | European infrastructure — use for EU data residency |
+        | `https://api.eu.turbo-smtp.com/api/v2` | EU sending endpoint |
 
         ###### **Notes:**
-        **- ConsumerKey / ConsumerSecret headers should be used. This endpoint does not support Authorization header**
+        Authenticate with consumerKey and consumerSecret headers and SEND_API permission.
+        An Authorization header is ignored. A request with only Authorization and no
+        Consumer credentials is refused.
 
         **- Switch between samples to learn about advanced features such as using attachments, custom headers like reply-to address, tracking, embeded images and others.**
 
@@ -484,15 +464,15 @@ paths:
               Images:
                 summary: Email with Embedded Images using CID
                 value:
-                  from: user@example.com
-                  to: test@example.com
-                  subject: This is a Message subject
-                  html_content: <p><img style='' src='cid:<UNIQUE_ID>@<SENDER_DOMAIN.COM>'></p>
+                  from: Example <sender@example.com>
+                  to: recipient@example.com
+                  subject: Your account is ready
+                  html_content: '<p>Your account is ready.</p><img src="cid:logo@example.com" alt="Example logo">'
                   attachments:
-                    - content_id: <UNIQUE_ID>
-                      content: data:image/jpeg;base64,/BASE_64_OF_THE_IMAGE
-                      name: image.jpg
-                      type: image/jpeg
+                    - content_id: logo
+                      content: BASE64_ENCODED_IMAGE_CONTENT
+                      name: logo.png
+                      type: image/png
       responses:
         '200':
           description: |
@@ -530,9 +510,9 @@ paths:
                   value:
                     message: error
                     errors:
-                      - '''abc'' ''to'' email not valid'
-                      - '''cc_@ab1'' ''cc'' email not valid'
-                      - '''bcc_@ab3'' ''bcc'' email not valid'
+                      - - '''abc'' ''to'' email not valid'
+                      - - '''cc_@ab1'' ''cc'' email not valid'
+                      - - '''bcc_@ab3'' ''bcc'' email not valid'
                 InvalidMime:
                   summary: Invalid MIME content
                   value:
@@ -544,7 +524,8 @@ paths:
                   value:
                     message: error
                     errors:
-                      - nocredit
+                      message: error
+                      errors: nocredit
         '401':
           description: |
             Unauthorized
@@ -560,7 +541,7 @@ paths:
                   value:
                     errorCode: 3
                     message: Invalid authorization token
-                    details: 'No authorization key was specified for request: POST /api/mail/send'
+                    details: 'No authorization key was specified for request: POST /api/v2/mail/send'
                 InvalidAuthorizationToken:
                   summary: Authorization Tokens are invalid.
                   value:
@@ -569,7 +550,7 @@ paths:
                 DeactivatedAccount:
                   summary: Account is innactive
                   value:
-                    errorCode: 3
+                    error: 3
                     message: Account for developer@your-domain.com is inactive
   /suppressions/import:
     post:
@@ -578,9 +559,9 @@ paths:
         - suppressions
       summary: Import Suppressions
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Import Suppressions
@@ -627,9 +608,9 @@ paths:
         - suppressions
       summary: Get Suppressions Data
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       operationId: getSuppressions
       description: |
         Get Suppressions Data
@@ -661,9 +642,9 @@ paths:
         - suppressions
       summary: Filter suppressions
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       operationId: filterSuppressions
       description: |
         Get Suppressions Data
@@ -691,9 +672,9 @@ paths:
         - suppressions
       summary: Export Suppressions data in CSV file
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       operationId: exportSuppressionsDataCSV
       description: |
         Export Suppressions data in CSV file
@@ -716,9 +697,9 @@ paths:
         - suppressions
       summary: Export filtered suppressions
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       operationId: exportFilterSuppressions
       description: |
         Export Filtered Suppressions
@@ -736,9 +717,9 @@ paths:
   /suppressions/bulk_delete:
     post:
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       tags:
         - suppressions
       summary: Bulk delete suppressions
@@ -777,9 +758,9 @@ paths:
         - suppressions
       summary: Delete suppressions
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       operationId: deleteFilterSuppressions
       description: |
         Delete suppressions
@@ -857,9 +838,9 @@ paths:
   /billing/buy_emailvalidation_credits:
     post:
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       tags:
         - billing
       summary: Buy Email Validator Credits
@@ -907,9 +888,9 @@ paths:
         - email-validator
       summary: Get Email Validation subscription
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         This endpoint allows to get details about remaining credit / balance for email validation.
@@ -938,12 +919,13 @@ paths:
         - email-validator
       summary: Upload file for email validation
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
-        Upload file for email validation
+        Upload a file and receive list_id and total_emails. Uploading does not start
+        validation. Call POST /emailvalidation/lists/{Id}/validate explicitly.
       requestBody:
         required: true
         content:
@@ -1006,9 +988,9 @@ paths:
         - email-validator
       summary: Get Email validation lists information
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         List files for email validation information
@@ -1037,9 +1019,9 @@ paths:
         - email-validator
       summary: Get Email validation list details
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Get Email validation list details
@@ -1074,9 +1056,9 @@ paths:
         - email-validator
       summary: Delete email validation list
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Delete email validation list
@@ -1111,13 +1093,15 @@ paths:
       tags:
         - email-validator
       summary: |
-        Validate list in Email Validator
+        Start validation of an uploaded list
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
-        Validate list in Email Validator
+        Start validation for a previously uploaded list. No request body is required.
+        Read GET /emailvalidation/lists/{Id} for progress and the /emails or /csv
+        endpoints for results.
       parameters:
         - $ref: '#/components/parameters/IdParam'
       responses:
@@ -1125,7 +1109,7 @@ paths:
           description: |
             Sucess
 
-            List was validated sucessfully.
+            Validation request accepted. Read the list summary for progress.
         '400':
           description: |
             Bad Request
@@ -1158,9 +1142,9 @@ paths:
         - email-validator
       summary: Get Validated Emails by Email Validation List
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Get Validated Emails by Email Validation List
@@ -1231,9 +1215,9 @@ paths:
         - email-validator
       summary: Get Email validation data by email ID.
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Get Email validation data by email ID.
@@ -1284,9 +1268,9 @@ paths:
         - email-validator
       summary: Export Validated Emails by Email Validation List to CSV File
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Export Validated Emails by Email Validation List to CSV File
@@ -1315,9 +1299,9 @@ paths:
         - email-validator
       summary: Validate single email address
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Validate singleemail adddress.
@@ -1360,9 +1344,9 @@ paths:
         - subaccounts
       summary: Get Subaccounts lists information
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         List subaccounts information
@@ -1420,12 +1404,13 @@ paths:
         - subaccounts
       summary: Check if account email exists in turboSMTP
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
-        Check if account email exists in turboSMTP
+        Check if an email is already associated with a turboSMTP account.
+        Use the case-sensitive query parameter Email with a capital E.
       parameters:
         - $ref: '#/components/parameters/EmailQueryParam'
       responses:
@@ -1460,9 +1445,9 @@ paths:
         - subaccounts
       summary: Create Subaccount.
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Create subaccount.
@@ -1514,9 +1499,9 @@ paths:
         - subaccounts
       summary: Get sub account details
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Get sub account details.
@@ -1541,9 +1526,9 @@ paths:
         - subaccounts
       summary: Update sub account details
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Update sub account details.
@@ -1585,6 +1570,23 @@ paths:
           $ref: '#/components/responses/ForbiddenForActivePlan'
         '404':
           $ref: '#/components/responses/SubaccountNotFound'
+    delete:
+      tags:
+        - subaccounts
+      summary: Soft-delete a sub-account
+      operationId: deleteSubaccount
+      security:
+        - consumerKey: []
+          consumerSecret: []
+        - ApiKeyAuth: []
+      description: Soft-delete the sub-account and free its email address for reuse.
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        2XX:
+          description: Sub-account soft-deleted.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
   /subaccounts/{Id}/updatesubaccountsmtplimit:
     post:
       operationId: UpdateSubaccountSMTPLimit
@@ -1592,9 +1594,9 @@ paths:
         - subaccounts
       summary: Set subaccount smtp limit
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Set subaccount smtp limit.
@@ -1640,9 +1642,9 @@ paths:
         - subaccounts
       summary: Set subaccount status
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Set subaccount status.
@@ -1686,9 +1688,9 @@ paths:
         - subaccounts
       summary: Login to a subaccount
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Login to a subaccount.
@@ -1744,9 +1746,9 @@ paths:
         - subaccounts
       summary: Get subaccount active plan.
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Get subaccount active plan.
@@ -1772,9 +1774,9 @@ paths:
         - subaccounts
       summary: Upload agency logo
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Upload agency logo.
@@ -1819,9 +1821,9 @@ paths:
         - subaccounts
       summary: Get agency logo
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Get agency logo
@@ -1836,9 +1838,9 @@ paths:
         - subaccounts
       summary: Delete agency logo
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Delete agency logo
@@ -1872,9 +1874,9 @@ paths:
         - subaccounts
       summary: Update Agency details
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Get Agency details.
@@ -1893,9 +1895,9 @@ paths:
         - subaccounts
       summary: Update Agency details
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Update Agency Details
@@ -1937,12 +1939,12 @@ paths:
         - alerts
       summary: Get Alerts Notifications Information
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
-        List Alerts Notifications Information
+        List email alerts for daily sending credit usage
       responses:
         '200':
           description: |
@@ -1961,12 +1963,12 @@ paths:
         - alerts
       summary: Create new Alert Notification
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
-        Create new Alert Notification
+        Create an email alert when daily sending credit usage passes the percentage.
       requestBody:
         required: true
         content:
@@ -2023,9 +2025,9 @@ paths:
         - alerts
       summary: Update Alert Notification
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Update Alert Notification.
@@ -2082,9 +2084,9 @@ paths:
         - alerts
       summary: Get Alert Notification
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Get Alert Notification.
@@ -2119,9 +2121,9 @@ paths:
         - alerts
       summary: Delete Alert Notification
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       description: |
 
         Delete an Alert Notification.
@@ -2156,9 +2158,9 @@ paths:
         - analytics
       summary: Get Analytics Data
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       operationId: getAnalyticsData
       description: |
         Get Analytics Data
@@ -2212,9 +2214,9 @@ paths:
         - analytics
       summary: Export Analytics data in CSV file
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       operationId: exportAnalyticsDataCSV
       description: |
         Export Analytics data in CSV file
@@ -2262,9 +2264,9 @@ paths:
         - analytics
       summary: Get Analytics Single Item by ID
       security:
-        - ApiKeyAuth: []
         - consumerKey: []
           consumerSecret: []
+        - ApiKeyAuth: []
       operationId: getAnalyticsDataByID
       description: |
         Get Analytics Data by ID
@@ -2401,6 +2403,124 @@ paths:
                 $ref: '#/components/schemas/CommonMessageResponseBody'
               example:
                 message: key_not_found
+    put:
+      tags:
+        - consumerkey
+      summary: Update a Consumer Key
+      operationId: updateConsumerKey
+      security:
+        - ApiKeyAuth: []
+      description: Update label, ips, and permissions. Requires a session API key; Consumer authentication is refused.
+      parameters:
+        - $ref: '#/components/parameters/ConsumerKeyPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsumerKeyUpdateRequestBody'
+      responses:
+        2XX:
+          description: Consumer Key updated.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /user/info:
+    get:
+      tags:
+        - authentication
+      summary: Get account information
+      operationId: getUserInfo
+      security:
+        - consumerKey: []
+          consumerSecret: []
+        - ApiKeyAuth: []
+      description: Read account information using Consumer credentials with APIS permission or a session API key.
+      responses:
+        '200':
+          description: Account information.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /tools:
+    get:
+      tags:
+        - analytics
+      summary: Get account tools
+      operationId: getTools
+      security:
+        - consumerKey: []
+          consumerSecret: []
+        - ApiKeyAuth: []
+      description: Returns an array of tools with id and enabled fields.
+      responses:
+        '200':
+          description: Account tool settings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      description: Tool identifier.
+                    enabled:
+                      type: boolean
+                  required:
+                    - id
+                    - enabled
+                  additionalProperties: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /tools/clickTracking/{action}:
+    put:
+      tags:
+        - analytics
+      summary: Enable or disable click tracking
+      operationId: setClickTracking
+      security:
+        - consumerKey: []
+          consumerSecret: []
+        - ApiKeyAuth: []
+      description: Change account-wide click tracking. No request body is required.
+      parameters:
+        - in: path
+          name: action
+          required: true
+          schema:
+            type: string
+            enum:
+              - enable
+              - disable
+      responses:
+        2XX:
+          description: Tracking setting updated.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /tools/openingTracking/{action}:
+    put:
+      tags:
+        - analytics
+      summary: Enable or disable open tracking
+      operationId: setOpeningTracking
+      security:
+        - consumerKey: []
+          consumerSecret: []
+        - ApiKeyAuth: []
+      description: Change account-wide open tracking. No request body is required.
+      parameters:
+        - in: path
+          name: action
+          required: true
+          schema:
+            type: string
+            enum:
+              - enable
+              - disable
+      responses:
+        2XX:
+          description: Tracking setting updated.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
 components:
   schemas:
     AuthenticationLoginRequestBody:
@@ -2669,8 +2789,6 @@ components:
     ConsumerKeyCreateRequestBody:
       type: object
       additionalProperties: false
-      required:
-        - permissions
       properties:
         label:
           type: string
@@ -2678,7 +2796,8 @@ components:
           example: QAkey.
         permissions:
           type: array
-          description: Permissions granted to this consumer key. At least one value is required.
+          description: Permissions granted to the key. If omitted on creation, all three are granted. An explicit list
+            must be nonempty.
           minItems: 1
           items:
             type: string
@@ -2697,6 +2816,26 @@ components:
             type: string
           example:
             - 192.168.1.1
+    ConsumerKeyUpdateRequestBody:
+      type: object
+      additionalProperties: false
+      properties:
+        label:
+          type: string
+          description: Consumer Key label.
+        permissions:
+          type: array
+          items:
+            type: string
+            enum:
+              - SEND_SMTP
+              - SEND_API
+              - APIS
+        ips:
+          type: array
+          items:
+            type: string
+          description: Allowed IP addresses. An empty array removes IP restrictions.
     ConsumerKeyCreateResponseBody:
       type: object
       additionalProperties: false
@@ -2804,15 +2943,37 @@ components:
           type: string
           example: error
         errors:
-          type: array
-          items:
-            type: string
+          description: Validation errors or the structured insufficient-credit error.
+          oneOf:
+            - type: array
+              items:
+                oneOf:
+                  - type: string
+                  - type: array
+                    items:
+                      type: string
+            - type: object
+              additionalProperties: false
+              required:
+                - message
+                - errors
+              properties:
+                message:
+                  type: string
+                  const: error
+                errors:
+                  type: string
+                  const: nocredit
           example:
             - missing or not valid sender email (from)
     SendUnauthorizedResponseBody:
       type: object
       additionalProperties: false
       properties:
+        error:
+          type: integer
+          description: Error discriminator used by inactive-account responses.
+          example: 3
         errorCode:
           type: integer
           example: 3
@@ -2821,7 +2982,7 @@ components:
           example: Invalid authorization token
         details:
           type: string
-          example: 'No authorization key was specified for request: POST /api/mail/send'
+          example: 'No authorization key was specified for request: POST /api/v2/mail/send'
     Subaccount:
       unevaluatedProperties: false
       allOf:
@@ -3257,18 +3418,14 @@ components:
       properties:
         content:
           type: string
-          description: Base64 encoded content of the attachment
+          description: Base64-encoded file bytes, without a data URI prefix.
           example: dXBsb2FkZXIxQGdtYWlsLmNvbQ0KdXBsb2FkZXIyQGdtYWlsLmNvbQ0KYWJjMQ==
         content_id:
           type: string
           description: |
-            Content ID for referencing embedded images via CID in HTML content.
-            Valid formats include:
-            - UUID (e.g. "550e8400-e29b-41d4-a716-446655440000")
-            - Timestamp + suffix (e.g. "20231012-abc123") 
-            - Simple incremental ID (e.g. "1")
-            - Base64 encoded string (e.g. "c29tZV91bmlxdWUfaWQ=")
-            - Custom format (e.g. "img_001_2023")
+            Bare identifier for an inline image, such as logo. turboSMTP appends the
+            sender domain to form the MIME Content-ID. For sender@example.com and
+            content_id logo, reference cid:logo@example.com in html_content.
         name:
           type: string
           description: filename of the attachment
@@ -3647,10 +3804,11 @@ components:
     SuppressionBulkDeleteRequestBody:
       type: array
       minItems: 1
-      description: List of email addresses to delete (at least one required).
+      description: Email addresses to remove, from 1 to 100 per request.
       items:
         type: string
         format: email
+      maxItems: 100
     SuppressionsDeleteSuccess:
       type: object
       additionalProperties: false
@@ -3741,13 +3899,16 @@ components:
           type: integer
           example: 320
           description: Amount of money to use for purchase
+          minimum: 15
+          maximum: 1800
+      required:
+        - amount
     BuyEmailValidatorCreditsSucessResponse:
       type: object
       additionalProperties: false
       properties:
         url:
           type: string
-          example: http://bs.dev.serversmtp.com/index.php/guest/payment_information/form/amsyUJvFeW0fkjLqbcTKMCBRZDi2AdIH
           description: Url to complete payment
     BuyEmailValidatorCreditsBadRequestResponseBody:
       additionalProperties: false
@@ -3802,30 +3963,17 @@ components:
           example: valid
           description: |
 
-            The status of the email address you are validating.
+            Classification of the email address:
 
-              DELIVERABILITY STATUS EXPLANATION
+            - valid: Classified as valid. Delivery still depends on the receiving system.
+            - invalid: Invalid address; remove it from sending lists.
+            - catch_all: The domain accepts all addresses; mailbox validity is uncertain.
+            - spamtrap: Suspected spam trap; exclude it from sending.
+            - abuse: Known complaint risk; exclude it from sending.
+            - do_not_mail: Review the sub_status before sending.
+            - unknown: Validation could not determine the outcome.
 
-              valid:
-              These are emails that were determined to be valid and safe to email to, they will have a very low bounce rate of under 2%. If you receive bounces it can be because your IP might be blacklisted where our IP was not. Sometimes the email accounts exist, but they are only accepting mail from people in their contact lists. Sometimes you will get throttle on number of emails you can send to a specific domain per hour. It's important to look at the SMTP Bounce codes to determine why.
-              
-              invalid:
-              These are emails that were determined to be invalid, please delete them from your mailing list.
-              
-              catch-all: 
-              These emails are impossible to validate without sending a real email and waiting for a bounce. The term Catch-all means that the email server tells you that the email is valid, whether it's valid or invalid. If you want to email these addresses, we suggest you segment them into a catch-all group and be aware that some of these will most likely bounce.
-              
-              spamtrap: 
-              These emails are believed to be spamtraps and should not be mailed. We have technology in place to determine if certain emails should be classified as spamtrap. We don't know all the spamtrap email addresses, but we do know a lot of them.
-              
-              abuse: 
-              These emails belong to people who are known to click the abuse links in emails, hence abusers or complainers. We recommend not emailing these addresses.
-              
-              do_not_mail: 
-              These emails belong to companies, role-based, or people you just want to avoid emailing to. They are broken down into 6 sub-categories "disposable","toxic", "role_based", "role_based_catch_all", "global_suppression" and "possible_trap". You should decide if you want to email these address. They are valid email addresses, but shouldn't be mailed in most cases.
-              
-              unknown: 
-              These emails we weren't able to validate for one reason or another. Typical cases are "Their mail server was down" or "the anti-spam system is blocking us". In most cases, 80% unknowns are invalid/bad email addresses.
+            Validation does not guarantee delivery or establish consent to receive email.
         total:
           type: integer
           description: Ammount of emails in the status within the list.
@@ -3864,30 +4012,17 @@ components:
           example: valid
           description: |
 
-            The status of the email address you are validating.
+            Classification of the email address:
 
-              DELIVERABILITY STATUS EXPLANATION
+            - valid: Classified as valid. Delivery still depends on the receiving system.
+            - invalid: Invalid address; remove it from sending lists.
+            - catch_all: The domain accepts all addresses; mailbox validity is uncertain.
+            - spamtrap: Suspected spam trap; exclude it from sending.
+            - abuse: Known complaint risk; exclude it from sending.
+            - do_not_mail: Review the sub_status before sending.
+            - unknown: Validation could not determine the outcome.
 
-              valid:
-              These are emails that were determined to be valid and safe to email to, they will have a very low bounce rate of under 2%. If you receive bounces it can be because your IP might be blacklisted where our IP was not. Sometimes the email accounts exist, but they are only accepting mail from people in their contact lists. Sometimes you will get throttle on number of emails you can send to a specific domain per hour. It's important to look at the SMTP Bounce codes to determine why.
-              
-              invalid:
-              These are emails that were determined to be invalid, please delete them from your mailing list.
-              
-              catch-all: 
-              These emails are impossible to validate without sending a real email and waiting for a bounce. The term Catch-all means that the email server tells you that the email is valid, whether it's valid or invalid. If you want to email these addresses, we suggest you segment them into a catch-all group and be aware that some of these will most likely bounce.
-              
-              spamtrap: 
-              These emails are believed to be spamtraps and should not be mailed. We have technology in place to determine if certain emails should be classified as spamtrap. We don't know all the spamtrap email addresses, but we do know a lot of them.
-              
-              abuse: 
-              These emails belong to people who are known to click the abuse links in emails, hence abusers or complainers. We recommend not emailing these addresses.
-              
-              do_not_mail: 
-              These emails belong to companies, role-based, or people you just want to avoid emailing to. They are broken down into 6 sub-categories "disposable","toxic", "role_based", "role_based_catch_all", "global_suppression" and "possible_trap". You should decide if you want to email these address. They are valid email addresses, but shouldn't be mailed in most cases.
-              
-              unknown: 
-              These emails we weren't able to validate for one reason or another. Typical cases are "Their mail server was down" or "the anti-spam system is blocking us". In most cases, 80% unknowns are invalid/bad email addresses.
+            Validation does not guarantee delivery or establish consent to receive email.
         sub_status:
           type: string
           enum:
@@ -4111,7 +4246,9 @@ components:
         limit:
           type: integer
           example: 2000
-          description: The ammount of emails the sub account is allowed to send over the period specified by plan_limit_interval. Value -1 means no limit.
+          description: Sending cap for the plan period. -1 removes the sub-account cap. Must not exceed the parent account
+            limit.
+          minimum: -1
       required:
         - limit
     SmtpLimitInterval:
@@ -4248,7 +4385,6 @@ components:
               maxLength: 45
     SubaccountPasswordConfirmPassword:
       type: object
-      additionalProperties: false
       properties:
         password:
           type: string
@@ -4304,9 +4440,11 @@ components:
             percentage:
               type: integer
               example: 80
-              description: Percentage of usage that will trigger the alert
+              description: Daily sending credit usage percentage that triggers the email alert.
               maximum: 100
               minimum: 0
+          required:
+            - percentage
     Alert:
       unevaluatedProperties: false
       allOf:
@@ -4378,6 +4516,8 @@ components:
         - sender
         - recipient
         - domain
+        - x_campaign_id
+        - consumer_key
       example: domain
     AnalyticFilterBy:
       description: Filter by
@@ -4727,7 +4867,7 @@ components:
     EmailQueryParam:
       name: Email
       in: query
-      description: Email address.
+      description: Email address. Use the case-sensitive query name Email.
       required: true
       schema:
         type: string
@@ -4784,7 +4924,7 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/Filter'
-      description: Text to search (recipient, sender, email subject or reason for suppression)
+      description: Text to search in the fields selected by filter_by.
       examples:
         bysubject:
           value: September 2022

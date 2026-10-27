@@ -4,12 +4,12 @@ sidebarTitle: "Attachments"
 description: "Send PDFs, images, spreadsheets, and other files with the turboSMTP API. Learn Base64 encoding, supported MIME types, and the 24 MB total size limit."
 ---
 
-The turboSMTP API lets you attach files of any type to outbound emails by including them as Base64-encoded strings in the request body. You can send PDFs, images, spreadsheets, archives, or any other file format your recipients need — all in a single API call alongside your message content. To add attachments, include an `attachments` array in your `/mail/send` request body, where each element describes one file.
+The turboSMTP API lets you attach files of any type to outbound emails by including them as Base64-encoded strings in the request body. You can send PDFs, images, spreadsheets, archives, or any other file format your recipients need : all in a single API call alongside your message content. To add attachments, include an `attachments` array in your `/mail/send` request body, where each element describes one file.
 
 ## Attachment limits
 
 <Note>
-  The total size of your email, including all attachments, must be **less than 24 MB**. This limit covers the entire serialized message — headers, body, and all attachment content combined. Base64 encoding inflates binary files by approximately 33%, so a 16 MB binary file will produce roughly a 21 MB encoded string. Plan your attachment sizes accordingly.
+  The total size of your email, including all attachments, must be **less than 24 MB**. This limit covers the entire serialized message : headers, body, and all attachment content combined. Base64 encoding inflates binary files by approximately 33%, so a 16 MB binary file will produce roughly a 21 MB encoded string. Plan your attachment sizes accordingly.
 </Note>
 
 ## Request format
@@ -17,7 +17,7 @@ The turboSMTP API lets you attach files of any type to outbound emails by includ
 Add an `attachments` array to your standard `/mail/send` request body. Each object in the array represents one attached file.
 
 <ParamField body="attachments" type="array">
-  An array of attachment objects. Each object must include the three fields below.
+  An array of attachment objects. Each object must include `name`, `type`, and `content`. Use `content_id` only for inline content.
 
   <Expandable title="Attachment object fields">
     <ParamField body="name" type="string" required>
@@ -84,13 +84,11 @@ turboSMTP accepts any valid MIME type in the `type` field. The table below lists
 | Plain text       | `text/plain`                                                |
 | CSV              | `text/csv`                                                  |
 
-<Warning>
-  Microsoft Outlook may have issues opening PDF attachments that were created or encoded by Outlook itself. If your recipients report that they cannot open a PDF attachment, try sending the message from a non-Outlook client or mail library instead.
-</Warning>
+
 
 ## Multiple attachments
 
-To include more than one file, add additional objects to the `attachments` array. Each object is independent — you can mix different file types in the same request.
+To include more than one file, add additional objects to the `attachments` array. Each object is independent : you can mix different file types in the same request.
 
 ```bash Send email with multiple attachments
 curl -X POST 'https://api.turbo-smtp.com/api/v2/mail/send' \
@@ -124,3 +122,29 @@ curl -X POST 'https://api.turbo-smtp.com/api/v2/mail/send' \
 ```
 
 Remember that the combined encoded size of all attachments plus the rest of the email must remain under 24 MB. If you need to send large files, consider hosting them on a file storage service and linking to them in the email body instead.
+
+## Inline images
+
+Include an image in `attachments` with a bare `content_id`, such as `logo`. turboSMTP appends the sender's domain to the MIME Content-ID. The HTML must therefore use `cid:logo@example.com` when the sender is `sender@example.com`. A bare `cid:logo` will not match the delivered image.
+
+```json Message with an inline image
+{
+  "from": "Example <sender@example.com>",
+  "to": "recipient@example.com",
+  "subject": "Your account is ready",
+  "content": "Your account is ready.",
+  "html_content": "<p>Your account is ready.</p><img src=\"cid:logo@example.com\" alt=\"Example logo\">",
+  "attachments": [
+    {
+      "name": "logo.png",
+      "type": "image/png",
+      "content": "BASE64_ENCODED_IMAGE_CONTENT",
+      "content_id": "logo"
+    }
+  ]
+}
+```
+
+Replace `content` with the image's Base64 bytes, without a `data:image/...;base64,` prefix. Omit `content_id` to send a normal downloadable attachment.
+
+Use the same body at `https://api.turbo-smtp.com/api/v2/mail/send` or the EU host `https://api.eu.turbo-smtp.com/api/v2/mail/send`, authenticated with both Consumer headers.

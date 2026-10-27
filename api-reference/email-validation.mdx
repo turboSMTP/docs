@@ -1,162 +1,147 @@
 ---
-title: "Email Validation API — Verify Addresses Programmatically"
+title: "Email validation API"
 sidebarTitle: "Email Validation"
-description: "Validate single or bulk email lists via turboSMTP's API. Addresses are classified as Valid, Invalid, Catch-All, Spamtrap, Abuse, Do Not Mail, or Unknown."
+description: "Validate one address or upload a list, start validation, inspect progress, and download results."
 ---
 
-Sending to invalid or risky email addresses damages your sender reputation, inflates your bounce rate, and wastes sending credits. The turboSMTP Email Validation API lets you verify addresses before you send — either one at a time for real-time form validation or in bulk by uploading a CSV or TXT list for batch processing. Each address is classified with a risk level so you can decide which to keep, which to remove, and which to approach with caution.
+Email validation classifies addresses before sending. In the dashboard, open **Addons → Email validator**. Validation credits are separate from sending credits.
 
 ## Authentication
 
-All Email Validation API requests require your API key passed as a raw value in the `Authorization` header.
-
-```http Authorization header
-Authorization: YOUR_API_KEY
-```
-
-Do not prefix the value with `Bearer` or any other scheme.
-
 **Base URL:** `https://pro.api.serversmtp.com/api/v2`
 
-## Validate a single email
+Send `consumerKey` and `consumerSecret` headers with **Statistics & Management APIs** (`APIS`) permission. Its IP restrictions must allow your server. See [authentication](/api-reference/authentication).
 
-<Accordion title="POST /emailvalidation/validateEmail — Validate one address">
-  Submit a single email address for immediate validation. The API checks syntax, DNS records, mailbox existence, and known spam traps, then returns a classification status.
+## Check the validation balance
 
-  **Request**
+`GET /emailvalidation/subscription` returns:
 
-  ```bash Terminal
-  curl -X POST 'https://pro.api.serversmtp.com/api/v2/emailvalidation/validateEmail' \
-    -H 'Authorization: YOUR_API_KEY' \
-    -H 'Content-Type: application/json' \
-    -d '{
-      "email": "user@example.com"
-    }'
-  ```
-
-  **Request body**
-
-  | Field | Type | Required | Description |
-  |---|---|---|---|
-  | `email` | string | Yes | The email address to validate |
-
-  **Example response**
-
-  ```json
-  {
-    "email": "user@example.com",
-    "status": "Valid",
-    "sub_status": "",
-    "free_email": false,
-    "domain": "example.com"
-  }
-  ```
-
-  **Response status values**
-
-  | Status | Meaning |
-  |---|---|
-  | `Valid` | Address exists and is safe to send to |
-  | `Invalid` | Address does not exist or has permanent errors — remove it |
-  | `Catch-All` | Domain accepts all addresses; delivery not guaranteed |
-  | `Spamtrap` | Known spam trap address — do not send |
-  | `Abuse` | Address belongs to a known complainer |
-  | `Do Not Mail` | Address is on a do-not-mail list |
-  | `Unknown` | Could not determine status — proceed with caution |
-</Accordion>
-
-## Upload a list for batch validation
-
-<Accordion title="POST /emailvalidation/upload — Upload a list for batch processing">
-  Upload a CSV or TXT file containing email addresses to validate in bulk. turboSMTP processes the list asynchronously and returns a job ID you can use to poll for results.
-
-  **Request**
-
-  ```bash Terminal
-  curl -X POST 'https://pro.api.serversmtp.com/api/v2/emailvalidation/upload' \
-    -H 'Authorization: YOUR_API_KEY' \
-    -F 'file=@/path/to/email-list.csv' \
-    -F 'name=My Contact List'
-  ```
-
-  Upload your file as a multipart form. The file must be a `.csv` or `.txt` file with one email address per line.
-
-  **Example response**
-
-  ```json
-  {
-    "id": "vld_abc123",
-    "name": "My Contact List",
-    "status": "processing",
-    "total": 5000,
-    "processed": 0,
-    "created_at": "2024-04-24T10:00:00.000Z"
-  }
-  ```
-
-  Use the returned `id` to poll `GET /emailvalidation/lists/{Id}` for job status and completion.
-
-  **Poll for job status**
-
-  ```bash Terminal
-  curl -X GET 'https://pro.api.serversmtp.com/api/v2/emailvalidation/lists/vld_abc123' \
-    -H 'Authorization: YOUR_API_KEY'
-  ```
-
-  Poll this endpoint until the `status` field returns `completed`. At that point, download your results using the [CSV download endpoint](#download-results).
-</Accordion>
-
-## List validation jobs
-
-Use `GET /emailvalidation/lists` to retrieve all validation jobs associated with your account, including their status and progress.
+| Field | Meaning |
+|---|---|
+| `currency` | Currency for the paid balance. |
+| `free_credits`, `free_credits_used`, `remaining_free_credit` | Allocated, used, and remaining validation units. One free credit validates one address. |
+| `paid_credits` | Remaining monetary balance, not a count of addresses. Cost per validation varies with volume. |
+| `latest_period_start_date`, `period_expiration_date` | Current free-credit period dates; may be `null`. |
+| `last_used_period` | Last usage date; may be `null`. |
 
 ```bash Terminal
-curl -X GET 'https://pro.api.serversmtp.com/api/v2/emailvalidation/lists' \
-  -H 'Authorization: YOUR_API_KEY'
+curl 'https://pro.api.serversmtp.com/api/v2/emailvalidation/subscription' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET'
 ```
 
-**Example response**
+## Validate one address
+
+`POST /emailvalidation/validateEmail` accepts an `email` field:
+
+```bash Terminal
+curl -X POST 'https://pro.api.serversmtp.com/api/v2/emailvalidation/validateEmail' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"recipient@example.net"}'
+```
+
+The response includes `email`, `status`, `sub_status`, `free_email`, `domain`, `domain_age_days`, `smtp_provider`, `mx_found`, and `mx_record`. Additional fields can include `did_you_mean`, `account`, `firstname`, `lastname`, `gender`, `country`, `region`, `city`, `zipcode`, and `processed_at`. Some enrichment fields can be `null`.
+
+### Classification values
+
+API status strings are lowercase:
+
+| Status | Meaning |
+|---|---|
+| `valid` | Classified as valid. Delivery still depends on the receiving system. |
+| `invalid` | Invalid address; remove it from your sending list. |
+| `catch_all` | Domain accepts all addresses; mailbox validity is uncertain. |
+| `spamtrap` | Suspected spam trap; exclude it from sending. |
+| `abuse` | Known complaint risk; exclude it from sending. |
+| `do_not_mail` | A category to review before sending; inspect `sub_status`. |
+| `unknown` | Validation could not determine the outcome. |
+
+`sub_status` gives detail such as `mailbox_not_found`, `no_dns_entries`, `failed_syntax_check`, `greylisted`, `role_based`, or `disposable`. It can be an empty string. Validation does not establish consent to receive email.
+
+## Validate a list
+
+### 1. Upload the file
+
+`POST /emailvalidation/upload` accepts a multipart `file` field containing a CSV or TXT file with one address per line. Let curl set the multipart content type and boundary.
+
+```bash Terminal
+curl -X POST 'https://pro.api.serversmtp.com/api/v2/emailvalidation/upload' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  -F 'file=@/path/to/email-list.csv'
+```
+
+The `201` response contains a numeric `list_id` and `total_emails`:
 
 ```json
-[
-  {
-    "id": "vld_abc123",
-    "name": "My Contact List",
-    "status": "completed",
-    "total": 5000,
-    "processed": 5000,
-    "created_at": "2024-04-24T10:00:00.000Z",
-    "completed_at": "2024-04-24T10:15:42.000Z"
-  }
-]
+{"list_id":10093,"total_emails":314}
 ```
 
-## Download results
+Uploading creates the list. It does not start validation.
 
-Once a validation job reaches `completed` status, download the classified results as a CSV file.
+### 2. Start validation
+
+Call `POST /emailvalidation/lists/{Id}/validate` with the returned `list_id`. No request body is required.
 
 ```bash Terminal
-curl -X GET 'https://pro.api.serversmtp.com/api/v2/emailvalidation/lists/vld_abc123/csv' \
-  -H 'Authorization: YOUR_API_KEY' \
-  -o validation-results.csv
+curl -X POST 'https://pro.api.serversmtp.com/api/v2/emailvalidation/lists/10093/validate' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET'
 ```
 
-The exported CSV contains each address alongside its validation status, sub-status, and domain information. You can then segment the results to keep only `Valid` addresses for sending and archive or discard the rest.
+The API reports `list_already_validated` or `insufficient_credit` with `400` when validation cannot start.
 
-## Validation statuses
+### 3. Read progress and results
 
-Use these classification outcomes to decide how to handle each address in your list:
+`GET /emailvalidation/lists/{Id}` returns the list summary. Use `is_processed`, `percentage`, `total_emails`, and `total_processed` to check progress. Other fields are `id`, `creation_time`, `file_name`, and `status_summary` (an array of `{status, total}` objects).
 
-| Status | Bounce Risk | Recommended Action |
-|---|---|---|
-| `Valid` | Less than 2% | Safe to send — keep on your list |
-| `Invalid` | 100% | Remove immediately — address does not exist |
-| `Catch-All` | Unknown | Send with caution — domain accepts all, outcome unpredictable |
-| `Spamtrap` | Dangerous | Remove immediately — will harm sender reputation |
-| `Abuse` | High | Remove — known high-complaint address |
-| `Do Not Mail` | High | Remove — address has requested no contact |
-| `Unknown` | Unknown | Suppress or test cautiously before bulk sending |
+```bash Terminal
+curl 'https://pro.api.serversmtp.com/api/v2/emailvalidation/lists/10093' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET'
+```
 
-<Note>
-  Email validation credits are separate from email sending credits. Professional and Enterprise plans include **3,000 validations per month**. You can purchase additional validation credits from your [dashboard](https://dashboard.serversmtp.com) at any time.
-</Note>
+`GET /emailvalidation/lists/{Id}/emails` accepts optional positive `page` and `limit` parameters, defaulting to `1` and `10`. It returns `count`, `processed`, and `results`. Each result includes `email`, numeric `id`, and validation details such as `status`, `sub_status`, and MX information. Before validation, `processed` can be `0` and `results` empty.
+
+For a full record, call `GET /emailvalidation/lists/{Id}/emails/{emailId}` using the result's `id`. The detail schema includes `account_id`, `list_id`, `id`, `email`, `created_at`, `did_you_mean`, and the shared validation fields.
+
+### 4. Download the CSV
+
+```bash Terminal
+curl 'https://pro.api.serversmtp.com/api/v2/emailvalidation/lists/10093/csv' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  --output validation-results.csv
+```
+
+## List and delete uploaded lists
+
+`GET /emailvalidation/lists` requires `from` and `to` dates in `YYYY-MM-DD` format. It accepts optional `page`, `limit`, and `tz`, and returns `{count, results}` containing the list summaries described above.
+
+```bash Terminal
+curl --get 'https://pro.api.serversmtp.com/api/v2/emailvalidation/lists' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  --data-urlencode 'from=2026-10-01' \
+  --data-urlencode 'to=2026-10-27' \
+  --data-urlencode 'page=1' \
+  --data-urlencode 'limit=10'
+```
+
+`DELETE /emailvalidation/lists/{Id}` deletes an uploaded list and returns `{"success":true}`. An unknown list returns `404` with `message: "list_not_found"`.
+
+## Buy additional validation credit
+
+`POST /billing/buy_emailvalidation_credits` accepts integer `amount` from `15` to `1800`. This is a monetary purchase amount, not a validation count. An active plan is required.
+
+```bash Terminal
+curl -X POST 'https://pro.api.serversmtp.com/api/v2/billing/buy_emailvalidation_credits' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  -H 'Content-Type: application/json' \
+  -d '{"amount":15}'
+```
+
+The response contains `url`, the billing link where you complete payment. Check the [current pricing](https://serversmtp.com/pricing/) and your subscription balance before purchasing.

@@ -1,75 +1,51 @@
 ---
-title: "turboSMTP Free Plan: 6,000 Emails/Month, No Credit Card"
+title: "Start Your turboSMTP Free Trial"
 sidebarTitle: "Free Trial"
-description: "Activate your free turboSMTP account and get 6,000 emails per month at no cost. No credit card required. Includes full dashboard access and API access."
+description: "Create a free turboSMTP account with up to 200 emails per day, SMTP relay, and HTTP API sending. No credit card required."
 ---
 
-turboSMTP gives every new user a free plan that includes 6,000 emails per month — no credit card, no commitment, and no expiration date on the plan itself. You get the same professional infrastructure used by paying customers, including SMTP relay, REST API access, real-time delivery tracking, and the full dashboard. It's the fastest way to evaluate turboSMTP and start sending emails from your application or email client today.
+The Free plan lets you evaluate SMTP relay and HTTP API sending with up to **200 emails per day**, advertised as **6,000 emails per month**. No credit card is required.
 
-<Tip>
-  No credit card is needed to activate the free plan. Sign up with just your email address and you're ready to go.
-</Tip>
+The current [pricing page](https://serversmtp.com/pricing/) lists the offer for the **first six months**. Review the offer shown during signup and the plan details in your dashboard.
 
-## Get started
-
-Follow these steps to create your account and start sending:
+## Activate your account
 
 <Steps>
-  <Step title="Create your account">
-    Go to [serversmtp.com/en/signup](https://serversmtp.com/en/signup) and fill in the registration form with your name, email address, and a password. Click **Sign Up** to submit.
+  <Step title="Register">
+    Follow **Start for free** on the [pricing page](https://serversmtp.com/pricing/), select **Register** on the sign-in screen, and complete registration. The sign-in screen also offers Google and Microsoft sign-in.
   </Step>
-  <Step title="Verify your email address">
-    Check your inbox for a verification email from turboSMTP. Click the confirmation link inside to verify your address. If you don't see the email within a few minutes, check your spam folder.
+  <Step title="Follow the email instructions">
+    Check your inbox and complete the verification steps sent by turboSMTP.
   </Step>
-  <Step title="Wait for account activation">
-    Every new free account is reviewed by turboSMTP staff before activation. This is a quick quality check to ensure the platform remains healthy for all senders. You'll receive a confirmation email once your account is active.
+  <Step title="Wait for activation">
+    turboSMTP staff review eligible free accounts. You receive an email when activation is complete.
   </Step>
-  <Step title="Log in to your dashboard">
-    Once activated, log in at [dashboard.serversmtp.com](https://dashboard.serversmtp.com). From here you can configure SMTP settings, generate API keys, monitor delivery statistics, and manage your account.
+  <Step title="Create sending credentials">
+    Sign in to the [dashboard](https://dashboard.serversmtp.com) and open **Settings → Integrations → API Keys → Edit**. Create a key with **SMTP Sending** or **HTTP API Sending** enabled for your integration.
   </Step>
 </Steps>
 
-<Note>
-  Account activation is reviewed manually by turboSMTP staff. You'll receive an email notification as soon as your account is activated. Most activations are completed promptly, but allow some time during busy periods.
-</Note>
+Use the **Consumer Key** as your SMTP username and the **Consumer Secret** as your SMTP password. For HTTP sending, pass them as the `consumerKey` and `consumerSecret` headers. See [API keys](/get-started/api-keys) and [SMTP configuration](/get-started/smtp-configuration).
 
-## What's included in the free tier
+## Free plan features and limits
 
-Your free plan gives you immediate access to everything you need to start sending:
+| Feature | Free allowance |
+|---|---|
+| Sending | Up to 200 emails per day |
+| SMTP relay and HTTP API | Included |
+| API keys | 2 |
+| Email validation | 100 credits, separate from sending credits |
+| Analytics | 30-day demo |
+| Custom tracking domains | 30-day demo |
+| Webhooks | 30-day demo; available events depend on your account |
+| Support | Chat and ticket |
 
-- **6,000 emails per month** (with a maximum send rate of 200 emails per day)
-- **Full dashboard access** at [dashboard.serversmtp.com](https://dashboard.serversmtp.com) — manage settings, view logs, and monitor activity
-- **SMTP relay** — connect any email client or application using standard SMTP credentials
-- **REST API access** — send and manage emails programmatically via the turboSMTP API
-- **Real-time delivery tracking** — monitor opens, clicks, bounces, spam complaints, and unsubscribes
-- **Email validation** — screen your contact list for invalid or risky addresses before sending
-- **24/7 support** — access to ticket, chat, and phone support
+Demo features have their own availability window. See [plans and billing](/account/plans-billing) for paid-plan allowances, including analytics retention and phone support.
 
-## Free vs paid plans
+## Upgrade
 
-Both free and paid plans use the same delivery infrastructure. The main differences are sending volume, daily rate limits, and support priority.
+Basic starts at **15,000 emails per month**. Compare Basic, Pro, Enterprise, and prepaid options on the [pricing page](https://serversmtp.com/pricing/).
 
-| Feature | Free Plan | Paid Plans |
-|---|---|---|
-| Monthly email allowance | 6,000 emails | From 10,000 up to millions |
-| Daily send limit | 200 emails/day | Higher limits based on plan |
-| Account activation | Staff review required | Faster activation after payment |
-| API access | ✓ | ✓ |
-| Real-time tracking | ✓ | ✓ |
-| Email validation | ✓ | ✓ |
-| Support | Standard (24/7) | Priority support on higher tiers |
+In the dashboard, click the green **Order a new plan** button in the top bar or use the order option in your plan box. Your purchase activates after payment approval and any required account review.
 
-<Note>
-  When you have both a free allowance and a paid plan active, turboSMTP uses your free emails first (up to 200/day), then draws from your paid quota.
-</Note>
-
-## Upgrade your plan
-
-When you're ready to send more than 6,000 emails per month or need higher daily throughput, upgrading is straightforward. Browse all available monthly and prepaid plans at [serversmtp.com/pricing](https://serversmtp.com/en/cart.php?carttpl=2clic) and select the volume that fits your needs.
-
-To upgrade from within your dashboard:
-
-1. Log in to [dashboard.serversmtp.com](https://dashboard.serversmtp.com).
-2. Click your account name in the top-right corner.
-3. Select **Upgrade Plan** and choose from the available options.
-4. Complete the purchase — your new quota activates after payment is confirmed.
+If your account has both free and paid sending allowances, turboSMTP uses the available free allowance first, up to 200 emails per day, before using paid volume.

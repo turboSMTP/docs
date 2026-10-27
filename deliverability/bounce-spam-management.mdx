@@ -1,84 +1,60 @@
 ---
-title: "Manage Email Bounces, Spam Complaints, and Unsubscribes"
+title: "Manage Bounces, Spam Complaints, and Unsubscribes"
 sidebarTitle: "Bounce Management"
-description: "Keep your email list clean and protect your sender reputation by tracking hard and soft bounces, spam complaints, and unsubscribe requests in turboSMTP."
+description: "Review suppression types, import and export addresses, configure unsubscribe elements, and choose where bounce notifications go."
 ---
 
-Sending to addresses that no longer exist, recipients who have marked your messages as spam, or subscribers who have opted out is one of the fastest ways to damage your sender reputation. Inbox providers measure your bounce rate and complaint rate closely — consistently high numbers signal to them that you are not maintaining a healthy list, which leads to lower inbox placement or outright blocking. turboSMTP provides a full suite of suppression tools that track problematic addresses in real time and automatically prevent future sends to them, keeping your list clean and your reputation intact.
+Use **Analytics** to investigate delivery events and **Suppressions** to review addresses excluded from future sending. A suppressed recipient can produce a dropped message even when your application submits a new send request.
 
-## Types of suppressions
+## Understand delivery failures
 
-turboSMTP tracks four categories of address-level issues, each with different causes and implications for your sending program.
+A **hard bounce** is a permanent delivery failure, such as a nonexistent address. Remove invalid addresses from your active list.
 
-<AccordionGroup>
-  <Accordion title="Hard Bounce">
-    A hard bounce is a permanent delivery failure. The recipient address does not exist, the domain is invalid, or the receiving server has explicitly rejected the address. Hard bounces must be removed from your list immediately — continuing to send to them signals poor list hygiene to inbox providers and can trigger throttling or blocking.
-  </Accordion>
-  <Accordion title="Soft Bounce">
-    A soft bounce is a temporary delivery failure. The recipient's mailbox may be full, the receiving server may be temporarily unavailable, or the message may be too large. Soft bounces may resolve on their own, but addresses that repeatedly soft bounce over time should also be removed from your active list.
-  </Accordion>
-  <Accordion title="Spam Complaint">
-    A spam complaint occurs when a recipient clicks the "Mark as spam" or "Report junk" button in their email client. Most major inbox providers (including Gmail and Yahoo) report these complaints back to senders via feedback loops. Even a small number of complaints can significantly harm your sender reputation.
-  </Accordion>
-  <Accordion title="Unsubscribe">
-    An unsubscribe is recorded when a recipient explicitly opts out of your emails, either by clicking an unsubscribe link in your message or via the List-Unsubscribe header. Honouring unsubscribes promptly is both a legal requirement in many jurisdictions and a best practice for maintaining list quality.
-  </Accordion>
-</AccordionGroup>
+A **soft bounce** is a temporary failure, such as a full mailbox or an unavailable receiving server. Review the reason and retry history before treating it as permanent.
 
-## Automatic suppression
+A **spam complaint** records a recipient's report of unwanted mail when that report is available to turboSMTP. An **unsubscribe** records an opt-out. Keep your own contact database synchronized with these events.
 
-turboSMTP automatically suppresses addresses that trigger a hard bounce or a spam complaint. Once an address enters the suppression list, turboSMTP will not deliver future messages to it — even if that address still appears in your sending list. This automatic suppression protects your sender reputation by ensuring you never knowingly retry delivery to an address that has already caused a problem.
+## View and manage suppressions
 
-You do not need to configure anything to enable automatic suppression. It is active on every turboSMTP account by default.
+Open **Suppressions** in your [dashboard](https://dashboard.serversmtp.com). The **Type** column identifies the source:
 
-## View suppression lists
+| Type | Meaning |
+|---|---|
+| **Manual** | Added through a manual import |
+| **Bounce** | Added following a delivery failure |
+| **Spam** | Added following a spam report |
+| **Unsubscribe** | Added following an opt-out |
+| **Validation failed** | Added following failed address validation |
 
-Your turboSMTP dashboard gives you full visibility into every address that has been suppressed, updated in real time.
+Review the recipient, date, and reason when investigating an entry. Use **Import suppressions** to add addresses and **Export** to download suppression data.
 
-To view your suppression data:
+Removing an entry allows another delivery attempt. Only remove it after resolving the original issue and confirming the recipient should receive your messages. See the [official dropped-email explanation](https://serversmtp.com/en/smtp/23-What-is-a-dropped-email/kb-3933.html).
 
-1. Log in to your [turboSMTP dashboard](https://dashboard.serversmtp.com).
-2. Navigate to **Reports** in the left-hand menu.
-3. Select the suppression category you want to review: **Bounces**, **Spam**, or **Unsubscribes**.
+## Configure unsubscribe links
 
-Each view presents a real-time, address-by-address feed showing the email address, the date and time of the event, and any available metadata such as the bounce reason or the campaign that triggered the event. Use the filters at the top of each list to narrow results by date range, domain, or status.
+Open **Settings → Email elements → Unsubscribe link** to configure the available unsubscribe element. The same tab contains **Footers** and **Templates**. Review opt-outs in **Suppressions** and honor them in your application before sending again.
 
-## Unsubscribe link
+See [email settings](/account/email-settings) for related controls. Consult the [terms and conditions](https://serversmtp.com/terms-and-conditions/) for service requirements.
 
-Including a clear unsubscribe link in every marketing email is a legal requirement under CAN-SPAM, CASL, GDPR, and most other anti-spam laws. turboSMTP makes compliance straightforward: add an unsubscribe link to your email footer, and turboSMTP automatically adds the recipient to your unsubscribe suppression list when they click it — no additional coding or database management required on your end.
+## Choose where bounce notifications go
 
-turboSMTP also supports the `List-Unsubscribe` header, which displays a native unsubscribe button in supported email clients such as Gmail and Apple Mail. Enabling this header is strongly recommended for bulk and marketing emails, as it reduces the likelihood of recipients clicking "Report spam" instead of unsubscribing cleanly.
+Open **Settings → Notifications → Bounces management**. The card explains:
 
-## Bounce notifications
+> Enabling Bounce Notifications sends notifications about your bounced emails to us. To receive all your bounce notifications yourself, disable this option.
 
-You can configure how turboSMTP notifies you when bounces occur so that your team can take action promptly.
+This setting controls the destination of bounce notifications. Manage suppressed addresses separately under **Suppressions**. See the [bounce notification instructions](https://serversmtp.com/en/smtp/31-How-can-I-get-notified-of-my-bounce/kb-4862.html).
 
-1. Log in to your [turboSMTP dashboard](https://dashboard.serversmtp.com) and go to **Settings**.
-2. Locate the **Notifications** section.
-3. Choose your preferred notification method: receive an email alert for each bounce event, or let turboSMTP handle suppression automatically in the background without sending individual notifications.
+## Export through the API
 
-For high-volume senders, the automatic management option is often preferable — it keeps your suppression list accurate without flooding your inbox with individual bounce alerts.
-
-## Yahoo and high complaint rates
-
-<Tip>
-  If you experience deliverability issues sending to Yahoo, AOL, or Verizon Media recipients, register your sender domain with Yahoo's Complaint Feedback Loop (CFL) at [postmaster.yahooinc.com](https://postmaster.yahooinc.com). Enrolling in the CFL gives you direct access to complaint data from Yahoo's ecosystem, helping you identify and remove complainers before they push your complaint rate high enough to trigger throttling. Yahoo is particularly sensitive to complaint rates — even modest spikes can result in deferrals or blocks.
-</Tip>
-
-## Export suppression lists
-
-You can export your suppression data for use in external list management systems, CRMs, or data warehouses.
-
-**Via the dashboard:**
-Navigate to **Reports**, select the suppression category (Bounces, Spam, or Unsubscribes), and click the **Export** button to download the list as a CSV file.
-
-**Via the API:**
-Use the suppressions export endpoint to retrieve data programmatically:
+Use `GET /suppressions/csv` with a date range in `YYYY-MM-DD` format and a key with **Statistics & Management APIs** enabled:
 
 ```bash Terminal
-curl -X GET "https://pro.api.serversmtp.com/api/v2/suppressions/csv" \
-  -H "Authorization: YOUR_API_KEY" \
+curl --get 'https://pro.api.serversmtp.com/api/v2/suppressions/csv' \
+  -H "consumerKey: $TURBOSMTP_CONSUMER_KEY" \
+  -H "consumerSecret: $TURBOSMTP_CONSUMER_SECRET" \
+  --data-urlencode 'from=2026-10-01' \
+  --data-urlencode 'to=2026-10-27' \
   --output suppressions.csv
 ```
 
-Replace `YOUR_API_KEY` with your turboSMTP API key. The endpoint returns a CSV file containing all suppressed addresses and the reason for suppression. Integrate this into your data pipeline to keep your sending lists in sync with your turboSMTP suppression data automatically.
+Set the environment variables locally and choose your date range. For filters, imports, and removals, see the [suppressions API reference](/api-reference/suppressions).

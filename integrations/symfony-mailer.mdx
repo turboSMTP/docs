@@ -1,7 +1,7 @@
 ---
 title: "Send Email from Symfony with the turboSMTP Mailer Bridge"
 sidebarTitle: "Symfony Mailer"
-description: "Install the official turboSMTP bridge for Symfony Mailer 8.2. Send via HTTP API or SMTP relay, route through EU servers, and consume delivery webhooks."
+description: "Check the upcoming Symfony 8.2 turboSMTP bridge and configure standard SMTP with Consumer Key and Consumer Secret today."
 keywords:
   - "symfony mailer"
   - "symfony turbosmtp"
@@ -11,13 +11,29 @@ keywords:
   - "mailer dsn"
 ---
 
-The official turboSMTP bridge for Symfony Mailer ships with Symfony 8.2. It supports both the turboSMTP HTTP API and the SMTP relay, EU routing, custom headers, inline images, and delivery-event webhooks through Symfony's RemoteEvent component.
+**Status: Merged upstream for the upcoming Symfony 8.2 release.** The bridge source supports the HTTP API, SMTP relay, EU endpoints, and delivery webhooks through Symfony's RemoteEvent component.
 
 <Note>
-  The bridge is merged upstream and ships with **Symfony 8.2**. Run the install command once Symfony 8.2 packages are available from your configured Composer repositories.
+  Checked on 27 October 2026: [Symfony 8.2 is under development](https://symfony.com/releases/8.2), with release planned for November 2026. [Packagist currently lists a development version](https://packagist.org/packages/symfony/turbo-smtp-mailer). The bridge configuration below is for that upcoming release.
 </Note>
 
-## Install the bridge
+## Use standard SMTP today
+
+Existing Symfony Mailer versions can use turboSMTP through their built-in SMTP transport:
+
+```bash .env
+# Global, STARTTLS on port 587
+MAILER_DSN=smtp://KEY:SECRET@pro.turbo-smtp.com:587
+
+# EU, STARTTLS on port 587
+MAILER_DSN=smtp://KEY:SECRET@pro.eu.turbo-smtp.com:587
+```
+
+Use your Consumer Key as `KEY` and Consumer Secret as `SECRET`. URL-encode credentials that contain reserved URI characters. Both hosts support STARTTLS on 587 or 2525 and implicit TLS on 465 or 25025; port 25 is also available.
+
+## Install the bridge after its stable release
+
+Once a stable version is published and compatible with your application:
 
 ```bash
 composer require symfony/turbo-smtp-mailer
@@ -42,7 +58,7 @@ MAILER_DSN=turbosmtp+smtp://KEY:SECRET@pro.eu.turbo-smtp.com
 ```
 
 <Tip>
-  Use the EU DSNs to send through turboSMTP's European servers and keep your email data inside the EU. See [GDPR and data residency](/api-reference/base-urls#gdpr-and-data-residency).
+  The bridge's SMTP transport defaults to port 587 with STARTTLS on both hosts. Use the EU DSNs for the European sending endpoint. See [base URLs](/api-reference/base-urls).
 </Tip>
 
 ## Send the first message
@@ -62,7 +78,7 @@ $mailer->send($email);
 
 ## Delivery events
 
-Point the [webhook URL](/analytics/webhooks) in your turboSMTP dashboard at a Symfony route and use the `turbosmtp` RemoteEvent consumer. Optional HTTP Basic credentials in the callback URL are checked against the route secret.
+The upcoming bridge includes a `turbosmtp` webhook parser and RemoteEvent converter. Configure the callback under **Settings → Notifications → Webhooks → Edit**, subject to your plan and event availability. Requests are unsigned; configure HTTP Basic credentials in the callback URL and the matching route secret. See [webhooks](/analytics/webhooks).
 
 ## Resources
 

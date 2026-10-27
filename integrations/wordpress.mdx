@@ -1,7 +1,7 @@
 ---
 title: "Send WordPress and WooCommerce Email Through turboSMTP"
 sidebarTitle: "WordPress"
-description: "Replace unreliable PHP mail() in WordPress with authenticated turboSMTP delivery for WooCommerce orders, contact forms, and password reset emails."
+description: "Configure the official turboSMTP WordPress plugin or a custom SMTP mailer for WooCommerce orders, contact forms, and password reset emails."
 keywords:
   - "wordpress smtp"
   - "woocommerce email"
@@ -10,20 +10,20 @@ keywords:
   - "wp mail smtp"
 ---
 
-WordPress uses PHP's `mail()` function by default, which bypasses authentication entirely and is routinely blocked or filtered by receiving mail servers. Replacing it with turboSMTP SMTP ensures that every WordPress email (contact forms, WooCommerce orders, password resets, admin notifications) is authenticated and delivered reliably.
+**Status: Available.** The [official turboSMTP plugin](https://wordpress.org/plugins/turbosmtp/) routes messages sent through WordPress's `wp_mail()` function to turboSMTP. This includes WooCommerce and form plugins that use `wp_mail()`. A plugin with its own delivery service may need separate configuration.
 
 <Note>
-  WordPress ships with PHP `mail()` which is unreliable and unauthenticated. Many hosting providers block it outright. Using turboSMTP SMTP ensures inbox delivery for all WordPress emails including WooCommerce transactionals, plugin notifications, and form submissions.
+  Use one mail delivery plugin at a time. Configure [SPF and DKIM](/deliverability/spf-dkim-dmarc) for your sending domain. Authentication helps receivers verify your mail; inbox placement still depends on their filtering decisions.
 </Note>
 
 ## Configure the plugin
 
 <Steps>
   <Step title="Install the TurboSMTP plugin">
-    In your WordPress admin, go to **Plugins → Add New Plugin**. Search for **TurboSMTP** and click **Install Now**, then **Activate**. Alternatively, search for and install **WP Mail SMTP** if you prefer a third-party plugin. Both work with turboSMTP.
+    In your WordPress admin, go to **Plugins → Add New Plugin**. Install and activate **turboSMTP**. Follow its credential setup with your [Consumer Key and Consumer Secret](/get-started/api-keys) and select API sending. The key needs **HTTP API Sending** permission.
   </Step>
-  <Step title="Configure SMTP settings">
-    Open the plugin's settings page and enter the following:
+  <Step title="Choose SMTP as an alternative">
+    To configure an explicit Global or EU SMTP host, use WP Mail SMTP's **Other SMTP** option instead of the official plugin. Enter:
 
     | Setting | Value |
     | --- | --- |
@@ -31,16 +31,16 @@ WordPress uses PHP's `mail()` function by default, which bypasses authentication
     | Port | `587` (TLS) |
     | Encryption | `TLS` / `STARTTLS` |
     | Authentication | `Yes` |
-    | Username | Your **Consumer Key** (found in your dashboard under **Settings → Integrations → API Keys**) |
-    | Password | Your **Consumer Secret** (found in your dashboard under API settings, not your account login password) |
+    | Username | Your **Consumer Key** from **Settings → Integrations → API Keys → Edit** |
+    | Password | Your **Consumer Secret** |
+
+    Both hosts support STARTTLS on 587 or 2525 and implicit TLS on 465 or 25025. Port 25 is also available. Enable **SMTP Sending** on the key and check any IP restrictions.
   </Step>
   <Step title="Send a test email">
-    Use the plugin's built-in **Send Test Email** feature to verify the configuration. Check that the test message arrives in the recipient's inbox. If it does, all WordPress emails will now route through turboSMTP.
+    Use the plugin's test email feature and check **Analytics** in turboSMTP. Then test an actual form submission or order email to confirm that application's delivery path.
   </Step>
 </Steps>
 
 ## Validate form submissions
 
-If you collect email addresses through WordPress forms, consider pairing the turboSMTP SMTP plugin with the **TurboSMTP Email Validator** plugin. It validates every email address in real time at the moment a visitor submits a form, blocking invalid, disposable, and spamtrap addresses before they enter your database.
-
-It works with Contact Form 7, WPForms, WooCommerce, Gravity Forms, Elementor Forms, and more. See the [Email Validation guide](/account/email-validation) for full setup instructions.
+For supported form integrations and validation credit requirements, see the [Email Validation guide](/account/email-validation). Validation can identify address problems before sending; it cannot guarantee that an address is safe or that a message will reach the inbox.

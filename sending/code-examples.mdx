@@ -28,7 +28,6 @@ curl -X POST 'https://api.turbo-smtp.com/api/v2/mail/send' \
 
 ```python Python
 import requests
-import json
 
 url = 'https://api.turbo-smtp.com/api/v2/mail/send'
 headers = {
@@ -43,7 +42,7 @@ payload = {
     'content': 'This is a plain text message.',
     'html_content': '<p>This is an <strong>HTML</strong> message.</p>'
 }
-response = requests.post(url, headers=headers, data=json.dumps(payload))
+response = requests.post(url, headers=headers, json=payload, timeout=30)
 print(response.status_code, response.json())
 ```
 
@@ -122,6 +121,8 @@ import (
     "encoding/json"
     "fmt"
     "net/http"
+    "log"
+    "time"
 )
 
 func main() {
@@ -132,13 +133,23 @@ func main() {
         "content":      "This is a plain text message.",
         "html_content": "<p>This is an <strong>HTML</strong> message.</p>",
     }
-    body, _ := json.Marshal(payload)
-    req, _ := http.NewRequest("POST", "https://api.turbo-smtp.com/api/v2/mail/send", bytes.NewBuffer(body))
+    body, err := json.Marshal(payload)
+    if err != nil {
+        log.Fatal(err)
+    }
+    req, err := http.NewRequest("POST", "https://api.turbo-smtp.com/api/v2/mail/send", bytes.NewBuffer(body))
+    if err != nil {
+        log.Fatal(err)
+    }
     req.Header.Set("consumerKey", "YOUR_CONSUMER_KEY")
     req.Header.Set("consumerSecret", "YOUR_CONSUMER_SECRET")
     req.Header.Set("Content-Type", "application/json")
-    client := &http.Client{}
-    resp, _ := client.Do(req)
+    client := &http.Client{Timeout: 30 * time.Second}
+    resp, err := client.Do(req)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer resp.Body.Close()
     fmt.Println(resp.Status)
 }
 ```
@@ -171,11 +182,12 @@ public class SendEmail {
 ```
 
 ```csharp C#
+using System;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 
-var client = new HttpClient();
+using var client = new HttpClient();
 client.DefaultRequestHeaders.Add("consumerKey", "YOUR_CONSUMER_KEY");
 client.DefaultRequestHeaders.Add("consumerSecret", "YOUR_CONSUMER_SECRET");
 
@@ -194,6 +206,12 @@ Console.WriteLine(await response.Content.ReadAsStringAsync());
 ```
 
 </CodeGroup>
+
+## Before you run the examples
+
+Use credentials with **HTTP API Sending** enabled and a sender domain configured for your account. Python uses the `requests` package (`python -m pip install requests`); the Node.js example uses `axios` (`npm install axios`). PHP requires its cURL extension, and the Java example requires Java 11 or later. The C# example uses top-level statements in a modern .NET console project.
+
+To send through turboSMTP's European infrastructure, replace `api.turbo-smtp.com` with `api.eu.turbo-smtp.com`. turboSMTP is an Italian company with European servers; see [hosts and data residency](/api-reference/base-urls).
 
 ## SDKs
 

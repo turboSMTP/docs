@@ -1,67 +1,29 @@
 ---
-title: "turboSMTP: Professional SMTP Relay & Email API Service"
+title: "turboSMTP developer documentation"
 sidebarTitle: "Home"
-description: "Send transactional emails and campaigns with 99% deliverability. turboSMTP offers SMTP relay, REST API, real-time analytics, and a free plan."
+description: "Connect your application to turboSMTP with SMTP or HTTP, configure global and EU hosts, and manage delivery events, validation, and account settings."
+keywords: [turboSMTP, documentation, SMTP, email API]
 ---
 
-turboSMTP is a professional SMTP relay and email API platform that takes the complexity out of email delivery. Whether you need to send a handful of transactional alerts or millions of marketing emails, turboSMTP routes your messages through a trusted, whitelisted infrastructure — giving you 99% deliverability from your very first send. Start for free with 6,000 emails per month and scale up as your business grows, no credit card required.
-
-<Info>
-  **European by design.** turboSMTP is an Italian company with email servers and IP addresses in Italy and Europe. Choose the EU sending infrastructure to keep your email data inside the European Union and stay fully GDPR compliant. See [GDPR and data residency](/api-reference/base-urls#gdpr-and-data-residency).
-</Info>
+turboSMTP provides SMTP relay and HTTP API sending for applications, email clients, and CMS platforms. Start with account setup, create Consumer credentials, and send a message to an address you control.
 
 <CardGroup cols={2}>
-  <Card title="Get Started" icon="rocket" href="/introduction">
-    New to turboSMTP? Learn how the platform works and choose the right integration for your use case.
-  </Card>
-
-  <Card title="SMTP Setup" icon="server" href="/get-started/smtp-configuration">
-    Configure your mail client or application to relay email through `pro.turbo-smtp.com` in minutes.
-  </Card>
-
-  <Card title="Email API" icon="code" href="/sending/email-api">
-    Send transactional emails and newsletters programmatically using the turboSMTP REST API.
-  </Card>
-
-  <Card title="API Reference" icon="book-open" href="/api-reference/overview">
-    Explore the full REST API reference, including request schemas, authentication, and response codes.
-  </Card>
+  <Card title="Get started" icon="rocket" href="/introduction">Choose SMTP or HTTP and follow the setup steps.</Card>
+  <Card title="SMTP setup" icon="server" href="/get-started/smtp-configuration">Configure hosts, encryption, and Consumer Key authentication.</Card>
+  <Card title="Email API" icon="code" href="/sending/email-api">Send JSON messages with HTML, attachments, and tracking identifiers.</Card>
+  <Card title="API reference" icon="book-open" href="/api-reference/overview">Find v2 routes, request fields, and response formats.</Card>
 </CardGroup>
 
-## Get up and running in three steps
+## Global and EU hosts
 
-Everything you need to start sending email with turboSMTP — from signup to your first delivered message — takes only a few minutes.
+turboSMTP is an Italian company with European sending infrastructure. Use `pro.turbo-smtp.com` or `pro.eu.turbo-smtp.com` for SMTP, and `api.turbo-smtp.com` or `api.eu.turbo-smtp.com` for HTTP sending. See [hosts and data residency](/api-reference/base-urls) to choose your route.
 
-<Steps>
-  <Step title="Sign up for free">
-    Create your turboSMTP account at [serversmtp.com/en/signup](https://serversmtp.com/en/signup). No credit card is required. Your free plan includes 6,000 emails per month, ready to use immediately.
-  </Step>
-  <Step title="Get your API keys from the dashboard">
-    Log in to your [dashboard](https://dashboard.serversmtp.com) and navigate to **Settings → Integrations → API Keys**. Copy your **Consumer Key** and **Consumer Secret** — you'll need these to authenticate both SMTP relay connections and REST API requests.
-  </Step>
-  <Step title="Send your first email via SMTP or API">
-    Point your application at `pro.turbo-smtp.com` (port 587) using your Consumer Key as the username and your Consumer Secret as the password, or call the REST API endpoint at `https://api.turbo-smtp.com/api/v2/mail/send`. Either path gets your first email delivered in seconds.
-  </Step>
-</Steps>
-
-## Platform highlights
-
-turboSMTP includes everything you need to monitor, protect, and optimize your email delivery.
+## Monitor and manage email
 
 <CardGroup cols={3}>
-  <Card title="Deliverability" icon="shield-check" href="/deliverability/spf-dkim-dmarc">
-    Authenticate your domain with SPF, DKIM, and DMARC to maximize inbox placement and protect your sender reputation.
-  </Card>
-
-  <Card title="Real-Time Tracking" icon="chart-line" href="/analytics/email-tracking">
-    Monitor opens, clicks, bounces, and unsubscribes in real time from the turboSMTP analytics dashboard.
-  </Card>
-
-  <Card title="Webhooks" icon="webhook" href="/analytics/webhooks">
-    Receive instant HTTP notifications for every email event — delivery, open, click, bounce, and more.
-  </Card>
+  <Card title="Domain authentication" icon="shield-check" href="/deliverability/spf-dkim-dmarc">Configure SPF, DKIM, and DMARC for your sending domain.</Card>
+  <Card title="Delivery analytics" icon="chart-line" href="/analytics/statistics-dashboard">Inspect sent messages and their delivery status.</Card>
+  <Card title="Webhooks" icon="webhook" href="/analytics/webhooks">Receive delivery and engagement callbacks at your application.</Card>
 </CardGroup>
 
-<Note>
-  The turboSMTP free plan includes **6,000 emails per month** with no credit card required. Upgrade to a paid plan at any time directly from your [dashboard](https://dashboard.serversmtp.com) to increase your sending volume.
-</Note>
+The Free plan allows up to 200 emails per day. Feature trials, retention, and sending allowances vary by plan. Check [plans and billing](/account/plans-billing) and the current [pricing comparison](https://serversmtp.com/pricing/) before choosing a plan.

@@ -1,10 +1,10 @@
 ---
-title: "Send Transactional Email — POST /mail/send Reference"
+title: "Send Transactional Email : POST /mail/send Reference"
 sidebarTitle: "Send Email"
 description: "Send transactional or marketing emails via HTTP POST. Supports HTML, plain text, CC, BCC, custom headers, attachments, and per-message reference IDs."
 ---
 
-The `/mail/send` endpoint is the core of turboSMTP's HTTP API. Use it to send transactional receipts, password resets, marketing campaigns, or any other programmatic email from your application. You submit a JSON payload containing the sender, recipients, subject, and body content, and turboSMTP queues and delivers the message through its global relay infrastructure. Unlike most turboSMTP API endpoints, this endpoint uses a dedicated sending host and requires Consumer Key authentication rather than a standard API key.
+The `/mail/send` endpoint is the core of turboSMTP's HTTP API. Use it to send transactional receipts, password resets, marketing campaigns, or any other programmatic email from your application. You submit a JSON payload containing the sender, recipients, subject, and body content, and turboSMTP queues and delivers the message through its global relay infrastructure. This endpoint uses a dedicated sending host and requires Consumer Key / Secret headers with the HTTP API Sending permission enabled.
 
 ## Endpoint
 
@@ -19,7 +19,7 @@ POST https://api.eu.turbo-smtp.com/api/v2/mail/send
 ```
 
 <Warning>
-  This endpoint requires `consumerKey` and `consumerSecret` request headers. Sending an `Authorization` header instead will result in a `401 Unauthorized` response. Your Consumer Secret is **not** your account login password — generate a key pair from your [dashboard](https://dashboard.serversmtp.com) or via the [Consumer Keys API](/api-reference/consumer-keys).
+  This endpoint requires `consumerKey` and `consumerSecret` request headers. An `Authorization` header is ignored and cannot replace the key pair. Your Consumer Secret is not your account login password. Create credentials at **Settings → Integrations → API Keys → Edit** in the [dashboard](https://dashboard.serversmtp.com).
 </Warning>
 
 ## Request headers
@@ -33,7 +33,7 @@ POST https://api.eu.turbo-smtp.com/api/v2/mail/send
 ## Request body parameters
 
 <ParamField body="from" type="string" required>
-  The sender's email address. Use a domain you have verified with turboSMTP.
+  The sender's email address, optionally with a display name: `Name <sender@example.com>`. Use a domain you have verified with turboSMTP.
 </ParamField>
 
 <ParamField body="to" type="string" required>
@@ -41,11 +41,11 @@ POST https://api.eu.turbo-smtp.com/api/v2/mail/send
 </ParamField>
 
 <ParamField body="subject" type="string">
-  The email subject line displayed in the recipient's inbox.
+  The email subject line displayed in the recipient's inbox. The API specification sets a maximum of 700 characters.
 </ParamField>
 
 <ParamField body="content" type="string">
-  The plain-text body of the email. Recommended for maximum deliverability — include this alongside `html_content` whenever possible.
+  The plain-text body of the email. Recommended for maximum deliverability : include this alongside `html_content` whenever possible.
 </ParamField>
 
 <ParamField body="html_content" type="string">
@@ -61,11 +61,15 @@ POST https://api.eu.turbo-smtp.com/api/v2/mail/send
 </ParamField>
 
 <ParamField body="custom_headers" type="object">
-  A JSON object of additional SMTP headers to attach to the message. Example: `{"X-Campaign-ID": "welcome-flow", "X-Mailer": "MyApp"}`.
+  A JSON object of additional SMTP headers to attach to the message. Example: `{"Reply-To": "support@example.com", "X-Mailer": "MyApp"}`.
 </ParamField>
 
 <ParamField body="reference_id" type="string">
-  A custom identifier you define. turboSMTP passes this value back in every webhook event payload for this message, making it easy to correlate API sends with your own database records.
+  A custom identifier included in event webhook data when provided. Use a UUID to correlate sends with your application records.
+</ParamField>
+
+<ParamField body="X-campaign-ID" type="string">
+  A campaign identifier used to group messages. This is a top-level JSON body field with this exact capitalization, separate from `custom_headers`.
 </ParamField>
 
 <ParamField body="mime_raw" type="string">
@@ -90,6 +94,10 @@ Each item in the `attachments` array must be an object with the following fields
 
 <ParamField body="content" type="string" required>
   The Base64-encoded content of the file. Encode the raw binary of the file before including it here.
+</ParamField>
+
+<ParamField body="content_id" type="string">
+  Optional bare identifier for an inline attachment, such as `logo`. For a sender at `example.com`, reference it in HTML as `cid:logo@example.com`. See [inline images](/sending/attachments#inline-images).
 </ParamField>
 
 ## Example request
@@ -121,7 +129,7 @@ curl -X POST 'https://api.turbo-smtp.com/api/v2/mail/send' \
     "subject": "Your Invoice",
     "content": "Please find your invoice attached.",
     "html_content": "<p>Please find your invoice attached.</p>",
-    "reference_id": "inv-00123",
+    "reference_id": "333fe3e9-05aa-4ead-85cf-de625b0222c6",
     "attachments": [
       {
         "name": "invoice-00123.pdf",
@@ -147,12 +155,12 @@ curl -X POST 'https://api.turbo-smtp.com/api/v2/mail/send' \
 |---|---|---|
 | `200` | OK | turboSMTP successfully received and queued your message. |
 | `400` | Bad Request | The request body or parameters are malformed or missing required fields. |
-| `401` | Unauthorized | Authentication failed — invalid, missing, or wrong type of credentials. |
+| `401` | Unauthorized | Authentication failed : invalid, missing, or wrong type of credentials. |
 | `500` | Server Unavailable | An unexpected error occurred on the turboSMTP server. |
 
 ## Error responses
 
-turboSMTP returns a JSON error body for all non-200 responses. The `errors` field contains a human-readable description of what went wrong.
+Error formats vary by failure. Inspect the HTTP status and the returned `message`, `errors`, or `details` fields. A successful queue response does not confirm final delivery; use analytics or delivery webhooks for that.
 
 <Accordion title="Missing or invalid credentials">
 ```json
@@ -208,5 +216,5 @@ turboSMTP returns a JSON error body for all non-200 responses. The `errors` fiel
 </Accordion>
 
 <Note>
-  The maximum total email size, including all attachments, is **24 MB**. Requests exceeding this limit will be rejected with a 400 error.
+  The maximum total message size, including attachments and encoding overhead, is **24 MB**. This is not a 24 MB raw-file allowance. See [attachment limits](/sending/attachments#attachment-limits).
 </Note>

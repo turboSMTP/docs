@@ -4,118 +4,106 @@ sidebarTitle: "Email Authentication"
 description: "Set up email authentication records to boost delivery rates, protect your sender reputation, and minimize spam folder placement when using turboSMTP."
 ---
 
-Email authentication tells receiving mail servers that your messages genuinely originate from your domain — and that turboSMTP has your permission to send on your behalf. Without SPF, DKIM, and DMARC records in place, inbox providers treat your emails with far more suspicion, routing them to spam or rejecting them outright. Configuring these three records is free, takes only minutes, and can dramatically improve your deliverability and inbox placement. It also causes your own domain to appear in the email's `From` header rather than a turboSMTP-branded address, reinforcing subscriber trust.
+SPF authorizes servers for the envelope sender domain. DKIM signs a message with a domain's key. DMARC checks whether a passing SPF or DKIM result aligns with the visible From domain. Configure all three for your sending domain and verify the result in received message headers.
 
 <Warning>
-  Only configure these DNS records manually if you are comfortable editing your domain's DNS settings. If you are unsure how to manage DNS records, ask your hosting provider for assistance. Mistakes in DNS can affect all email sent from your domain, not just mail routed through turboSMTP.
+  DNS changes can affect every service sending for your domain. Preserve existing records and authorized senders. Ask your DNS administrator for help if you do not control the zone.
 </Warning>
 
 ## SPF record
 
-SPF (Sender Policy Framework) is a DNS TXT record that lists which mail servers are authorized to send email on behalf of your domain. When a receiving server gets your message, it checks whether turboSMTP's sending infrastructure appears in your SPF record — if it does not, the message may be rejected or flagged as suspicious.
+Use the exact SPF value provided for your sender domain in the dashboard. If you already publish a `v=spf1` TXT record at that name, merge the turboSMTP include into it before the final `all` mechanism. Publish only one SPF record per name.
 
-Add the following TXT record to your domain's DNS:
+For a domain that sends only through turboSMTP, a minimal example is:
 
 | Field | Value |
-|-------|-------|
+| --- | --- |
 | **Type** | TXT |
-| **Host** | `@` (root domain, e.g. `yourdomain.com`) |
-| **Value** | `v=spf1 a mx include:spf.turbo-smtp.com ?all` |
+| **Host** | `@` for the root domain |
+| **Value** | `v=spf1 include:spf.turbo-smtp.com ?all` |
 
-```dns SPF Record
-v=spf1 a mx include:spf.turbo-smtp.com ?all
+```dns SPF record
+v=spf1 include:spf.turbo-smtp.com ?all
 ```
 
-The `include:spf.turbo-smtp.com` directive authorizes turboSMTP's sending servers. If you already have an SPF record on your domain, add `include:spf.turbo-smtp.com` to your existing record rather than creating a second TXT entry — domains must have only one SPF record.
+The [turboSMTP knowledge base](https://serversmtp.com/en/smtp/16-Can-I-configure-my-DKIM-and-SPF-to-get-the-highest-delivery-rates/kb-344.html) documents `include:spf.turbo-smtp.com`; the [public authentication guide](https://serversmtp.com/how-to-set-up-email-authentication/) also documents `include:turbo-smtp.com`. Both can authorize turboSMTP. Keep a working configuration unless your dashboard or support directs a change; do not add both simply because both appear in documentation.
+
+The `?all` example gives a neutral result for unlisted servers. Preserve your existing policy unless you intend to change it. Add `a` or `mx` only if those hosts also send mail for this domain. Keep the full policy within SPF's ten DNS-lookup limit. See [RFC 7208](https://datatracker.ietf.org/doc/html/rfc7208#section-4.6.4).
 
 ## DKIM record
 
-DKIM (DomainKeys Identified Mail) adds a cryptographic signature to every outbound email. Receiving servers verify the signature against a public key you publish in DNS, confirming that the message body has not been tampered with in transit and that it truly originates from your domain.
-
-Add the following TXT record to your domain's DNS under the `turbo-smtp._domainkey` subdomain:
+Copy the DKIM key shown for your sending domain in the dashboard. The documented selector is `turbo-smtp`. For `yourdomain.com`, its DNS name is `turbo-smtp._domainkey.yourdomain.com`.
 
 | Field | Value |
-|-------|-------|
+| --- | --- |
 | **Type** | TXT |
-| **Host** | `turbo-smtp._domainkey.yourdomain.com` |
-| **Value** | `k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDT3MWLni6so1q9eQggRYBCLHFjohZkCnYHH8gZNDBm6zRrodRVpWpJQW7x3cWWiuBhS1X0IfBB80l5tqFa+yc+mVgnk8tkUzOHFbPQPp4fi7egTpMtsQW/ZMrxw73SItNvPr72qvJTYZNPxarMx+ULjEWybcfEdXHPY8jslGcpCwIDAQAB` |
+| **Host** | `turbo-smtp._domainkey` in the `yourdomain.com` zone |
+| **Value** | The public key supplied by the dashboard |
 
-```dns DKIM Record
+The published shared key is shown below as a reference. Confirm it against the dashboard before publishing it:
+
+```dns DKIM record
 k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDT3MWLni6so1q9eQggRYBCLHFjohZkCnYHH8gZNDBm6zRrodRVpWpJQW7x3cWWiuBhS1X0IfBB80l5tqFa+yc+mVgnk8tkUzOHFbPQPp4fi7egTpMtsQW/ZMrxw73SItNvPr72qvJTYZNPxarMx+ULjEWybcfEdXHPY8jslGcpCwIDAQAB
 ```
 
-Some DNS providers require you to omit the root domain when entering the host — in that case use `turbo-smtp._domainkey` rather than `turbo-smtp._domainkey.yourdomain.com`. Check your provider's documentation if you are unsure.
+Some DNS editors append your zone name automatically. Enter either the relative host or the full name as your provider requires, without duplicating the domain suffix.
 
 ## DMARC record
 
-DMARC (Domain-based Message Authentication, Reporting & Conformance) builds on SPF and DKIM by telling receiving mail servers what to do when a message fails authentication checks. Even a permissive `p=none` policy signals to inbox providers that your domain is actively managed, improving trust signals and enabling you to receive aggregate failure reports.
-
-Add the following TXT record to your domain's DNS:
+Start with a monitoring policy if you have not yet checked all legitimate senders. This record requests no special handling of DMARC failures:
 
 | Field | Value |
-|-------|-------|
+| --- | --- |
 | **Type** | TXT |
-| **Host** | `_dmarc.yourdomain.com` |
+| **Host** | `_dmarc` in the `yourdomain.com` zone |
 | **Value** | `v=DMARC1; p=none;` |
 
-```dns DMARC Record
+```dns DMARC record
 v=DMARC1; p=none;
 ```
 
-The `p=none` policy puts DMARC in monitoring mode — failing messages are still delivered, but you gain visibility into authentication failures. Once you have confirmed that all legitimate email passes SPF and DKIM, you can tighten the policy to `p=quarantine` or `p=reject` for stronger protection.
+`p=none` does not request aggregate reports by itself. To receive them, add `rua=mailto:dmarc-reports@yourdomain.com` using a mailbox or reporting service you control. Reporting to a different domain can require additional DNS authorization.
+
+After confirming that legitimate mail passes DMARC, consider `p=quarantine` or `p=reject`. DMARC passes when either SPF or DKIM passes with the required domain alignment; a passing check for an unrelated provider domain is insufficient. Receivers still apply their own filtering. See the [DMARC standard](https://datatracker.ietf.org/doc/html/rfc9989).
 
 ## Sending from a subdomain
 
-You can send from a subdomain such as `mail.yourdomain.com`. turboSMTP signs every message with `d=<sender domain>` and the selector `turbo-smtp`, and uses your sender address as the envelope sender. All records therefore belong to the subdomain itself, not to the root domain.
+For a sender such as `noreply@mail.yourdomain.com`, publish the SPF record at the envelope sender domain and the DKIM key below the signing domain. In turboSMTP's authenticated sending mode these use the sender domain. Check the actual `Return-Path` and DKIM `d=` values in a received message.
 
-The **Sender Domains** dialog in the dashboard always shows the host as `turbo-smtp._domainkey`, relative to the sender domain. Most DNS editors (Cloudflare, for example) expect hosts relative to the zone, which is your root domain. If you enter `turbo-smtp._domainkey` as shown, the key ends up on `yourdomain.com` and the subdomain fails verification. Add the subdomain label to every host instead.
+The dashboard's DKIM host `turbo-smtp._domainkey` is relative to the sender domain. In a DNS zone for the root domain, include the sending subdomain label.
 
-For the sender domain `mail.yourdomain.com` in the DNS zone `yourdomain.com`:
+For `mail.yourdomain.com` in the `yourdomain.com` zone:
 
-| Record | Type | Host in the `yourdomain.com` zone | Full name |
-|--------|------|-----------------------------------|-----------|
+| Record | Type | Relative host | Full name |
+| --- | --- | --- | --- |
 | SPF | TXT | `mail` | `mail.yourdomain.com` |
 | DKIM | TXT | `turbo-smtp._domainkey.mail` | `turbo-smtp._domainkey.mail.yourdomain.com` |
-| DMARC (optional) | TXT | `_dmarc.mail` | `_dmarc.mail.yourdomain.com` |
+| DMARC, if a separate policy is needed | TXT | `_dmarc.mail` | `_dmarc.mail.yourdomain.com` |
 
-The SPF and DKIM values are the same as for a root domain. A subdomain has its own SPF record, so `mail.yourdomain.com` needs `include:spf.turbo-smtp.com` even if your root domain already has it. DMARC is optional: without `_dmarc.mail.yourdomain.com`, receivers apply the policy from `_dmarc.yourdomain.com` (its `sp=` tag, or `p=` if `sp=` is not set).
+SPF is not inherited from the root domain. Add the dashboard-provided turboSMTP include to the subdomain's own SPF record, preserving other authorized senders. DMARC can inherit a parent policy; check the effective policy before adding a separate record.
 
-For a deeper subdomain such as `mail.staging.yourdomain.com`, use `turbo-smtp._domainkey.mail.staging` and `mail.staging` as hosts.
-
-Check the result with `dig`:
+For `mail.staging.yourdomain.com`, use `mail.staging` for SPF and `turbo-smtp._domainkey.mail.staging` for DKIM in the root zone.
 
 ```bash
+# Replace these names with your sending domain.
 dig +short TXT mail.yourdomain.com
 dig +short TXT turbo-smtp._domainkey.mail.yourdomain.com
 ```
 
-Both must return a value. If the DKIM query is empty, the record most likely sits on `turbo-smtp._domainkey.yourdomain.com` instead.
+An empty DKIM result can mean the key was published at the root-domain selector instead of the sending subdomain.
 
 ## Verify your records
 
-After adding your records, use turboSMTP's AI-powered analysis tool to confirm everything is configured correctly. The tool retrieves your domain's SPF, DKIM, and DMARC records, checks the number of DNS lookups, identifies third-party services in use, and provides expert advice on improving your configuration to maximize deliverability.
+Return to the domain authentication settings in the dashboard after publishing DNS. Complete verification and check that authenticated sending is enabled. Publishing a record alone does not confirm the account's sending mode.
 
-Visit the analyzer at **[serversmtp.com/spf-dkim-dmarc-dns-gdpr-analysis](https://serversmtp.com/spf-dkim-dmarc-dns-gdpr-analysis)**, enter your domain or email address, supply the DKIM selector `turbo-smtp`, and click **Verify**.
-
-<Note>
-  DNS changes can take up to 24–48 hours to propagate worldwide. If verification fails immediately after adding records, wait a few hours and try again.
-</Note>
+Use the [DNS analyzer](https://serversmtp.com/spf-dkim-dmarc-dns-gdpr-analysis) to inspect records with DKIM selector `turbo-smtp`. Then inspect a received test message for SPF, DKIM, DMARC, and alignment results. DNS caches can retain old values until their TTL expires.
 
 ## What if I can't edit my DNS?
 
-If your hosting provider does not allow you to modify DNS records, you have two options:
+Ask the DNS administrator to add the records or use a sending domain you control. A subdomain still requires DNS access or delegation.
 
-- **Create a subdomain for sending.** Register a new domain or set up a subdomain (e.g. `mail.yourdomain.com`) with a provider that allows full DNS control, then use that domain as your sender address.
-- **Contact your hosting provider.** Many providers will add DNS records on your behalf if you supply the exact values above.
-
-Even if you cannot configure any DNS records, turboSMTP's **Re-enveloped Sender** fallback ensures your emails continue to be delivered. Messages will be sent using a turboSMTP-managed envelope address, and turboSMTP's own SPF and DKIM records will satisfy authentication checks on your behalf — though your custom domain will not appear as the authenticated sender.
+turboSMTP can use re-enveloped sender mode for an unverified domain. The envelope sender and signing domain may then be provider-controlled. This does not establish DMARC alignment with your visible From domain, and it does not guarantee delivery. Verify your domain before relying on it for production mail.
 
 ## Benefits of configuring authentication
 
-Setting up SPF, DKIM, and DMARC delivers tangible improvements to your email program:
-
-- **Higher delivery rates** — authenticated mail bypasses many spam filters that would otherwise flag or reject unauthenticated messages.
-- **Your domain in the From header** — your brand domain appears as the verified sender rather than a turboSMTP address, improving subscriber recognition and trust.
-- **Better inbox placement** — inbox providers assign higher reputation scores to domains with consistent SPF and DKIM alignment.
-- **Reduced spam folder placement** — authentication removes a major signal that spam filters use to divert bulk mail away from the inbox.
-- **Protection against spoofing** — DMARC prevents bad actors from impersonating your domain in phishing attacks, safeguarding both your brand and your recipients.
+Authentication helps receivers identify authorized sending and detect spoofing. A tested DMARC enforcement policy can request quarantine or rejection of mail that fails alignment. Neither authentication nor a DNS analyzer result guarantees inbox placement.

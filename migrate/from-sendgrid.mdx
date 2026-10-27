@@ -11,7 +11,11 @@ keywords:
   - "sendgrid v3 mail send migration"
 ---
 
-Moving from SendGrid to turboSMTP usually takes an afternoon. SMTP senders only change three settings, and API senders convert the v3 Mail Send payload to turboSMTP's flat JSON format. This guide covers both paths, plus DNS, webhooks, and a safe cutover. If you need your data to stay in Europe, use the EU hosts shown throughout.
+To migrate from SendGrid, update your SMTP settings or convert v3 Mail Send requests to turboSMTP's JSON format. This guide also covers DNS, suppressions, and webhooks. Global and EU sending hosts are available; review processing terms for your regional requirements.
+
+<Note>
+  SendGrid settings checked on 27 October 2026 against Twilio's [SMTP guide](https://www.twilio.com/docs/sendgrid/for-developers/sending-email/integrating-with-the-smtp-api) and [Mail Send reference](https://www.twilio.com/docs/sendgrid/api-reference/mail-send/mail-send). SendGrid also has regional EU hosts; use your existing region when reviewing these examples.
+</Note>
 
 ## Before you start
 
@@ -20,10 +24,10 @@ Moving from SendGrid to turboSMTP usually takes an afternoon. SMTP senders only 
     [Sign up for free](https://serversmtp.com/en/signup) and create a Consumer Key and Consumer Secret. See [API Keys](/get-started/api-keys).
   </Step>
   <Step title="Authenticate your sending domain">
-    Add turboSMTP's SPF include and DKIM record to your DNS. Keep SendGrid's records in place until the migration is complete so both providers can send. See [SPF, DKIM, and DMARC](/deliverability/spf-dkim-dmarc).
+    Merge turboSMTP's SPF include into your existing single SPF record and add its DKIM record. Keep SendGrid authorized until migration and queued delivery are complete. See [SPF, DKIM, and DMARC](/deliverability/spf-dkim-dmarc).
   </Step>
   <Step title="Export your suppressions">
-    Export bounces, unsubscribes, and spam reports from SendGrid and add them to turboSMTP with the [Suppressions API](/api-reference/suppressions), so you never email someone who opted out.
+    Export bounces, unsubscribes, and spam reports from SendGrid and use `POST /suppressions/import` to add them to turboSMTP. Preserve subscription-group preferences in your application when an account-wide suppression would be too broad. See the [Suppressions API](/api-reference/suppressions).
   </Step>
 </Steps>
 
@@ -34,7 +38,7 @@ If your application, CMS, or framework sends through `smtp.sendgrid.net`, replac
 | Setting | SendGrid | turboSMTP |
 | --- | --- | --- |
 | Host | `smtp.sendgrid.net` | `pro.turbo-smtp.com` (EU: `pro.eu.turbo-smtp.com`) |
-| Port | 587 | 587 (or 465 / 2525) |
+| Port and encryption | 587 with STARTTLS | 587 or 2525 with STARTTLS; 465 or 25025 with implicit TLS; 25 also available |
 | Username | `apikey` | Your turboSMTP Consumer Key |
 | Password | Your SendGrid API key | Your turboSMTP Consumer Secret |
 
@@ -44,12 +48,12 @@ If your application, CMS, or framework sends through `smtp.sendgrid.net`, replac
 SMTP_HOST=smtp.sendgrid.net
 SMTP_PORT=587
 SMTP_USER=apikey
-SMTP_PASS=SG.xxxxxxxx
+SMTP_PASS=YOUR_SENDGRID_API_KEY
 ```
 
 ```bash turboSMTP
 SMTP_HOST=pro.eu.turbo-smtp.com
-SMTP_PORT=465
+SMTP_PORT=587
 SMTP_USER=YOUR_CONSUMER_KEY
 SMTP_PASS=YOUR_CONSUMER_SECRET
 ```
@@ -57,18 +61,17 @@ SMTP_PASS=YOUR_CONSUMER_SECRET
 ```bash Diff nocopy
 SMTP_HOST=smtp.sendgrid.net # [!code --]
 SMTP_HOST=pro.eu.turbo-smtp.com # [!code ++]
-SMTP_PORT=587 # [!code --]
-SMTP_PORT=465 # [!code ++]
+SMTP_PORT=587
 SMTP_USER=apikey # [!code --]
 SMTP_USER=YOUR_CONSUMER_KEY # [!code ++]
-SMTP_PASS=SG.xxxxxxxx # [!code --]
+SMTP_PASS=YOUR_SENDGRID_API_KEY # [!code --]
 SMTP_PASS=YOUR_CONSUMER_SECRET # [!code ++]
 ```
 
 </CodeGroup>
 
 <Note>
-  For the EU host `pro.eu.turbo-smtp.com`, use port 465 (SSL/TLS). See [SMTP Setup](/get-started/smtp-configuration) for all ports on the global host.
+  Require STARTTLS for these port 587 examples. Global and EU support the same ports and TLS modes. Enable **SMTP Sending** on your key and check any IP restrictions. See [SMTP Setup](/get-started/smtp-configuration).
 </Note>
 
 ## Option 2: Convert API calls
@@ -110,6 +113,8 @@ curl --request POST \
 </CodeGroup>
 
 **2. Flatten the payload:**
+
+This example maps one personalization. For separate messages, per-recipient subjects, templates, or substitutions, render and send each intended message separately. Flattening several personalizations into one recipient list can expose recipients or change the message they receive.
 
 <CodeGroup>
 
@@ -162,7 +167,7 @@ curl --request POST \
 </CodeGroup>
 
 <Warning>
-  turboSMTP rejects the `Authorization` header with `401 Unauthorized`. Always send `consumerKey` and `consumerSecret` as separate headers.
+  `/mail/send` authenticates only with `consumerKey` and `consumerSecret`. It ignores `Authorization`, so a request carrying only that header is refused. Enable **HTTP API Sending** on your key.
 </Warning>
 
 ### Field mapping
@@ -171,19 +176,21 @@ curl --request POST \
 | --- | --- | --- |
 | `personalizations[].to[].email` | `to` | Comma-separated string of addresses |
 | `personalizations[].cc` / `bcc` | `cc` / `bcc` | Comma-separated strings |
-| `from.email` | `from` | Plain email address string |
+| `from.email` and `from.name` | `from` | Address, optionally `Name <address>` |
 | `subject` | `subject` | Unchanged |
 | `content[]` with `text/plain` | `content` | Plain text body |
 | `content[]` with `text/html` | `html_content` | HTML body |
-| `attachments[]` (`content`, `filename`, `type`) | `attachments[]` (`content`, `name`, `type`) | Base64 content, under 24 MB total. See [Attachments](/sending/attachments) |
+| `attachments[]` (`content`, `filename`, `type`) | `attachments[]` (`content`, `name`, `type`) | Base64 content; the whole email must be less than 24 MB. See [Attachments](/sending/attachments) |
 | `headers` | `custom_headers` | Object of header names and values |
-| `custom_args` | `reference_id` | Your own ID, returned in webhook events |
+| `custom_args` | No direct equivalent for a metadata map | Store metadata in your application; use a UUID `reference_id` for correlation |
 
-A successful request returns `{"message":"OK","mid":...}`. Store `mid` or your `reference_id` to match later webhook events.
+A successful request returns `{"message":"OK","mid":...}`. This acknowledges acceptance, not delivery. Store `mid` or your UUID `reference_id` to match later events. Base64 adds roughly one third to attachment data before MIME overhead; 24 MB is not a raw-file allowance.
 
 ## Replace the Event Webhook
 
-Point your webhook consumer at turboSMTP [webhooks](/analytics/webhooks). Map SendGrid event names to turboSMTP's delivery events (`PROCESSED`, `DROPPED`, `DELIVERED`, `DEFERRED`, `BOUNCED`) and engagement events (`OPENED`, `CLICKED`, `UNSUBSCRIBED`, `REPORT`). Using Symfony? The [Symfony Mailer bridge](/integrations/symfony-mailer) parses turboSMTP webhooks for you.
+Configure a turboSMTP [webhook](/analytics/webhooks) callback and map SendGrid event names to turboSMTP's delivery events (`PROCESSED`, `DROPPED`, `DELIVERED`, `DEFERRED`, `BOUNCED`) and engagement events (`OPENED`, `CLICKED`, `UNSUBSCRIBED`, `REPORT`).
+
+turboSMTP requests are unsigned. Replace SendGrid signature verification with endpoint protection appropriate for turboSMTP, such as HTTP Basic authentication. Check enabled events and plan availability under **Settings → Notifications → Webhooks → Edit**. Free and Basic include a 30-day webhook demo; settings changes can take up to one hour. Symfony users can check the [upcoming Mailer bridge](/integrations/symfony-mailer).
 
 ## Cut over safely
 
@@ -195,7 +202,7 @@ Point your webhook consumer at turboSMTP [webhooks](/analytics/webhooks). Map Se
     Route a small share of traffic to turboSMTP and compare delivery in the [statistics dashboard](/analytics/statistics-dashboard).
   </Step>
   <Step title="Switch fully and clean up DNS">
-    Move all traffic, then remove SendGrid's DNS records once no mail is sent through it.
+    Move all traffic and sync new opt-outs. After SendGrid's queue has drained, remove only the DNS records and SPF mechanisms no longer needed by another service.
   </Step>
 </Steps>
 
@@ -203,14 +210,14 @@ Point your webhook consumer at turboSMTP [webhooks](/analytics/webhooks). Map Se
 
 <AccordionGroup>
   <Accordion title="How long does a SendGrid to turboSMTP migration take?">
-    SMTP users can switch in minutes by changing host, username, and password. API users typically need a few hours to convert payloads and webhook handlers, plus DNS propagation time.
+    It depends on your DNS access, application features, templates, suppression data, and webhook consumers. Test each sending flow before moving production traffic.
   </Accordion>
 
   <Accordion title="Do I need to remove SendGrid's DNS records first?">
-    No. Keep both sets of SPF and DKIM records during the migration. Remove SendGrid's records only after all traffic runs through turboSMTP.
+    No. Keep both providers authorized within one SPF record and retain their DKIM records until cutover and queued delivery are complete.
   </Accordion>
 
   <Accordion title="Can turboSMTP help with my migration?">
-    Yes. turboSMTP's support team helps businesses move from SendGrid and other providers. [Contact support](https://serversmtp.com/contact-us/) 24/7 by ticket, chat, or phone.
+    [Contact support](https://serversmtp.com/contact-us/) to discuss your migration. Available support channels depend on your plan.
   </Accordion>
 </AccordionGroup>
