@@ -73,7 +73,7 @@ POST https://api.eu.turbo-smtp.com/api/v2/mail/send
 </ParamField>
 
 <ParamField body="mime_raw" type="string">
-  A fully-formed raw MIME message string. When provided, `content` and `html_content` are ignored. Use this for advanced cases where you generate the MIME payload yourself.
+  Accepted by the request schema, but `/mail/send` does not use it. A request that carries only `mime_raw` is delivered with an empty body, and the raw message's headers and subject are discarded; when `content` or `html_content` is present, those are sent instead. To send a pre-built MIME message, use the [SMTP relay](/sending/smtp-relay).
 </ParamField>
 
 <ParamField body="attachments" type="array">
@@ -167,7 +167,7 @@ Error formats vary by failure. Inspect the HTTP status and the returned `message
 {
   "errorCode": 3,
   "message": "Invalid authorization token",
-  "details": "No authorization key was specified for request: POST /api/v2/mail/send"
+  "details": "No authorization key was specified for request: POST /api/mail/send"
 }
 ```
 </Accordion>
@@ -177,7 +177,8 @@ Error formats vary by failure. Inspect the HTTP status and the returned `message
 {
   "message": "error",
   "errors": [
-    ["'bad-email' 'to' email not valid"]
+    ["'bad-email' 'to' email not valid"],
+    "missing recipients (to)"
   ]
 }
 ```

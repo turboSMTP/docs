@@ -82,7 +82,7 @@ The request body must be a JSON object. The `from` and `to` fields are required;
 </ParamField>
 
 <ParamField body="mime_raw" type="string">
-  A complete raw MIME message string. Use this field if you need full control over the MIME structure : for example, to send messages with complex multipart layouts or non-standard headers. When `mime_raw` is provided, the raw MIME body replaces `content` and `html_content`.
+  Accepted by the request schema, but `/mail/send` does not use it. A request that carries only `mime_raw` is delivered with an empty body, and the raw message's headers and subject are discarded; when `content` or `html_content` is present, those are sent instead. To send a pre-built MIME message, use the [SMTP relay](/sending/smtp-relay).
 </ParamField>
 
 ## Example request

@@ -8,7 +8,7 @@ The turboSMTP dashboard uses **Keycloak** for sign-in and two-factor authenticat
 
 ## Enable two-factor authentication
 
-Use the Keycloak account security interface associated with your dashboard login. Follow its setup prompts to register an authenticator app and confirm a temporary code. Contact support if you need help accessing your account security settings.
+In the dashboard, click your name in the top-right corner, open **My Account**, and use the **Two-Factor Authentication** section. Scan the QR code with an authenticator app and enter the 6-digit code. Contact support if you need help accessing your account security settings.
 
 Two-factor authentication protects dashboard sign-in. SMTP and HTTP API integrations continue to authenticate with their **Consumer Key** and **Consumer Secret**.
 
@@ -24,4 +24,4 @@ Use IP restrictions when your application's outbound IP addresses are known. Sto
 
 ## Dashboard passwords and API access
 
-Use the dashboard's Keycloak flow to manage your login password. Use Consumer credentials for integrations; see [API authentication](/api-reference/authentication) for the legacy login endpoint's limitations and the operations that require a session.
+Change your login password under **your name → My Account → Change Password**. Use Consumer credentials for integrations; see [API authentication](/api-reference/authentication) for the legacy login endpoint's limitations and the operations that require a session.

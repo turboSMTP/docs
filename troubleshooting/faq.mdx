@@ -33,7 +33,7 @@ Find answers about accounts, plans, SMTP, and deliverability. For current allowa
 </Accordion>
 
 <Accordion title="Why was my free account closed?">
-  turboSMTP maintains a quality-of-service policy that applies to all accounts, including free ones. If your account was sending spam, violating the Anti-Spam Policy, or otherwise breaching the Terms and Conditions, it may have been closed. If you believe your account was closed in error, contact the support team and they will review your case.
+  turboSMTP maintains a quality-of-service policy that applies to all accounts, including free ones. turboSMTP may close a free account whose mail produces a high bounce rate or recipient complaints. Paid accounts receive an alert instead of immediate termination. If you believe your account was closed in error, contact the support team and they will review your case.
 </Accordion>
 
 <Accordion title="Can I manage my account online?">
@@ -101,7 +101,7 @@ Find answers about accounts, plans, SMTP, and deliverability. For current allowa
 </Accordion>
 
 <Accordion title="I renewed my plan, but the email counter hasn't updated yet. Why?">
-  The dashboard counter updates once your current plan period expires and the renewed plan takes effect. If your existing plan still has time remaining, the counter will refresh at the end of that period. This is expected behavior, not a bug.
+  The counter updates after you send an email. A renewal resets the counter for the new period; send one email to refresh it.
 </Accordion>
 
 ---
@@ -109,7 +109,7 @@ Find answers about accounts, plans, SMTP, and deliverability. For current allowa
 ## Sending & Configuration
 
 <Accordion title="How many emails can I send per day? What is the maximum attachment size?">
-  Your allowance depends on your active plan. The free plan currently lists 200 emails per day. For the send API, the published limit is less than 24 MB for the whole email, including attachments. Base64 adds roughly one third to binary attachment data before MIME overhead. See [Attachments](/sending/attachments).
+  Your allowance depends on your active plan. The free plan currently lists 200 emails per day. The knowledge base lists a maximum of 30 MB per message. For the send API, keep the whole email, including attachments, under 24 MB. Base64 adds roughly one third to binary attachment data before MIME overhead. See [Attachments](/sending/attachments).
 </Accordion>
 
 <Accordion title="Can I use turboSMTP while travelling?">
@@ -189,5 +189,5 @@ Find answers about accounts, plans, SMTP, and deliverability. For current allowa
 ## Support
 
 <Accordion title="How can I submit a support ticket?">
-  Log in to the [dashboard](https://dashboard.serversmtp.com), open **? → Submit a ticket**, and provide the error, timestamp, and message or order ID. Remove credentials from anything you attach. Free and Basic list chat and ticket support; Pro and Enterprise also list phone support.
+  Log in to the [dashboard](https://dashboard.serversmtp.com), open **? → My Tickets → Submit a Ticket**, and provide the error, timestamp, and message or order ID. Remove credentials from anything you attach. Free and Basic list chat and ticket support; Pro and Enterprise also list phone support.
 </Accordion>

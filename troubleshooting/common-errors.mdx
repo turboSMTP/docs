@@ -33,7 +33,7 @@ Send to `https://api.turbo-smtp.com/api/v2/mail/send` or the EU endpoint `https:
 | `missing or not valid sender email (from)` | Supply a valid `from` address, optionally in `Name <address>` format. |
 | `missing recipients (to)` | Supply at least one recipient as a string. Join multiple addresses with commas. |
 | Recipient validation errors | Check `to`, `cc`, and `bcc`. A comma inside a quoted display name can break recipient parsing. |
-| `Invalid Mime` | Validate `mime_raw` or use `content` and `html_content` instead. |
+| `Invalid Mime` | Use `content` and `html_content`. To send a pre-built MIME message, use the [SMTP relay](/sending/smtp-relay). |
 | `nocredit` | Review your remaining allowance and plan in the dashboard. |
 | Account inactive | Check activation messages and contact support if needed. |
 

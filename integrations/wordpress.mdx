@@ -20,10 +20,10 @@ keywords:
 
 <Steps>
   <Step title="Install the TurboSMTP plugin">
-    In your WordPress admin, go to **Plugins → Add New Plugin**. Install and activate **turboSMTP**. Follow its credential setup with your [Consumer Key and Consumer Secret](/get-started/api-keys) and select API sending. The key needs **HTTP API Sending** permission.
+    In your WordPress admin, go to **Plugins → Add New Plugin**. Install and activate **turboSMTP**. Follow its credential setup with your [Consumer Key and Consumer Secret](/get-started/api-keys). In API mode the plugin always uses the Global endpoint `api.turbo-smtp.com`, and the key needs **HTTP API Sending** permission. To send through European servers, use the plugin's SMTP mode instead.
   </Step>
-  <Step title="Choose SMTP as an alternative">
-    To configure an explicit Global or EU SMTP host, use WP Mail SMTP's **Other SMTP** option instead of the official plugin. Enter:
+  <Step title="Or choose SMTP sending">
+    The plugin's SMTP mode lets you pick the Global or European host. The username field is labelled **Username (email)**; enter your Consumer Key there, not your account email. The same values work in other SMTP plugins such as WP Mail SMTP (**Other SMTP**):
 
     | Setting | Value |
     | --- | --- |

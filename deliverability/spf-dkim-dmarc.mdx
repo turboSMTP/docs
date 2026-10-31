@@ -26,7 +26,7 @@ For a domain that sends only through turboSMTP, a minimal example is:
 v=spf1 include:spf.turbo-smtp.com ?all
 ```
 
-The [turboSMTP knowledge base](https://serversmtp.com/en/smtp/16-Can-I-configure-my-DKIM-and-SPF-to-get-the-highest-delivery-rates/kb-344.html) documents `include:spf.turbo-smtp.com`; the [public authentication guide](https://serversmtp.com/how-to-set-up-email-authentication/) also documents `include:turbo-smtp.com`. Both can authorize turboSMTP. Keep a working configuration unless your dashboard or support directs a change; do not add both simply because both appear in documentation.
+Use `include:spf.turbo-smtp.com`, as documented in the [turboSMTP knowledge base](https://serversmtp.com/en/smtp/26-Can-I-configure-my-DKIM-DMARC-and-SPF-to-get-the-highest-delivery-rates/kb-344.html). It lists only turboSMTP's sending ranges and costs one DNS lookup. Older guides show `include:turbo-smtp.com`, which is the company's own domain record: it also authorizes Microsoft 365 servers and uses several lookups of the 10-lookup limit. Do not add both.
 
 The `?all` example gives a neutral result for unlisted servers. Preserve your existing policy unless you intend to change it. Add `a` or `mx` only if those hosts also send mail for this domain. Keep the full policy within SPF's ten DNS-lookup limit. See [RFC 7208](https://datatracker.ietf.org/doc/html/rfc7208#section-4.6.4).
 

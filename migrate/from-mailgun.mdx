@@ -148,7 +148,8 @@ curl -X POST https://api.eu.turbo-smtp.com/api/v2/mail/send \ # [!code ++:5]
 | `h:X-Custom-Header` | `custom_headers` | Object of header names and values |
 | `v:my-var` | No direct equivalent for a metadata map | Store metadata in your application; use a UUID `reference_id` for correlation |
 | `o:tag` | `X-campaign-ID` | Review how your application groups messages; these are not identical features |
-| `/messages.mime` | `mime_raw` | Send a pre-built MIME message |
+| `inline` | `attachments[]` with `content_id` | Use a bare `content_id` such as `logo`; reference it in HTML as `cid:logo@<sender-domain>`. See [inline images](/sending/attachments#inline-images) |
+| `/messages.mime` | [SMTP relay](/sending/smtp-relay) | `/mail/send` does not use `mime_raw`; send pre-built MIME over SMTP with your Consumer Key and Secret |
 
 ## Replace webhooks
 

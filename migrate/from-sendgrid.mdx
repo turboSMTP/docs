@@ -181,10 +181,12 @@ This example maps one personalization. For separate messages, per-recipient subj
 | `content[]` with `text/plain` | `content` | Plain text body |
 | `content[]` with `text/html` | `html_content` | HTML body |
 | `attachments[]` (`content`, `filename`, `type`) | `attachments[]` (`content`, `name`, `type`) | Base64 content; the whole email must be less than 24 MB. See [Attachments](/sending/attachments) |
+| `attachments[]` with `disposition: inline` and `content_id` | `attachments[]` with `content_id` | Use a bare `content_id` such as `logo`; reference it in HTML as `cid:logo@<sender-domain>`. See [inline images](/sending/attachments#inline-images) |
 | `headers` | `custom_headers` | Object of header names and values |
+| `reply_to` / `reply_to_list` | `custom_headers: {"Reply-To": "..."}` | Only the first Reply-To address is kept |
 | `custom_args` | No direct equivalent for a metadata map | Store metadata in your application; use a UUID `reference_id` for correlation |
 
-A successful request returns `{"message":"OK","mid":...}`. This acknowledges acceptance, not delivery. Store `mid` or your UUID `reference_id` to match later events. Base64 adds roughly one third to attachment data before MIME overhead; 24 MB is not a raw-file allowance.
+A successful request returns `{"message":"OK","mid":...}`. This acknowledges acceptance, not delivery. Store `mid` or your UUID `reference_id` to match later events. `mid` exceeds JavaScript's safe-integer range; parse it losslessly, for example as a string or `BigInt`. Base64 adds roughly one third to attachment data before MIME overhead; 24 MB is not a raw-file allowance.
 
 ## Replace the Event Webhook
 

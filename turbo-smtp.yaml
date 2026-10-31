@@ -541,7 +541,7 @@ paths:
                   value:
                     errorCode: 3
                     message: Invalid authorization token
-                    details: 'No authorization key was specified for request: POST /api/v2/mail/send'
+                    details: 'No authorization key was specified for request: POST /api/mail/send'
                 InvalidAuthorizationToken:
                   summary: Authorization Tokens are invalid.
                   value:
@@ -635,6 +635,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuppressionsSucessResponsetBody'
+        '400':
+          description: |
+            Bad Request
+
+            ###### Produces:
+
+            * invalid_parameter_from
+            * invalid_parameter_to
         '401':
           $ref: '#/components/responses/Unauthorized'
     post:
@@ -690,6 +698,14 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/SuppressionsCSV'
+        '400':
+          description: |
+            Bad Request
+
+            ###### Produces:
+
+            * invalid_parameter_from
+            * invalid_parameter_to
         '401':
           $ref: '#/components/responses/Unauthorized'
     post:
@@ -2201,8 +2217,8 @@ paths:
             * missing_required_parameter_to
             * to_format_should_be_yyyy-mm-dd
             * missing_required_parameter_filter_by
-            * invalid_status_value
-            * filter_by_can_only_be_subject_or_sender_or_recipient_or_domain
+            * invalid_status_values
+            * filter_by_can_only_be_subject_or_sender_or_recipient_or_domain_or_x_campaign_id_or_consumer_key
             * smart_search_should_be_true_or_false
             * orderby_can_only_be_subject_or_sender_or_recipient_or_domain
             * ordertype_should_be_asc_or_desc                  
@@ -2223,12 +2239,16 @@ paths:
       parameters:
         - $ref: '#/components/parameters/FromQueryParam'
         - $ref: '#/components/parameters/ToQueryParam'
-        - $ref: '#/components/parameters/AnalyticStatusQueryParam'
+        - in: query
+          name: status
+          required: false
+          description: Comma-separated statuses, such as FAIL,DEFER. The status[] form used by GET /analytics fails on this endpoint.
+          schema:
+            type: string
+            example: FAIL,DEFER
         - $ref: '#/components/parameters/AnalyticFilterByQueryParam'
         - $ref: '#/components/parameters/AnalyticFilterQueryParam'
         - $ref: '#/components/parameters/SmartSearchQueryParam'
-        - $ref: '#/components/parameters/AnalyticOrderByQueryParam'
-        - $ref: '#/components/parameters/OrderTypeQueryParam'
         - $ref: '#/components/parameters/TimezoneQueryParam'
       responses:
         '200':
@@ -2251,8 +2271,8 @@ paths:
             * missing_required_parameter_to
             * to_format_should_be_yyyy-mm-dd
             * missing_required_parameter_filter_by
-            * invalid_status_value
-            * filter_by_can_only_be_subject_or_sender_or_recipient_or_domain
+            * invalid_status_values
+            * filter_by_can_only_be_subject_or_sender_or_recipient_or_domain_or_x_campaign_id_or_consumer_key
             * smart_search_should_be_true_or_false
             * orderby_can_only_be_subject_or_sender_or_recipient_or_domain
             * ordertype_should_be_asc_or_desc                  
@@ -2982,7 +3002,7 @@ components:
           example: Invalid authorization token
         details:
           type: string
-          example: 'No authorization key was specified for request: POST /api/v2/mail/send'
+          example: 'No authorization key was specified for request: POST /api/mail/send'
     Subaccount:
       unevaluatedProperties: false
       allOf:
@@ -3499,7 +3519,7 @@ components:
           type:
             - string
             - 'null'
-          description: mime message which replaces content and hmtl content
+          description: Accepted but not used by /mail/send. A request with only mime_raw is delivered with an empty body. Send pre-built MIME messages over the SMTP relay instead.
         attachments:
           type: array
           description: array of attachment objects
@@ -3871,9 +3891,9 @@ components:
           example: US
         type:
           type:
-            - integer
+            - string
             - 'null'
-          example: null
+          example: region
     StateList:
       type: array
       items:

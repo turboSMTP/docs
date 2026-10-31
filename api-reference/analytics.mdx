@@ -69,7 +69,7 @@ Treat message IDs as 64-bit identifiers. JavaScript's `JSON.parse` can round lar
 
 ## Export CSV
 
-`GET /analytics/csv` accepts the same date, status, search, sorting, and timezone filters as the list endpoint, without `page` or `limit`.
+`GET /analytics/csv` accepts the same date, search, and timezone filters as the list endpoint, without `page` or `limit`. Two differences apply. Filter statuses with a single comma-separated `status` parameter, such as `status=FAIL,DEFER`; the list endpoint's `status[]` form fails on the CSV export. Rows are always ordered newest first, so `orderby` and `ordertype` have no effect.
 
 ```bash Terminal
 curl --get 'https://pro.api.serversmtp.com/api/v2/analytics/csv' \
