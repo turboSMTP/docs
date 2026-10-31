@@ -10,7 +10,7 @@ keywords:
   - "nodemailer smtp"
 ---
 
-Nodemailer, the most widely used email library for Node.js, includes turboSMTP in its list of [well-known services](https://nodemailer.com/smtp/well-known-services). Set `service` to `TurboSMTP` or `TurboSMTP-EU` and Nodemailer fills in the host, port, and TLS settings for you.
+**Status: Available in Nodemailer 9.0.4 and later.** Nodemailer includes turboSMTP in its list of [well-known services](https://nodemailer.com/smtp/well-known-services). Set `service` to `TurboSMTP` or `TurboSMTP-EU` and Nodemailer fills in the host, port, and TLS settings for you.
 
 | Service ID | SMTP host | Port | Secure |
 | --- | --- | --- | --- |
@@ -39,6 +39,8 @@ pnpm add nodemailer
 
 Authenticate with your [Consumer Key](/get-started/api-keys) as the username and your Consumer Secret as the password, as on any [SMTP connection](/get-started/smtp-configuration).
 
+Enable **SMTP Sending** on the key and check any IP restrictions before sending.
+
 ```javascript send.js
 import nodemailer from "nodemailer";
 
@@ -59,11 +61,11 @@ await transporter.sendMail({
 ```
 
 <Tip>
-  Use `TurboSMTP-EU` to send through turboSMTP's European servers and keep your email data inside the EU. See [GDPR and data residency](/api-reference/base-urls#gdpr-and-data-residency).
+  The presets use implicit TLS on port 465. For manual configuration, both hosts also support implicit TLS on 25025 and STARTTLS on 587 or 2525; port 25 is available. See [SMTP Setup](/get-started/smtp-configuration).
 </Tip>
 
 ## HTTP API transport
 
 <Info>
-  A dedicated Nodemailer transport for the turboSMTP HTTP API is in development and not yet published to npm. Until then, use the SMTP service presets above, or call the [Email API](/sending/email-api) directly.
+  To send through HTTPS, call the [Email API](/sending/email-api) directly.
 </Info>

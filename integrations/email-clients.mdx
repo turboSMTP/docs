@@ -9,7 +9,9 @@ keywords:
   - "outgoing mail server"
 ---
 
-Configure your desktop email client to send through turboSMTP's SMTP server for authenticated, high-deliverability sending from Outlook or Thunderbird. For Apple Mail, Gmail, and more clients, see [SMTP Setup](/get-started/smtp-configuration).
+**Status: Available through SMTP.** Configure an outgoing SMTP server in a client that supports custom SMTP settings. Menu names vary by client version. For more clients, see [SMTP Setup](/get-started/smtp-configuration).
+
+Use `pro.turbo-smtp.com` for Global or `pro.eu.turbo-smtp.com` for EU sending in either configuration below. Your SMTP username is your Consumer Key and your password is your Consumer Secret.
 
 <Tabs>
   <Tab title="Microsoft Outlook">
@@ -42,5 +44,5 @@ Configure your desktop email client to send through turboSMTP's SMTP server for 
 </Tabs>
 
 <Tip>
-  If port 587 is blocked by your network or ISP, use port **465** (SSL/TLS) or the fallback port **2525**. All three ports are supported by `pro.turbo-smtp.com`.
+  Both hosts support **587** and **2525** with STARTTLS, **465** and **25025** with implicit TLS, and port **25**. Match your client's encryption setting to the port.
 </Tip>

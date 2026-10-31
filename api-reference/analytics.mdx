@@ -1,250 +1,126 @@
 ---
-title: "Analytics API — Retrieve Email Statistics and Reports"
+title: "Analytics API"
 sidebarTitle: "Analytics"
-description: "Query email delivery statistics, filter by status and date range, retrieve per-email logs, and export data as CSV using the turboSMTP Analytics API."
+description: "List delivery records, filter by status and date, export CSV files, and manage account tracking."
 ---
 
-The turboSMTP Analytics API gives you programmatic access to your account's sending history and engagement metrics. Query individual email records with full status detail, count sends by delivery outcome, or export your logs as CSV for external reporting and business intelligence. You can also manage click and open tracking at the account level from the same API, making it straightforward to integrate turboSMTP data into dashboards, alerting pipelines, or data warehouses.
+Use the Analytics API to retrieve sending history and delivery outcomes.
 
 ## Authentication
 
-All Analytics API requests require your API key passed as a raw value in the `Authorization` header.
-
-```http Authorization header
-Authorization: YOUR_API_KEY
-```
-
-Do not prefix the value with `Bearer` or any other scheme.
-
 **Base URL:** `https://pro.api.serversmtp.com/api/v2`
 
-## Endpoints
+Send `consumerKey` and `consumerSecret` headers with a key that has **Statistics & Management APIs** (`APIS`) permission. Its IP restrictions must allow your server. See [authentication](/api-reference/authentication).
 
-<Accordion title="GET /stats/panes/emails — List email statistics">
-  Returns a paginated list of sent email records matching your filters. Each record includes the recipient, subject, send time, and final delivery status.
+## List delivery records
 
-  **Request**
+`GET /analytics` returns a paginated object with `count` and `results`.
 
-  ```bash Terminal
-  curl -X GET 'https://pro.api.serversmtp.com/api/v2/stats/panes/emails?start=2024-01-01%2000:00:00&end=2024-01-31%2023:59:59&page=1&filter=SUCCESS' \
-    -H 'Authorization: YOUR_API_KEY' \
-    -H 'Content-Type: application/json'
-  ```
+```bash Terminal
+curl --get 'https://pro.api.serversmtp.com/api/v2/analytics' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  --data-urlencode 'from=2026-10-01' \
+  --data-urlencode 'to=2026-10-27' \
+  --data-urlencode 'status[]=SUCCESS' \
+  --data-urlencode 'page=1' \
+  --data-urlencode 'limit=10'
+```
 
-  **Query parameters**
+| Query parameter | Description |
+|---|---|
+| `from`, `to` | Required dates in `YYYY-MM-DD` format. `from` must be on or before `to`. Do not include a time. |
+| `page`, `limit` | Positive integers. Defaults: page `1`, limit `10`. |
+| `status[]` | Repeat for each status to include. Omit to include all statuses. |
+| `filter` | Text to search. Supply `filter_by` when using a filter. |
+| `filter_by` | Fields to search: `subject`, `sender`, `recipient`, `domain`, `x_campaign_id`, `consumer_key`. Repeat the parameter for multiple fields. |
+| `smart_search` | Boolean search option. |
+| `orderby` | `subject`, `sender`, `recipient`, or `send_time` (default). |
+| `ordertype` | `asc` or `desc`. |
+| `tz` | Timezone offset, such as `+01:00`. URL-encode the plus sign. |
 
-  | Parameter | Type | Description |
-  |---|---|---|
-  | `start` | string | Start datetime in `YYYY-MM-DD H:i:s` format |
-  | `end` | string | End datetime in `YYYY-MM-DD H:i:s` format |
-  | `page` | integer | Page number (10 results per page) |
-  | `filter` | string | Status filter value or JSON array (see [Status filter values](#status-filter-values)) |
-  | `tz` | string | Timezone offset, e.g. `+01:00` (default: `+01:00`) |
+Example response:
 
-  **Example response**
-
-  ```json
-  [
+```json
+{
+  "count": 1,
+  "results": [
     {
-      "id": 4612864212,
-      "subject": "Your order has shipped",
-      "sender": "orders@your-company.com",
-      "recipient": "customer@example.com",
-      "sendTime": "2024-01-15T10:58:06.000Z",
+      "id": 1800872493473407000,
+      "subject": "Order update",
+      "sender": "orders@example.com",
+      "recipient": "customer@example.net",
+      "send_time": "2026-10-20 10:30:00",
       "status": "SUCCESS",
-      "error": null
-    },
-    {
-      "id": 4611292665,
-      "subject": "Welcome to our service",
-      "sender": "hello@your-company.com",
-      "recipient": "newuser@example.com",
-      "sendTime": "2024-01-15T17:33:02.000Z",
-      "status": "OPEN",
-      "error": null
+      "domain": "example.com",
+      "recipient_domain": "example.net",
+      "error": "",
+      "consumer_key": "YOUR_CONSUMER_KEY"
     }
   ]
-  ```
-</Accordion>
+}
+```
 
-<Accordion title="GET /stats/panes/emails/count — Count emails by status">
-  Returns the total count of email records matching your filter criteria. Use this to build dashboard counters or validate record totals before paginating through results.
+Treat message IDs as 64-bit identifiers. JavaScript's `JSON.parse` can round large numeric IDs; use a parser that preserves large integers when you need the exact value.
 
-  **Request**
+## Get one record
 
-  ```bash Terminal
-  curl -X GET 'https://pro.api.serversmtp.com/api/v2/stats/panes/emails/count?start=2024-01-01%2000:00:00&end=2024-01-31%2023:59:59&filter=SUCCESS' \
-    -H 'Authorization: YOUR_API_KEY' \
-    -H 'Content-Type: application/json'
-  ```
+`GET /analytics/{Id}` returns one delivery record with the same fields as an item in `results`, except that the recipient domain is named `contact_domain` instead of `recipient_domain`. Use the message ID as `{Id}`. A missing record returns `404` with `message: "email_not_found"`.
 
-  **Query parameters:** Same as `GET /stats/panes/emails` (excluding `page`).
+## Export CSV
 
-  **Example response**
+`GET /analytics/csv` accepts the same date, search, and timezone filters as the list endpoint, without `page` or `limit`. Two differences apply. Filter statuses with a single comma-separated `status` parameter, such as `status=FAIL,DEFER`; the list endpoint's `status[]` form fails on the CSV export. Rows are always ordered newest first, so `orderby` and `ordertype` have no effect.
 
-  ```json
-  {
-    "count": 220
-  }
-  ```
-</Accordion>
+```bash Terminal
+curl --get 'https://pro.api.serversmtp.com/api/v2/analytics/csv' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  --data-urlencode 'from=2026-10-01' \
+  --data-urlencode 'to=2026-10-27' \
+  --output analytics.csv
+```
 
-<Accordion title="GET /stats/emails/csv — Export statistics as CSV">
-  Download your email statistics as a CSV file. Accepts the same filter and date range parameters as `GET /stats/panes/emails`.
+CSV columns are **Message Id**, **Status**, **Subject**, **From**, **To**, **Date**, **Reason**, and **Consumer Key**. In the dashboard, use **Analytics → Export**.
 
-  **Request**
+## Status values
 
-  ```bash Terminal
-  curl -X GET 'https://pro.api.serversmtp.com/api/v2/stats/emails/csv?start_date=2024-01-01%2000:00:00&end_date=2024-01-31%2023:59:59&filter=FAIL' \
-    -H 'Authorization: YOUR_API_KEY' \
-    -o email-stats-january.csv
-  ```
-
-  **Query parameters**
-
-  | Parameter | Type | Description |
-  |---|---|---|
-  | `start_date` | string | Start datetime in `YYYY-MM-DD H:i:s` format |
-  | `end_date` | string | End datetime in `YYYY-MM-DD H:i:s` format |
-  | `filter` | string | Status filter value or JSON array |
-  | `tz` | string | Timezone offset (default: `+01:00`) |
-
-  The response is a CSV file stream with columns for ID, subject, sender, recipient, send time, status, and error.
-</Accordion>
-
-<Accordion title="GET /stats/email-feed-last/{no} — Get last N emails sent">
-  Returns the most recent emails sent from your account. Use this for a live "recent activity" feed in dashboards or support tooling.
-
-  **Request**
-
-  ```bash Terminal
-  curl -X GET 'https://pro.api.serversmtp.com/api/v2/stats/email-feed-last/10' \
-    -H 'Authorization: YOUR_API_KEY' \
-    -H 'Content-Type: application/json'
-  ```
-
-  **Path parameter**
-
-  | Parameter | Allowed values |
-  |---|---|
-  | `no` | `10`, `20`, or `30` |
-
-  **Example response**
-
-  ```json
-  [
-    {
-      "id": 4612864212,
-      "subject": "Password reset request",
-      "sender": "noreply@your-company.com",
-      "recipient": "user@example.com",
-      "sendTime": "2024-04-24T10:58:06.000Z",
-      "status": "SUCCESS",
-      "error": null
-    }
-  ]
-  ```
-</Accordion>
-
-## Status filter values
-
-Use these values in the `filter` parameter to narrow results to a specific delivery outcome:
-
-| Filter value | Meaning |
+| Value | Meaning |
 |---|---|
-| `*` or empty | All statuses |
-| `NEW` | Queued, not yet attempted |
-| `DEFER` | Delivery deferred, retrying |
-| `SUCCESS` | Successfully delivered |
-| `OPEN` | Recipient opened the email |
-| `CLICK` | Recipient clicked a tracked link |
-| `REPORT` | Recipient reported as spam |
-| `FAIL` | Hard bounce — permanent delivery failure |
-| `SYSFAIL` | System/soft bounce — temporary failure |
-| `UNSUB` | Recipient unsubscribed |
+| `NEW` | Queued for delivery |
+| `DEFER` | Delivery deferred; still queued |
+| `SUCCESS` | Delivered |
+| `OPEN` | An open was recorded |
+| `CLICK` | A tracked link click was recorded |
+| `REPORT` | Reported as spam |
+| `FAIL` | Bounced |
+| `SYSFAIL` | Dropped |
+| `UNSUB` | Unsubscribed |
 
-You can also pass a JSON array to match multiple statuses at once. These shorthands are useful for common reporting queries:
-
-| Shorthand | Equivalent filter array |
-|---|---|
-| Queued | `["NEW", "DEFER"]` |
-| Delivered | `["SUCCESS", "OPEN", "CLICK", "UNSUB", "REPORT"]` |
-| Read | `["OPEN", "CLICK", "UNSUB", "REPORT"]` |
-| Bounce | `["FAIL", "SYSFAIL"]` |
+For delivered totals, include `SUCCESS`, `OPEN`, `CLICK`, `UNSUB`, and `REPORT`. For opens, include `OPEN`, `CLICK`, `UNSUB`, and `REPORT`. Queued totals combine `NEW` and `DEFER`; bounces use `FAIL` and drops use `SYSFAIL`. These are groups of status values, not additional API status strings.
 
 ## Tracking tools
 
-turboSMTP provides API endpoints to check and toggle click and open tracking for your account. These settings apply to all emails sent unless overridden at the message level.
-
-<Accordion title="GET /tools/clickTracking — Get click tracking status">
-  Returns the current click tracking configuration for your account.
-
-  ```bash Terminal
-  curl -X GET 'https://pro.api.serversmtp.com/api/v2/tools/clickTracking' \
-    -H 'Authorization: YOUR_API_KEY'
-  ```
-
-  **Example response**
-
-  ```json
-  {
-    "id": "clickTracking",
-    "forced": false,
-    "requiredSettings": [],
-    "enabled": true,
-    "settings": [
-      { "key": "clicktracking", "value": true },
-      { "key": "clicktracking_plaintext", "value": false }
-    ]
-  }
-  ```
-</Accordion>
-
-<Accordion title="GET /tools/openingTracking — Get open tracking status">
-  Returns the current open tracking configuration for your account.
-
-  ```bash Terminal
-  curl -X GET 'https://pro.api.serversmtp.com/api/v2/tools/openingTracking' \
-    -H 'Authorization: YOUR_API_KEY'
-  ```
-
-  **Example response**
-
-  ```json
-  {
-    "id": "openingTracking",
-    "forced": false,
-    "requiredSettings": [],
-    "enabled": true,
-    "settings": []
-  }
-  ```
-</Accordion>
-
-<Accordion title="PUT /tools/clickTracking/{action} — Enable or disable click tracking">
-  Enable or disable click tracking account-wide. Set `{action}` to `enable` or `disable`.
-
-  ```bash Terminal
-  curl -X PUT 'https://pro.api.serversmtp.com/api/v2/tools/clickTracking/enable' \
-    -H 'Authorization: YOUR_API_KEY'
-  ```
-</Accordion>
-
-<Accordion title="PUT /tools/openingTracking/{action} — Enable or disable open tracking">
-  Enable or disable open tracking account-wide. Set `{action}` to `enable` or `disable`.
-
-  ```bash Terminal
-  curl -X PUT 'https://pro.api.serversmtp.com/api/v2/tools/openingTracking/disable' \
-    -H 'Authorization: YOUR_API_KEY'
-  ```
-</Accordion>
-
-## Example: Get last 10 emails
-
-Pull the 10 most recently sent messages for a live activity snapshot:
+`GET /tools` returns an array of tool objects containing only `id` and `enabled`.
 
 ```bash Terminal
-curl -X GET 'https://pro.api.serversmtp.com/api/v2/stats/email-feed-last/10' \
-  -H 'Authorization: YOUR_API_KEY' \
-  -H 'Content-Type: application/json'
+curl 'https://pro.api.serversmtp.com/api/v2/tools' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET'
 ```
+
+Change account tracking settings with these bodyless requests:
+
+| Method | Path | Effect |
+|---|---|---|
+| `PUT` | `/tools/clickTracking/enable` | Enable click tracking |
+| `PUT` | `/tools/clickTracking/disable` | Disable click tracking |
+| `PUT` | `/tools/openingTracking/enable` | Enable open tracking |
+| `PUT` | `/tools/openingTracking/disable` | Disable open tracking |
+
+```bash Terminal
+curl -X PUT 'https://pro.api.serversmtp.com/api/v2/tools/clickTracking/enable' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET'
+```
+
+In the dashboard, **Settings → Tracking** also includes Google Analytics and Custom Tracking Domains.

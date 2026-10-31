@@ -1,73 +1,23 @@
 ---
-title: "Improve Deliverability with turboSMTP Smart Routing"
+title: "turboSMTP Smart Routing"
 sidebarTitle: "Smart Routing"
-description: "Smart Routing automatically rotates between multiple IP addresses to overcome deferrals and maintain inbox delivery rates when a single IP faces issues."
+description: "Understand shared-IP routing and dedicated IP pools, and confirm the routing options available for your turboSMTP account."
 ---
 
-For many senders a single outbound IP address is sufficient — until it isn't. As your sending volume grows, or if an inbox provider starts deferring mail from one IP, a single-IP setup quickly becomes a bottleneck or a liability. turboSMTP's Smart Routing feature solves this by giving your email multiple paths to the internet: it randomizes delivery attempts across a pool of sending IPs so that a deferral on one address does not stop your campaign in its tracks.
+Smart Routing distributes delivery attempts across a shared pool of turboSMTP sending IPs. When an IP encounters a temporary deferral or block, a later attempt can use another IP. This can help with IP-specific delivery issues; it does not guarantee inbox placement.
 
-## How Smart Routing works
+For more complex cases, routing rules can direct traffic for particular recipient domains through different routes. See the [Smart Routing overview](https://serversmtp.com/smart-routing-feature/) and [knowledge base](https://serversmtp.com/en/smtp/33-What-is-Smart-Routing/kb-7506.html).
 
-Smart Routing randomizes each individual delivery attempt across a shared pool of turboSMTP IP addresses. When a receiving mail server defers or temporarily rejects a message from one IP, the next delivery attempt for that message comes from a different IP in the pool. This removes the need to manually request an IP change whenever you encounter deliverability issues with a particular provider.
+## Confirm availability for your account
 
-For more complex situations, Smart Routing also allows granular routing adjustments: you can shift traffic for specific recipient domains onto routing paths that are currently achieving better delivery rates. Because configuration changes take effect instantly, your team can respond quickly to deliverability problems and minimize the impact on your overall sending program.
+Contact support through your [dashboard](https://dashboard.serversmtp.com) to confirm whether Smart Routing is available and active for your account, whether it has a cost, and which configuration your sending pattern needs.
 
-## When to use Smart Routing
+Include your sending volume, the affected recipient domains, and examples of deferral or rejection responses. Ask support to confirm the routing configuration before relying on it for a production sending workflow.
 
-Smart Routing is most valuable when a single IP address can no longer meet your needs. The following scenarios are the most common triggers.
+## Shared routing and dedicated IP pools
 
-<CardGroup cols={2}>
-  <Card title="High Volume" icon="chart-line">
-    Your sending volume has grown beyond what a single IP address should handle comfortably. Distributing traffic across multiple IPs in a Smart Routing pool prevents any single IP from being throttled due to volume alone.
-  </Card>
-  <Card title="Reputation Issue" icon="triangle-exclamation">
-    One of your sending IPs has been blocked or deferred by a major inbox provider such as Yahoo or Gmail. Smart Routing shifts subsequent delivery attempts to other IPs in the pool, maintaining delivery while the affected IP recovers.
-  </Card>
-  <Card title="Multiple Email Streams" icon="code-branch">
-    You send different types of email — transactional, marketing, and operational — that require separate handling and reputation management. Smart Routing lets you route each stream differently to protect your most critical messages.
-  </Card>
-  <Card title="Rapid Deliverability Recovery" icon="bolt">
-    You need to recover from a sudden deliverability dip quickly without waiting for manual IP changes. Smart Routing config changes take effect instantly, letting you pivot routing rules as soon as a problem appears.
-  </Card>
-</CardGroup>
+**Smart Routing** uses shared IPs and can retry temporary failures through another IP in the pool.
 
-## Smart Routing vs Dedicated IP Pools
+**Dedicated IP pools** reserve IPs for your account and provide more control over sending identity and traffic separation. They require a sending and reputation-management strategy suited to your volume.
 
-Smart Routing and Dedicated IP Pools both solve multi-IP routing problems, but they serve different sender profiles. Choose based on your volume, your need for reputation control, and how much operational overhead you can manage.
-
-<Tabs>
-  <Tab title="Smart Routing">
-    Smart Routing uses turboSMTP's **shared IP pool**, so you benefit from the established reputation of IPs that other well-behaved senders also use.
-
-    - No IP warmup required — the shared pool is already warmed
-    - Automatic rotation with no manual configuration per send
-    - Changes to routing rules take effect instantly
-    - Ideal for low-to-mid volume senders and anyone who needs quick, low-effort deliverability improvements
-    - Contact turboSMTP support to enable
-  </Tab>
-  <Tab title="Dedicated IP Pools">
-    Dedicated IP Pools give you a range of IPs used **only by your account**, putting full reputation control in your hands.
-
-    - Complete isolation from other senders — your reputation depends solely on your own sending behaviour
-    - Requires IP warmup before sending at full volume
-    - Requires careful list hygiene and consistent sending patterns to maintain IP health
-    - Best suited to high-volume senders who can sustain the volume needed to keep dedicated IPs warm
-    - Contact turboSMTP support to set up
-  </Tab>
-</Tabs>
-
-## Enable Smart Routing
-
-Smart Routing is not a self-service toggle — it requires turboSMTP's team to configure the routing rules for your account so that they are tailored to your sending patterns and recipient mix.
-
-To request Smart Routing for your account, contact the turboSMTP support team:
-
-- **Support portal:** [serversmtp.com/en/contact-us](https://serversmtp.com/en/contact-us)
-- **Live chat:** available from the turboSMTP dashboard and website
-- **Phone and ticket:** turboSMTP support is available 24/7
-
-When you reach out, describe your sending volume, the inbox providers you are having trouble with (if any), and whether you need multiple routing streams for different email types. The support team will configure Smart Routing and confirm when it is active on your account.
-
-<Note>
-  Changes to Smart Routing configuration take effect instantly — there is no propagation delay. Once the support team applies a routing rule change, it applies to the very next delivery attempt.
-</Note>
+Dedicated IP options are plan-dependent. Review [pricing](https://serversmtp.com/pricing/) and confirm pool availability and setup with support. See the [official comparison](https://serversmtp.com/en/smtp/34-What-is-the-difference-between-Smart-Routing-and-Dedicated-IP-Pools/kb-7518.html).

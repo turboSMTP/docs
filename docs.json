@@ -67,6 +67,8 @@
             "pages": [
               "account/subaccounts",
               "account/email-validation",
+              "account/email-settings",
+              "account/security",
               "account/plans-billing"
             ]
           },

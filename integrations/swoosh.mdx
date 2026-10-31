@@ -10,20 +10,43 @@ keywords:
   - "elixir smtp"
 ---
 
-`Swoosh.Adapters.TurboSMTP` is the turboSMTP adapter for Swoosh, the standard email library for Elixir and Phoenix. It is available from **Swoosh 1.28.0** and sends normal Swoosh emails and attachments through the turboSMTP HTTP API. It supports Global and EU infrastructure, provider options, and automatic inline-CID qualification.
+**Status: Available from Swoosh 1.28.0.** `Swoosh.Adapters.TurboSMTP` sends email and attachments through the turboSMTP HTTP API. It supports Global and EU endpoints, provider options, and automatic inline-CID qualification. See the [published package](https://hex.pm/packages/swoosh/1.28.0).
+
+## Install
+
+Add `{:swoosh, "~> 1.28"}` to your Mix dependencies and run `mix deps.get`. Configure an [API client supported by Swoosh](https://hexdocs.pm/swoosh/Swoosh.html#module-installation), such as Req, Finch, or Hackney.
 
 ## Configure the mailer
 
 Add the adapter to your mailer config and load your [Consumer Key and Consumer Secret](/get-started/api-keys) from environment variables.
 
-```elixir config/runtime.exs
+<CodeGroup>
+
+```elixir Global
 config :sample, Sample.Mailer,
   adapter: Swoosh.Adapters.TurboSMTP,
   consumer_key: System.fetch_env!("TURBOSMTP_CONSUMER_KEY"),
   consumer_secret: System.fetch_env!("TURBOSMTP_CONSUMER_SECRET")
+```
 
-# Add for EU sending:
-# base_url: "https://api.eu.turbo-smtp.com/api/v2"
+```elixir EU
+config :sample, Sample.Mailer,
+  adapter: Swoosh.Adapters.TurboSMTP,
+  consumer_key: System.fetch_env!("TURBOSMTP_CONSUMER_KEY"),
+  consumer_secret: System.fetch_env!("TURBOSMTP_CONSUMER_SECRET"),
+  base_url: "https://api.eu.turbo-smtp.com/api/v2"
+```
+
+</CodeGroup>
+
+Place the chosen configuration in `config/runtime.exs`.
+
+The default Global base URL is `https://api.turbo-smtp.com/api/v2`. Define your mailer if you do not already have one:
+
+```elixir lib/sample/mailer.ex
+defmodule Sample.Mailer do
+  use Swoosh.Mailer, otp_app: :sample
+end
 ```
 
 <Tip>

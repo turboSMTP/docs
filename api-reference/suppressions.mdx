@@ -1,190 +1,158 @@
 ---
-title: "Suppressions API — Manage Bounces, Spam, and Unsubscribes"
+title: "Suppressions API"
 sidebarTitle: "Suppressions"
-description: "List, add, export, and delete suppressed addresses via the turboSMTP API. Covers hard bounces, soft bounces, spam complaints, and unsubscribed contacts."
+description: "Filter, import, export, and remove suppressed email addresses with the v2 API."
 ---
 
-Suppressions are email addresses that turboSMTP will not deliver to, either because the recipient has bounced, reported your message as spam, or unsubscribed. Managing your suppression list is critical to maintaining a healthy sender reputation — sending to known-bad addresses hurts your deliverability scores and can get your account flagged. The Suppressions API gives you programmatic access to view, add, and remove suppressed addresses so you can keep your sending lists clean and in sync with your own CRM or database.
+Use suppressions to prevent delivery to addresses that should no longer receive mail. In the dashboard, open **Suppressions** to view the list, **Export** it, or **Import suppressions**.
 
 ## Authentication
 
-All Suppressions API requests require your API key passed as a raw value in the `Authorization` header.
-
-```http Authorization header
-Authorization: YOUR_API_KEY
-```
-
-Do not prefix the value with `Bearer` or any other scheme.
-
 **Base URL:** `https://pro.api.serversmtp.com/api/v2`
 
-## Endpoints
+Send `consumerKey` and `consumerSecret` headers with **Statistics & Management APIs** (`APIS`) permission. Its IP restrictions must allow your server. See [authentication](/api-reference/authentication).
 
-<Accordion title="GET /suppressions — List suppressions">
-  Retrieve a paginated list of suppressed email addresses. Use the optional query parameters to filter by suppression type, date range, or email address.
+## List suppressions
 
-  **Request**
-
-  ```bash Terminal
-  curl -X GET 'https://pro.api.serversmtp.com/api/v2/suppressions?type=bounce&start=2024-01-01&end=2024-12-31&page=1' \
-    -H 'Authorization: YOUR_API_KEY' \
-    -H 'Content-Type: application/json'
-  ```
-
-  **Query parameters**
-
-  | Parameter | Type | Description |
-  |---|---|---|
-  | `type` | string | Filter by suppression type: `bounce`, `hardbounce`, `softbounce`, `spam`, `unsub` |
-  | `start` | string | Start date in `YYYY-MM-DD` format |
-  | `end` | string | End date in `YYYY-MM-DD` format |
-  | `page` | integer | Page number for pagination (20 results per page) |
-  | `filter` | string | Search filter string to match against email addresses |
-  | `tz` | string | Timezone offset, e.g. `+01:00` (default: `+01:00`) |
-
-  **Example response**
-
-  ```json
-  [
-    {
-      "cid": 323223135,
-      "email": "user@example.com",
-      "ts": "2024-03-27T06:31:42.000Z",
-      "response": "550 5.1.1 The email account does not exist."
-    }
-  ]
-  ```
-</Accordion>
-
-<Accordion title="POST /suppressions — Add suppressions">
-  Add one or more email addresses to your suppression list in bulk. Submit an array of suppression objects in the request body.
-
-  **Request**
-
-  ```bash Terminal
-  curl -X POST 'https://pro.api.serversmtp.com/api/v2/suppressions' \
-    -H 'Authorization: YOUR_API_KEY' \
-    -H 'Content-Type: application/json' \
-    -d '{
-      "emails": [
-        { "email": "bad@example.com", "type": "hardbounce" },
-        { "email": "spam-reporter@example.com", "type": "spam" },
-        { "email": "optout@example.com", "type": "unsub" }
-      ]
-    }'
-  ```
-
-  **Request body fields**
-
-  | Field | Type | Description |
-  |---|---|---|
-  | `emails` | array | Array of objects each containing `email` (string) and `type` (suppression type string) |
-
-  **Example response**
-
-  ```json
-  {
-    "success": true,
-    "imported": 3
-  }
-  ```
-</Accordion>
-
-<Accordion title="GET /suppressions/csv — Export suppressions as CSV">
-  Download your full suppression list as a CSV file. Accepts the same filter parameters as `GET /suppressions`. The response body is a CSV-formatted file stream.
-
-  **Request**
-
-  ```bash Terminal
-  curl -X GET 'https://pro.api.serversmtp.com/api/v2/suppressions/csv?type=bounce&start=2024-01-01&end=2024-12-31' \
-    -H 'Authorization: YOUR_API_KEY' \
-    -o suppressions.csv
-  ```
-
-  The response is a plain CSV file with headers for email address, suppression type, timestamp, and bounce response.
-</Accordion>
-
-<Accordion title="DELETE /suppressions/bulk_delete — Delete multiple suppressions">
-  Remove multiple suppression records in a single request by passing an array of suppression IDs.
-
-  **Request**
-
-  ```bash Terminal
-  curl -X DELETE 'https://pro.api.serversmtp.com/api/v2/suppressions/bulk_delete' \
-    -H 'Authorization: YOUR_API_KEY' \
-    -H 'Content-Type: application/json' \
-    -d '{
-      "ids": [323223135, 323223136, 323223137]
-    }'
-  ```
-
-  **Example response**
-
-  ```json
-  {
-    "success": true
-  }
-  ```
-</Accordion>
-
-<Accordion title="DELETE /suppressions/delete — Delete a single suppression">
-  Remove a single email address from your suppression list by its record ID.
-
-  **Request**
-
-  ```bash Terminal
-  curl -X DELETE 'https://pro.api.serversmtp.com/api/v2/suppressions/delete' \
-    -H 'Authorization: YOUR_API_KEY' \
-    -H 'Content-Type: application/json' \
-    -d '{
-      "id": 323223135
-    }'
-  ```
-
-  **Example response**
-
-  ```json
-  {
-    "success": true
-  }
-  ```
-</Accordion>
-
-## Suppression types
-
-turboSMTP classifies suppressed addresses into the following types:
-
-| Type | Description |
-|---|---|
-| `bounce` | Any bounce — a general catch-all for all bounce subtypes |
-| `hardbounce` | Permanent delivery failure (e.g. address does not exist). Never retry. |
-| `softbounce` | Temporary delivery failure (e.g. mailbox full). turboSMTP retries automatically. |
-| `spam` | Recipient marked your message as spam or junk. |
-| `unsub` | Recipient clicked an unsubscribe link or requested removal. |
-
-## Example: List suppressions
-
-Retrieve all hard bounces for the month of January 2024:
+`GET /suppressions` requires `from` and `to` in `YYYY-MM-DD` format. Do not include a time.
 
 ```bash Terminal
-curl -X GET 'https://pro.api.serversmtp.com/api/v2/suppressions?type=hardbounce&start=2024-01-01&end=2024-01-31&page=1' \
-  -H 'Authorization: YOUR_API_KEY' \
-  -H 'Content-Type: application/json'
+curl --get 'https://pro.api.serversmtp.com/api/v2/suppressions' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  --data-urlencode 'from=2026-10-01' \
+  --data-urlencode 'to=2026-10-27' \
+  --data-urlencode 'filter_by=bounce' \
+  --data-urlencode 'page=1' \
+  --data-urlencode 'limit=10'
 ```
 
-## Example: Add suppressions
+| Parameter | Description |
+|---|---|
+| `from`, `to` | Required dates. `from` must be on or before `to`. |
+| `page`, `limit` | Positive integers; defaults `1` and `10`. |
+| `filter` | Search text for recipient, sender, subject, or reason. Matches from the start of a value, so search for `name@example.net` rather than `example.net`. |
+| `filter_by` | Suppression sources to include. Repeat for multiple sources. |
+| `smart_search` | Boolean search option. |
+| `orderby` | `date` (default), `source`, `recipient`, or `reason`. |
+| `ordertype` | `asc` or `desc`. |
+| `tz` | Timezone offset, such as `+01:00`. URL-encode the plus sign. |
 
-Upload a set of known-bad addresses to prevent sending to them:
+The response is an object with `count` and `results`:
+
+```json
+{
+  "count": 1,
+  "results": [
+    {
+      "date": "2026-10-20 10:30:00",
+      "source": "bounce",
+      "recipient": "recipient@example.net",
+      "reason": "550 mailbox not found",
+      "sender": "sender@example.com",
+      "subject": "Order update"
+    }
+  ]
+}
+```
+
+### Sources
+
+| API value | Dashboard type |
+|---|---|
+| `manual` | Manual |
+| `bounce` | Bounce |
+| `spam` | Spam |
+| `unsubscribe` | Unsubscribe |
+| `validation_failed` | Validation failed |
+
+## Filter with a JSON body
+
+`POST /suppressions` retrieves filtered results. To add addresses, use the [import endpoint](#import-addresses).
 
 ```bash Terminal
 curl -X POST 'https://pro.api.serversmtp.com/api/v2/suppressions' \
-  -H 'Authorization: YOUR_API_KEY' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
   -H 'Content-Type: application/json' \
   -d '{
-    "emails": [
-      { "email": "noreply@invalid-domain.com", "type": "hardbounce" },
-      { "email": "abuse-reporter@example.org", "type": "spam" },
-      { "email": "unsubscribed-user@example.net", "type": "unsub" }
+    "from": "2026-10-01",
+    "to": "2026-10-27",
+    "filter_by": ["bounce"],
+    "page": 1,
+    "limit": 10,
+    "restrict": [
+      {"by":"recipient","operator":"include","filter":"example.net","smart_search":false}
     ]
   }'
 ```
+
+The JSON body supports the list filters, sorting, and pagination. `restrict` is an array of rules with `by` (`sender`, `recipient`, `reason`, or `subject`), `operator` (`include` or `exclude`), `filter`, and `smart_search`. The response uses the same `count` and `results` envelope.
+
+## Import addresses
+
+`POST /suppressions/import` accepts a JSON array of addresses in `content`, with `type: "manual"` and an optional `reason`:
+
+```bash Terminal
+curl -X POST 'https://pro.api.serversmtp.com/api/v2/suppressions/import' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "type": "manual",
+    "content": ["optout@example.net"],
+    "reason": "Removal request"
+  }'
+```
+
+To upload a CSV or TXT file with one address per line, use multipart fields `type=file`, `file`, and optional `reason`:
+
+```bash Terminal
+curl -X POST 'https://pro.api.serversmtp.com/api/v2/suppressions/import' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  -F 'type=file' \
+  -F 'file=@/path/to/suppressions.csv' \
+  -F 'reason=Removal requests'
+```
+
+The response contains `status`, `valid` (accepted addresses), and `invalid` (rejected values).
+
+## Export CSV
+
+`GET /suppressions/csv` accepts the date, search, source, sorting, and timezone query parameters, without pagination. `POST /suppressions/csv` accepts a JSON filter body with required `from` and `to` and optional `filter`, `filter_by`, `smart_search`, `tz`, and `restrict`. Both return CSV data.
+
+## Remove up to 100 addresses
+
+`POST /suppressions/bulk_delete` takes a bare JSON array of email addresses, with a maximum of 100 addresses per request:
+
+```bash Terminal
+curl -X POST 'https://pro.api.serversmtp.com/api/v2/suppressions/bulk_delete' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  -H 'Content-Type: application/json' \
+  -d '["recipient@example.net"]'
+```
+
+A successful request returns `{"success":true}`.
+
+## Remove matching suppressions
+
+`POST /suppressions/delete` takes a filter body with required dates and optional `filter`, `filter_by`, `smart_search`, `tz`, and `restrict`. Review the matching records with `POST /suppressions` before deleting them.
+
+```bash Terminal
+curl -X POST 'https://pro.api.serversmtp.com/api/v2/suppressions/delete' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "from": "2026-10-01",
+    "to": "2026-10-27",
+    "filter_by": ["manual"],
+    "restrict": [
+      {"by":"recipient","operator":"include","filter":"recipient@example.net","smart_search":false}
+    ]
+  }'
+```
+
+A successful request returns `{"success":true}`. Remove an address only when you have resolved the reason for suppression and have permission to email it.

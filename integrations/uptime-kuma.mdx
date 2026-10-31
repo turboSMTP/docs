@@ -1,7 +1,7 @@
 ---
 title: "Send Uptime Kuma Monitor Alerts by Email with turboSMTP"
 sidebarTitle: "Uptime Kuma"
-description: "Set up the built-in turboSMTP notification provider in Uptime Kuma 2.5.3 to email monitor alerts via the HTTP API, with Global or EU infrastructure."
+description: "Set up the built-in turboSMTP notification provider in Uptime Kuma 2.5.1 and later to email monitor alerts via the HTTP API, with Global or EU infrastructure."
 keywords:
   - "uptime kuma"
   - "uptime kuma email notification"
@@ -9,7 +9,7 @@ keywords:
   - "monitoring alerts email"
 ---
 
-Uptime Kuma includes a dedicated turboSMTP notification provider, available since version **2.5.3**. It sends monitor notifications through the turboSMTP HTTP API and supports Global or EU infrastructure plus To, Cc, and Bcc recipients.
+**Status: Available since Uptime Kuma 2.5.1.** Its turboSMTP provider sends monitor notifications through the HTTP API and supports Global or EU endpoints plus To, Cc, and Bcc recipients. Install or update Uptime Kuma using the project's [installation instructions](https://github.com/louislam/uptime-kuma#-how-to-install).
 
 ## Configure notifications
 
@@ -21,10 +21,10 @@ Uptime Kuma includes a dedicated turboSMTP notification provider, available sinc
     Create a new notification and select **TurboSMTP** as the notification type.
   </Step>
   <Step title="Enter your credentials">
-    Enter your [Consumer Key and Consumer Secret](/get-started/api-keys).
+    Enter your [Consumer Key and Consumer Secret](/get-started/api-keys). Enable **HTTP API Sending** and check any IP restrictions on the key.
   </Step>
   <Step title="Choose infrastructure">
-    Select **Global** or **EU** infrastructure. Choose EU to keep alert data on turboSMTP's European servers.
+    Select **US (Default)** for `https://api.turbo-smtp.com/api/v2` or **EU** for `https://api.eu.turbo-smtp.com/api/v2`.
   </Step>
   <Step title="Set sender and recipients">
     Enter a verified From address and the To, Cc, or Bcc recipients.
@@ -37,8 +37,8 @@ Uptime Kuma includes a dedicated turboSMTP notification provider, available sinc
 ## Resources
 
 <CardGroup cols={2}>
-  <Card title="Release 2.5.3" icon="tag" href="https://github.com/louislam/uptime-kuma/releases/tag/2.5.3">
-    The Uptime Kuma release that introduced the turboSMTP provider.
+  <Card title="Release 2.5.1" icon="tag" href="https://github.com/louislam/uptime-kuma/releases/tag/2.5.1">
+    A released version containing the turboSMTP provider.
   </Card>
 
   <Card title="Pull Request 7640" icon="code-merge" href="https://github.com/louislam/uptime-kuma/pull/7640">

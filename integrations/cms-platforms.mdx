@@ -10,18 +10,18 @@ keywords:
   - "ecommerce smtp"
 ---
 
-turboSMTP works with any CMS that supports SMTP configuration via a plugin or built-in settings. Install the appropriate SMTP plugin for your platform and enter the standard turboSMTP settings:
+**Status: Available through SMTP.** Use your platform's SMTP settings or a compatible SMTP extension:
 
 - **SMTP host:** `pro.turbo-smtp.com` (or `pro.eu.turbo-smtp.com` for European servers)
-- **Port:** `587` (or `465` / `2525`)
+- **Port and encryption:** `587` or `2525` with STARTTLS; `465` or `25025` with implicit TLS. Port `25` is also available. Both hosts support the same ports.
 - **Username:** your [Consumer Key](/get-started/api-keys)
 - **Password:** your [Consumer Secret](/get-started/api-keys)
 
-| Platform | Recommended plugin |
+| Platform | Configuration reference |
 | --- | --- |
-| **Drupal** | SMTP Authentication Support (`drupal.org/project/smtp`) |
-| **Joomla** | SMTP Mailer (built-in under **System → Global Configuration → Mail**) |
-| **Magento** | Configure under **Stores → Configuration → Advanced → System → Mail Sending Settings** |
+| **Drupal** | [SMTP Authentication Support](https://www.drupal.org/project/smtp) |
+| **Joomla** | [Global Configuration mail settings](https://guide.joomla.org/user-guide/configuration/configuration-global-configuration) |
+| **Adobe Commerce / Magento Open Source** | [Mail sending settings](https://experienceleague.adobe.com/en/docs/commerce-admin/config/advanced/system), which vary by version |
 
 For each platform, set the SMTP credentials as above and send a test email to confirm delivery.
 
