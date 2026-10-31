@@ -67,9 +67,9 @@ Do not add a `Bearer` prefix. Use the dashboard for key management and password 
   The legacy `/authorize` login has a known incompatibility with passwords changed through the dashboard's identity service (Keycloak). Dashboard login can work while this endpoint returns `wrong_credentials_specified`. Use Consumer Key / Secret for integrations. For session-only operations, use the dashboard or contact support rather than repeatedly retrying this login.
 </Warning>
 
-The legacy endpoint accepts `email`, `password`, and optional `no_expire`. When login produces a usable token, it is returned as `auth`. Session keys expire after two hours by default; `no_expire: true` requests a non-expiring key. An HTTP `200` alone does not establish that the returned token will authenticate later requests.
+The legacy endpoint accepts `email`, `password`, and optional `no_expire`. When login produces a usable token, it is returned as `auth`. Session keys expire after two hours of inactivity by default; this is an idle timeout, not a fixed lifetime. `no_expire: true` requests a non-expiring key. An HTTP `200` alone does not establish that the returned token will authenticate later requests.
 
-`/authorize` permits 10 calls per IP within two minutes, including failed attempts. Exceeding the limit can block that IP until support clears it; subsequent calls return `401` with `api_limit_reached`. Do not use repeated login attempts as a health check.
+`/authorize` permits 10 calls per IP within two minutes, including failed attempts. Exceeding the limit can block that IP until support clears it; subsequent calls return `401` with `api_limit_reached`. Do not use repeated login attempts as a health check. The same per-IP limit applies to the forgot-password endpoints.
 
 ### Revoke a session key
 

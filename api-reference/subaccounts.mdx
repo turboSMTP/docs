@@ -38,10 +38,10 @@ curl --get 'https://pro.api.serversmtp.com/api/v2/subaccounts/list' \
 | Parameter | Description |
 |---|---|
 | `page`, `limit` | Positive integers; defaults `1` and `10`. |
-| `filter_by_email` | Full or partial email address. |
-| `filter_by_active` | `true` or `false`. |
-| `filter_by_ip[]` | Repeat for each IPv4 address. |
-| `order_by` | `email` (default) or `last_used`. |
+| `filterByEmail` | Full or partial email address. |
+| `filterByActive` | `true` or `false`. |
+| `filterByIP[]` | Repeat for each IPv4 address. |
+| `orderby` | `email` (default) or `last_used`. |
 | `ordertype` | `asc` or `desc`. |
 
 The response is `{count, results}`. Each result includes `subaccount_id`, `parent_id`, `email`, `ip`, `active`, `limit`, `sent`, `last_used`, `plan_expiration`, `plan_limit_interval`, and `expired`. Use `subaccount_id` in the paths below.
@@ -67,7 +67,7 @@ Example response:
 
 `POST /subaccounts` requires `email`, `password`, `confirm_password`, `first_name`, `last_name`, `ip`, and `policy_agree: true`.
 
-Choose a password with at least 10 characters, an uppercase character, and a digit. Both password fields must match. Replace the example password and IP; the IP must already belong to the parent account.
+Choose a password with at least 10 characters, an uppercase letter, a lowercase letter, and a digit. Both password fields must match. Replace the example password and IP; the IP must already belong to the parent account.
 
 ```bash Terminal
 curl -X POST 'https://pro.api.serversmtp.com/api/v2/subaccounts' \

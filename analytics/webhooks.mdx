@@ -44,7 +44,7 @@ Open and click events depend on tracking being enabled. Automated mail scanners 
 
 ## Payload format
 
-Each callback body is a flat JSON object. Production callbacks can use capitalized `Timestamp`; also accept lowercase `timestamp`, as shown in the [public webhook reference](https://serversmtp.com/event-webhook-reference/).
+Each callback body is a flat JSON object. Production callbacks use capitalized `Timestamp`. The [public webhook reference](https://serversmtp.com/event-webhook-reference/) shows lowercase `timestamp`, so a defensive receiver can accept both.
 
 ```json Delivery event
 {
@@ -62,31 +62,30 @@ Each callback body is a flat JSON object. Production callbacks can use capitaliz
 | `status` | Uppercase event type |
 | `mid` | Original message identifier; shared across events for that message |
 | `email` | Recipient address |
-| `Timestamp` or `timestamp` | Unix timestamp in seconds |
+| `Timestamp` | Unix timestamp in seconds |
 | `id` | Event identifier when present |
 | `subject` | Message subject; can be `null` |
-| `reason` | Failure or status details; can be a string or an object |
-| `attempt` | Mail-delivery attempt count on a deferred event |
+| `reason` | Failure or status details as a string |
 | `useragent`, `ip` | Client information on an engagement event |
 | `url` | Clicked destination on a click event |
-| `reference_id` | Your message reference when supplied and included in the event |
+| `Reference-ID`, `X-Campaign-ID` | Your message reference and campaign ID, when the message carried them and your account's webhook worker supports them |
 
 Treat message identifiers as opaque identifiers. Snowflake IDs can exceed JavaScript's safe-integer range. Preserve string IDs as strings and use a lossless JSON parser if your callback encodes a large ID as a JSON number.
 
-```json Click event using the lowercase timestamp variant
+```json Click event
 {
   "id": "5943788913",
   "mid": "1475205839938715648",
   "status": "CLICKED",
   "email": "recipient@example.com",
-  "timestamp": 1793095260,
+  "Timestamp": 1793095260,
   "url": "https://example.com/account",
   "ip": "192.0.2.10",
   "useragent": "Example mail client"
 }
 ```
 
-Validate at least `status`, `mid`, `email`, and one of the timestamp fields. Accept optional fields without depending on a fixed set of extra properties. Read the complete request body before parsing JSON: callbacks can use chunked HTTP transfer encoding.
+Validate at least `status`, `mid`, `email`, and `Timestamp` (falling back to `timestamp`). Accept optional fields without depending on a fixed set of extra properties. Read the complete request body before parsing JSON: callbacks can use chunked HTTP transfer encoding.
 
 ## Secure the endpoint
 

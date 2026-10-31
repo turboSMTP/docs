@@ -4579,14 +4579,14 @@ components:
           type: string
           description: The domain of the contact/recipient.
           example: gmail.com
-        x_campaign_id:
-          type: string
-          description: Value specified in the x_campaign_id custom header to track campaigns specific data.
-          example: Offer AB Test.
         error:
           type: string
           description: Error returned when delivering the email message.
           example: '142.250.138.27 does not like recipient.\nRemote host said: 550-5.1.1 The email account does not exist.'
+        consumer_key:
+          type: string
+          description: Consumer Key that sent the message.
+          example: 3ceccd06d21fe975c1ea
     AnalyticsListSucessResponsetBody:
       type: object
       additionalProperties: false
@@ -4609,7 +4609,7 @@ components:
             domain: gmail.com
             error: ''
             recipient_domain: electronic-arts.com
-            x_campaign_id: Offer AB Test.
+            consumer_key: 3ceccd06d21fe975c1ea
           - id: 1800871904471490600
             subject: New Movies
             sender: sales@gmail.com
@@ -4619,7 +4619,7 @@ components:
             domain: gmail.com
             error: '142.250.138.27 does not like recipient.\nRemote host said: 550-5.1.1 The email account does not exist.'
             recipient_domain: datamart.com
-            x_campaign_id: Offer AB Test.
+            consumer_key: 3ceccd06d21fe975c1ea
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
@@ -4822,7 +4822,7 @@ components:
         type: integer
     SubaccountFilterByEmailQueryParam:
       in: query
-      name: filter_by_email
+      name: filterByEmail
       required: false
       schema:
         description: Filter by email addresses that fully/partially match the search value.
@@ -4831,7 +4831,7 @@ components:
       description: Filter by email addresses that fully/partially match the search value.
     SubaccountFilterByActiveQueryParam:
       in: query
-      name: filter_by_active
+      name: filterByActive
       required: false
       schema:
         description: Filter by subaccount active/inactive status (true=active, false=inactive).
@@ -4840,7 +4840,7 @@ components:
       description: Filter by subaccount active/inactive status. Accepts boolean values (true or false).
     SubaccountFilterByIPQueryParam:
       in: query
-      name: filter_by_ip[]
+      name: filterByIP[]
       required: false
       style: form
       explode: true
@@ -4853,7 +4853,7 @@ components:
       description: Filter by IPv4 addresses (e.g., 192.168.1.1). Multiple IPs can be provided.
     SubaccountOrderByQueryParam:
       in: query
-      name: order_by
+      name: orderby
       required: false
       schema:
         description: Field to sort by

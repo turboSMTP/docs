@@ -91,6 +91,8 @@ A legacy auto-generated key can have the account email as its `consumerKey` and 
 
 Use `PUT /user/consumerKeys/{consumerKey}` to update the label, IP restrictions, and permissions. The path contains the Consumer Key string returned by create or list.
 
+Send `permissions` and `ips` on every update. An omitted `permissions` field resets the key to all three permissions, and an omitted `ips` field clears its IP restrictions. Only an omitted `label` stays unchanged. A failed update returns `400` with `Could not update API key`.
+
 ```bash Terminal
 curl -X PUT 'https://pro.api.serversmtp.com/api/v2/user/consumerKeys/YOUR_CONSUMER_KEY' \
   -H 'Authorization: YOUR_SESSION_API_KEY' \

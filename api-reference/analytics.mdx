@@ -54,8 +54,8 @@ Example response:
       "status": "SUCCESS",
       "domain": "example.com",
       "recipient_domain": "example.net",
-      "x_campaign_id": "order-updates",
-      "error": ""
+      "error": "",
+      "consumer_key": "YOUR_CONSUMER_KEY"
     }
   ]
 }
@@ -65,7 +65,7 @@ Treat message IDs as 64-bit identifiers. JavaScript's `JSON.parse` can round lar
 
 ## Get one record
 
-`GET /analytics/{Id}` returns one delivery record with the same fields as an item in `results`. Use the message ID as `{Id}`. A missing record returns `404` with `message: "email_not_found"`.
+`GET /analytics/{Id}` returns one delivery record with the same fields as an item in `results`, except that the recipient domain is named `contact_domain` instead of `recipient_domain`. Use the message ID as `{Id}`. A missing record returns `404` with `message: "email_not_found"`.
 
 ## Export CSV
 
