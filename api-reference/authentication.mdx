@@ -63,9 +63,9 @@ Do not add a `Bearer` prefix. Use the dashboard for key management and password 
 
 ### Legacy login: POST /authorize
 
-<Warning>
-  The legacy `/authorize` login has a known incompatibility with passwords changed through the dashboard's identity service (Keycloak). Dashboard login can work while this endpoint returns `wrong_credentials_specified`. Use Consumer Key / Secret for integrations. For session-only operations, use the dashboard or contact support rather than repeatedly retrying this login.
-</Warning>
+<Note>
+  `/authorize` checks the same email and password you use for the dashboard. The account must have signed in to the dashboard at least once; otherwise the endpoint returns `wrong_credentials_specified`. Use Consumer Key / Secret for integrations and reserve this login for the session-only operations below.
+</Note>
 
 The legacy endpoint accepts `email`, `password`, and optional `no_expire`. When login produces a usable token, it is returned as `auth`. Session keys expire after two hours of inactivity by default; this is an idle timeout, not a fixed lifetime. `no_expire: true` requests a non-expiring key. An HTTP `200` alone does not establish that the returned token will authenticate later requests.
 

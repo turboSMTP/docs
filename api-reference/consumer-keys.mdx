@@ -18,7 +18,7 @@ Consumer-key management is a session-only exception. Create, list, update, and d
 Authorization: YOUR_SESSION_API_KEY
 ```
 
-Consumer credentials return `not_allowed_for_consumerkey` on these routes. Use the dashboard to manage keys if you do not have a working session token. The legacy `POST /authorize` endpoint has a known incompatibility with password changes made through Keycloak; see [authentication](/api-reference/authentication).
+Consumer credentials return `not_allowed_for_consumerkey` on these routes. Use the dashboard to manage keys if you do not have a working session token. To get a session token, sign in with `POST /authorize` using your dashboard email and password; see [authentication](/api-reference/authentication).
 
 ## Permissions
 

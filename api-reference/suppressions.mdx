@@ -31,8 +31,8 @@ curl --get 'https://pro.api.serversmtp.com/api/v2/suppressions' \
 |---|---|
 | `from`, `to` | Required dates. `from` must be on or before `to`. |
 | `page`, `limit` | Positive integers; defaults `1` and `10`. |
-| `filter` | Search text for recipient, sender, subject, or reason. Matches from the start of a value, so search for `name@example.net` rather than `example.net`. |
-| `filter_by` | Suppression sources to include. Repeat for multiple sources. |
+| `filter` | Search text for recipient, subject, or reason. Matches whole words, not parts of words: `example.net` and `Reset` match, `exam` does not. For partial matches on sender or recipient, use `restrict` rules with `POST /suppressions`. |
+| `filter_by` | Suppression sources to include, comma-separated: `filter_by=bounce,spam`. Do not repeat the parameter or use `filter_by[]`. |
 | `smart_search` | Boolean search option. |
 | `orderby` | `date` (default), `source`, `recipient`, or `reason`. |
 | `ordertype` | `asc` or `desc`. |

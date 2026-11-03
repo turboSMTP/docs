@@ -69,7 +69,7 @@ POST https://api.eu.turbo-smtp.com/api/v2/mail/send
 </ParamField>
 
 <ParamField body="X-campaign-ID" type="string">
-  A campaign identifier used to group messages. This is a top-level JSON body field with this exact capitalization, separate from `custom_headers`.
+  A campaign identifier used to group messages. This is a top-level JSON body field with this exact capitalization, separate from `custom_headers`. Read it back through [analytics](/api-reference/analytics) (`filter_by=x_campaign_id`). The `X-Campaign-Id` header on the delivered message is internal routing data, not this value.
 </ParamField>
 
 <ParamField body="mime_raw" type="string">
@@ -217,5 +217,5 @@ Error formats vary by failure. Inspect the HTTP status and the returned `message
 </Accordion>
 
 <Note>
-  The maximum total message size, including attachments and encoding overhead, is **24 MB**. This is not a 24 MB raw-file allowance. See [attachment limits](/sending/attachments#attachment-limits).
+  Keep the total message size, including attachments and encoding overhead, under **24 MB**. This is not a 24 MB raw-file allowance. See [attachment limits](/sending/attachments#attachment-limits).
 </Note>

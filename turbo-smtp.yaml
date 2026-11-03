@@ -31,7 +31,7 @@ info:
     operations require a session API key in the raw `Authorization` header, without `Bearer`.
 
     The legacy `POST /authorize` endpoint returns an `auth` value for session requests.
-    It can fail after a password change through Keycloak even when dashboard login succeeds. A `200` response does not guarantee
+    It uses the dashboard password; the account must have signed in to the dashboard at least once. A `200` response does not guarantee
     a usable token: unknown emails can receive a token that subsequent calls reject.
     Prefer Consumer credentials and use the dashboard to manage keys when session login fails.
 
@@ -84,7 +84,7 @@ paths:
       summary: Legacy login - get a session API key
       operationId: AuthenticationLogin
       description: |
-        Password changes through Keycloak can cause wrong_credentials_specified despite a working dashboard login.
+        Uses the dashboard email and password. Accounts that never signed in to the dashboard receive wrong_credentials_specified.
         Use Consumer credentials for integrations and the dashboard to manage keys.
 
         Unknown emails can receive an unusable token or wrong_credentials_specified.
@@ -4787,7 +4787,9 @@ components:
       required: false
       schema:
         $ref: '#/components/schemas/SuppressionFilter'
-      description: Text to search (recipient, sender, email subject or reason for suppression)
+      description: |
+        Text to search in recipient, subject, or reason. Matches whole words, not parts of words.
+        For partial matches on sender or recipient, use restrict rules with POST /suppressions.
       examples:
         byemail:
           value: Jhon.Doe@gmail.com
@@ -4802,6 +4804,9 @@ components:
       in: query
       name: filter_by
       required: false
+      style: form
+      explode: false
+      description: Comma-separated sources, such as bounce,spam. The filter_by[] form returns 500.
       schema:
         $ref: '#/components/schemas/SuppressionFilterBy'
     SmartSearchQueryParam:

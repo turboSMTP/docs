@@ -86,7 +86,7 @@ curl --get 'https://pro.api.serversmtp.com/api/v2/suppressions' \
   --data-urlencode 'to=2026-10-27'
 ```
 
-Use Consumer credentials for your integrations. Legacy email/password `/authorize` login has a known compatibility issue with passwords changed through Keycloak. See [authentication](/api-reference/authentication) for the session-only exceptions and current login limitation.
+Use Consumer credentials for your integrations. Email/password `/authorize` login is only needed for a few session-only operations. See [authentication](/api-reference/authentication) for those exceptions and the login rate limit.
 
 ## Legacy credentials
 

@@ -74,7 +74,7 @@ The request body must be a JSON object. The `from` and `to` fields are required;
 </ParamField>
 
 <ParamField body="X-campaign-ID" type="string">
-  A top-level campaign identifier used to group messages. Use this exact capitalization.
+  A top-level campaign identifier used to group messages. Use this exact capitalization. Filter by it in analytics; the `X-Campaign-Id` header on the delivered message is internal and does not carry this value.
 </ParamField>
 
 <ParamField body="attachments" type="array">
