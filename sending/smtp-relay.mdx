@@ -1,120 +1,52 @@
 ---
-title: "Send Email via SMTP Relay with turboSMTP — Setup Guide"
-sidebarTitle: "SMTP Relay"
-description: "Use turboSMTP as your outgoing SMTP server to deliver emails from any client or app. Supports TLS on port 587, SSL on port 465, and fallback on port 2525."
+title: "Send email through the turboSMTP SMTP relay"
+sidebarTitle: "SMTP relay"
+description: "Connect to turboSMTP's global or EU SMTP relay using Consumer credentials, STARTTLS or implicit TLS, and the ports supported on both hosts."
+keywords: [SMTP relay, STARTTLS, SMTPS, Consumer Key]
 ---
 
-An SMTP relay is an outgoing mail server that accepts your messages and routes them to their destination — handling authentication, queuing, retries, and delivery tracking on your behalf. Instead of relying on your ISP's limited SMTP server (which often blocks bulk sending, lacks analytics, and can hurt your sender reputation), you point your email client or application at turboSMTP's professional relay infrastructure. turboSMTP gives you dedicated sending IPs, real-time statistics, bounce management, and 99.9% uptime — all without managing your own mail server.
+Use the turboSMTP SMTP relay with an email client, CMS, or application that supports authenticated SMTP. The relay accepts and queues your outbound messages, then handles delivery attempts. Your plan determines sending allowances and access to features such as dedicated IPs and analytics retention.
 
 ## Connection settings
 
-Use these settings in any email client, application, or plugin that asks for SMTP server details.
+| Setting | Value |
+|---|---|
+| Global host | `pro.turbo-smtp.com` |
+| EU host | `pro.eu.turbo-smtp.com` |
+| STARTTLS ports | `587` (recommended), `2525`, `25` |
+| Implicit TLS ports | `465`, `25025` |
+| Username | Your **Consumer Key** |
+| Password | Your **Consumer Secret** |
+| Key permission | **SMTP Sending** |
 
-| Setting           | Value                        |
-|-------------------|------------------------------|
-| **SMTP host**     | `pro.turbo-smtp.com`         |
-| **Port (TLS)**    | `587` (recommended)          |
-| **Port (SSL)**    | `465`                        |
-| **Port (fallback)**| `2525`                      |
-| **Authentication**| Required                     |
-| **Username** | Your Consumer Key |
-| **Password**      | Your Consumer Secret         |
-| **Encryption**    | STARTTLS or SSL/TLS          |
+Both hosts support the same ports. turboSMTP is an Italian company with European sending infrastructure; use `pro.eu.turbo-smtp.com` for the EU route. See [data residency](/api-reference/base-urls#gdpr-and-data-residency) for contractual considerations.
 
-<Note>
-  Your SMTP username is your **Consumer Key** and your SMTP password is your **Consumer Secret**, not your account email and login password. Find both in the [dashboard](https://dashboard.serversmtp.com) under **Settings → Integrations → API Keys**.
-</Note>
+## Choose encryption
 
-## Supported ports
+- On `587`, `2525`, or `25`, connect with SMTP and require a STARTTLS upgrade before authentication.
+- On `465` or `25025`, start the connection with TLS enabled (implicit TLS).
+- Use `2525` when your network blocks `587`. Hosting providers often block `25`.
 
-<Tabs>
-  <Tab title="Port 587 — STARTTLS (Recommended)">
-    Port 587 is the standard submission port for authenticated SMTP. It starts an unencrypted connection and upgrades to TLS via the STARTTLS command. This port works on virtually every network and is the recommended choice for all new integrations.
+For libraries such as Nodemailer, `secure: true` means implicit TLS and belongs with ports `465` or `25025`. On port `587`, use `secure: false` together with `requireTLS: true` to require STARTTLS.
 
-    ```text Connection details
-    Host: pro.turbo-smtp.com
-    Port: 587
-    Encryption: STARTTLS / TLS
-    Auth: Required
-    ```
-  </Tab>
-  <Tab title="Port 465 — SSL/TLS">
-    Port 465 wraps the entire connection in SSL/TLS from the start (sometimes called "implicit TLS"). Use this port if your client requires SSL mode or explicitly supports SMTPS. It is a solid alternative when STARTTLS is not supported.
-
-    ```text Connection details
-    Host: pro.turbo-smtp.com
-    Port: 465
-    Encryption: SSL/TLS (implicit)
-    Auth: Required
-    ```
-  </Tab>
-  <Tab title="Port 2525 — Fallback">
-    Port 2525 is a non-standard fallback port that mirrors port 587 behavior. Use it only when ports 587 and 465 are both blocked by your ISP, corporate firewall, or cloud provider (AWS EC2 and similar environments commonly block these ports).
-
-    ```text Connection details
-    Host: pro.turbo-smtp.com
-    Port: 2525
-    Encryption: STARTTLS / TLS
-    Auth: Required
-    ```
-  </Tab>
-</Tabs>
-
-## How to configure
-
-Follow these steps to start sending through turboSMTP's SMTP relay.
+## Configure and verify
 
 <Steps>
-  <Step title="Create your turboSMTP account">
-    Sign up for free at [serversmtp.com/en/signup](https://serversmtp.com/en/signup). The free plan includes 6,000 emails per month — no credit card required.
+  <Step title="Create credentials">
+    In the [dashboard](https://dashboard.serversmtp.com), open **Settings → Integrations → API Keys → Edit**. Create a key with **SMTP Sending** enabled. Copy the Consumer Secret when it is shown and store it securely.
   </Step>
-  <Step title="Get your Consumer Secret">
-    Log in to the [dashboard](https://dashboard.serversmtp.com) and navigate to **Settings → Integrations → API Keys**. Copy your **Consumer Secret** — this is the password you will use for SMTP authentication.
+  <Step title="Set your client's outgoing mail server">
+    Enter a host, port, and matching encryption mode from the table. Enter the Consumer Key as the username and Consumer Secret as the password. Your dashboard login password is not the SMTP password.
   </Step>
-  <Step title="Configure your client or application">
-    Open your email client, plugin, or application's SMTP settings. Enter the connection details from the table above, using your Consumer Key as the username and your Consumer Secret as the password. For step-by-step walkthroughs for specific clients and platforms, see the [SMTP Configuration guide](/get-started/smtp-configuration).
-  </Step>
-  <Step title="Send a test email">
-    Send a test message and verify it appears in your [dashboard](https://dashboard.serversmtp.com) statistics. If it does not arrive, check that your credentials are correct and that your chosen port is not blocked by your firewall.
+  <Step title="Send a message">
+    Send to an address you control. Open **Analytics** in the dashboard to inspect the delivery record. Successful SMTP authentication confirms your credentials; a queued message is not yet proof of delivery to the recipient's server or inbox.
   </Step>
 </Steps>
 
-## Sending limits
+See [SMTP setup](/get-started/smtp-configuration) for client instructions and [common errors](/troubleshooting/common-errors) for connection and authentication troubleshooting.
 
-Your sending limits depend on your plan.
+## Plans and limits
 
-| Plan       | Monthly limit | Daily limit |
-|------------|--------------|-------------|
-| Free       | 6,000        | 200         |
-| Paid plans | Higher limits depending on plan | Varies by plan |
+The Free plan allows up to 200 emails per day. Paid sending allowances depend on your chosen plan. Dedicated IPs are a Pro feature rather than part of every relay account. Check the [pricing comparison](https://serversmtp.com/pricing/) for current plan limits, trials, and support channels.
 
-Upgrade your plan at any time from the [dashboard](https://dashboard.serversmtp.com) to unlock higher monthly and daily sending volumes, dedicated IPs, and priority support.
-
-<Note>
-  For high-volume or programmatic sending, consider the REST API at [/sending/email-api](/sending/email-api) for more control, better performance, and features like per-message tracking IDs and attachment support.
-</Note>
-
-## Compatible clients and platforms
-
-turboSMTP works with any software that supports standard SMTP authentication. Common examples include:
-
-<CardGroup cols={2}>
-  <Card title="Desktop email clients" icon="envelope">
-    Microsoft Outlook, Mozilla Thunderbird, Windows Mail
-  </Card>
-  <Card title="WordPress plugins" icon="wordpress">
-    WP Mail SMTP and other SMTP plugins for WordPress
-  </Card>
-  <Card title="CMS platforms" icon="globe">
-    Drupal, Joomla, Magento — configure SMTP in the platform's email settings
-  </Card>
-  <Card title="Bulk email tools" icon="paper-plane">
-    SendBlaster, GroupMail, and other desktop bulk-sending applications
-  </Card>
-  <Card title="Mobile devices" icon="mobile">
-    iOS Mail, Android Gmail app, and other mobile clients that support custom SMTP
-  </Card>
-  <Card title="Custom applications" icon="code">
-    Any app or script that uses SMTP libraries (PHPMailer, Nodemailer, ActionMailer, etc.)
-  </Card>
-</CardGroup>
+Both SMTP and the [HTTP send API](/sending/email-api) support email bodies and attachments. Choose the protocol that fits your application.

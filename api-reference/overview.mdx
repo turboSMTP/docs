@@ -1,83 +1,51 @@
 ---
-title: "turboSMTP REST API v2 — Complete Reference Overview"
+title: "turboSMTP REST API v2 reference"
 sidebarTitle: "Overview"
-description: "The turboSMTP REST API v2 lets you send email, manage suppressions, validate addresses, and pull delivery analytics over HTTPS using JSON."
+description: "Send email, retrieve delivery analytics, manage suppressions and sub-accounts, and validate email lists through turboSMTP's REST API v2."
+keywords: [REST API, email API, v2, reference]
 ---
 
-The turboSMTP REST API v2 gives you programmatic access to the full platform — send transactional and marketing emails, manage bounce and unsubscribe lists, validate email addresses before you send, query delivery analytics, configure alerts, and administer sub-accounts, all over HTTPS with JSON bodies. Every feature available in the [dashboard](https://dashboard.serversmtp.com) is also available through the API, so you can build automated workflows, integrate turboSMTP into your own applications, and keep your sending infrastructure entirely under your control.
+Use the turboSMTP REST API to send messages and manage your email integration. Start by creating a Consumer Key / Secret pair with the permissions your application needs, then use the host for the operation you want to call.
 
-## Available APIs
+## API reference
 
 <CardGroup cols={2}>
-  <Card title="Send Email" icon="paper-plane" href="/api-reference/send-email">
-    Send transactional and bulk email via the REST API using your Consumer Key and Secret.
-  </Card>
-  <Card title="Authentication" icon="key" href="/api-reference/authentication">
-    Obtain and revoke API keys via the `/authorize` and `/deauthorize` endpoints.
-  </Card>
-  <Card title="Suppressions" icon="ban" href="/api-reference/suppressions">
-    View and manage bounce, spam complaint, and unsubscribe suppression lists.
-  </Card>
-  <Card title="Analytics" icon="chart-bar" href="/api-reference/analytics">
-    Query delivery statistics, open rates, click rates, and per-message event history.
-  </Card>
-  <Card title="Email Validation" icon="envelope-circle-check" href="/api-reference/email-validation">
-    Validate individual addresses or bulk lists before sending to protect your sender reputation.
-  </Card>
-  <Card title="Sub-Accounts" icon="users" href="/api-reference/subaccounts">
-    Create and manage sub-accounts for agencies, resellers, or multi-brand sending.
-  </Card>
-  <Card title="Alerts" icon="bell" href="/api-reference/alerts">
-    Configure delivery threshold alerts to get notified when key metrics change.
-  </Card>
-  <Card title="Consumer Keys" icon="key" href="/api-reference/consumer-keys">
-    Create, list, and revoke Consumer Key / Secret pairs used to authenticate sending.
-  </Card>
+  <Card title="Send email" icon="paper-plane" href="/api-reference/send-email">Send plain-text or HTML email with attachments and campaign identifiers.</Card>
+  <Card title="Authentication" icon="key" href="/api-reference/authentication">Use Consumer credentials and understand session-only exceptions.</Card>
+  <Card title="Suppressions" icon="ban" href="/api-reference/suppressions">Filter, import, export, and remove suppressed addresses.</Card>
+  <Card title="Analytics" icon="chart-bar" href="/api-reference/analytics">Retrieve message records, export CSV, and configure tracking.</Card>
+  <Card title="Email validation" icon="envelope-circle-check" href="/api-reference/email-validation">Validate an address or upload, start, and retrieve a batch validation.</Card>
+  <Card title="Sub-accounts" icon="users" href="/api-reference/subaccounts">Manage sub-accounts, limits, account status, and white-label settings.</Card>
+  <Card title="Alerts" icon="bell" href="/api-reference/alerts">Receive an email when daily credit usage reaches a threshold.</Card>
+  <Card title="Consumer keys" icon="key" href="/api-reference/consumer-keys">Create, list, update, and revoke application credentials.</Card>
 </CardGroup>
 
-## Base URLs
+## Hosts and authentication
 
-Different operations use different base URLs. Make sure you target the correct host for each request — using the wrong host is the most common cause of unexpected `401` errors.
-
-| Base URL | Used for |
+| Base URL | Operations |
 |---|---|
-| `https://pro.api.serversmtp.com/api/v2` | All endpoints **except** `/mail/send` |
-| `https://api.turbo-smtp.com/api/v2` | `POST /mail/send` — global infrastructure |
-| `https://api.eu.turbo-smtp.com/api/v2` | `POST /mail/send` — EU infrastructure (GDPR) |
+| `https://pro.api.serversmtp.com/api/v2` | Management API |
+| `https://api.turbo-smtp.com/api/v2` | `POST /mail/send`, global |
+| `https://api.eu.turbo-smtp.com/api/v2` | `POST /mail/send`, EU |
 
-See the [Base URLs](/api-reference/base-urls) page for a full explanation of when to use each host, including guidance on EU data residency.
+Both Consumer headers are required for sending. Management operations generally accept the same pair with **Statistics & Management APIs** (`APIS`) enabled. Consumer-key management and password changes require a session API key instead. The [authentication guide](/api-reference/authentication) explains these exceptions and the current limitation of legacy `/authorize` login.
 
-## Data Format
-
-All request and response bodies use JSON. Include the `Content-Type: application/json` header on every request that sends a body. Responses always return `Content-Type: application/json` as well. Boolean values are native JSON booleans (`true` / `false`), dates are ISO 8601 strings, and arrays are used for multi-value fields such as recipients and attachments.
-
-```http Example request headers
-POST https://pro.api.serversmtp.com/api/v2/authorize
-Content-Type: application/json
+```bash Read analytics
+curl --get 'https://pro.api.serversmtp.com/api/v2/analytics' \
+  -H 'consumerKey: YOUR_CONSUMER_KEY' \
+  -H 'consumerSecret: YOUR_CONSUMER_SECRET' \
+  --data-urlencode 'from=2026-10-01' \
+  --data-urlencode 'to=2026-10-27'
 ```
 
-## Authentication Summary
+See [base URLs and SMTP settings](/api-reference/base-urls) for global and EU hosts. turboSMTP is an Italian company with European sending infrastructure.
 
-turboSMTP's API supports two authentication methods depending on the operation you are performing:
+## Request and response formats
 
-- **API Key** — obtained by calling `POST /authorize` with your account email and password. Pass the returned key as `Authorization: <key>` (raw key, no `Bearer` prefix). Used for account management, analytics, suppressions, and all endpoints except `/mail/send`. Keys expire after 2 hours by default.
-- **Consumer Key / Secret** — a permanent key pair created in the dashboard or via the API. Pass them as `consumerKey: <key>` and `consumerSecret: <secret>` headers. **Required** for `POST /mail/send`. Supports IP restrictions and can be revoked individually.
+Use `Content-Type: application/json` when sending a JSON body. Some operations use multipart file uploads, and CSV exports return CSV rather than JSON. Check each endpoint's format before copying an example.
 
-See the [Authentication](/api-reference/authentication) page for full details on obtaining keys, revoking them, and choosing the right method.
+Analytics and suppressions use date filters in `YYYY-MM-DD` format. Send recipients as comma-separated strings in `to`, `cc`, and `bcc`; attachments are an array of objects. List endpoints commonly return an object containing `count` and `results`, rather than a bare array.
 
-<Note>
-  The API v1.0 is deprecated and has been shut down. All integrations must use the v2 endpoints documented here. If you have existing code targeting `dashboard.serversmtp.com/api/...`, migrate to `pro.api.serversmtp.com/api/v2/...` immediately.
-</Note>
+## SDKs and specification
 
-## SDKs
-
-turboSMTP maintains official SDKs on GitHub to speed up integration in common languages:
-
-- **C#** — [github.com/turboSMTP/turboSMTP-csharp](https://github.com/turboSMTP/turboSMTP-csharp)
-- **PHP** — [github.com/turboSMTP/turboSMTP-php](https://github.com/turboSMTP/turboSMTP-php)
-
-Each SDK wraps the REST API with typed models and handles authentication, serialization, and error handling for you. Refer to the README in each repository for installation instructions and usage examples.
-
-## Rate Limits
-
-The `/authorize` endpoint is rate-limited to prevent abuse. Do not call it before every API request — instead, cache the returned API key and reuse it for its full lifetime (2 hours by default, or indefinitely with `no_expire: true`). For production integrations that send email, use Consumer Key / Secret pairs, which are permanent and not subject to the same rate limits as `/authorize`.
+See the [SDK guide](/integrations/sdks) for available libraries and release status. The [OpenAPI specification](https://serversmtp.com/turbo-api/turbo-smtp.yaml) describes the public v2 contract. The endpoint pages include additional supported operations and compatibility details.

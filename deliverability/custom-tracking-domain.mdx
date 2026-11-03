@@ -1,94 +1,46 @@
 ---
-title: "Configure Your Custom Tracking Domain in turboSMTP"
+title: "Configure a Custom Tracking Domain"
 sidebarTitle: "Tracking Domain"
-description: "Replace the default turboSMTP tracking domain with your own to protect your sender reputation, increase trust, and improve email click-through rates."
+description: "Use your own domain for tracked links and open-tracking images. Configure DNS records and domain rotation in the turboSMTP dashboard."
 ---
 
-When turboSMTP tracks opens and clicks in your emails, every tracked link and open-tracking pixel references a tracking domain. By default, that domain is shared across all turboSMTP senders — meaning your deliverability could be affected by the behaviour of other users on the same domain. A custom tracking domain replaces that shared domain with one you control, so all tracked links in your emails resolve through your own subdomain instead. This protects your reputation, builds subscriber trust, and can meaningfully lift your click-through rates.
+A custom tracking domain puts tracked links and open-tracking images under a domain you control. It helps recipients recognize your links, but does not guarantee inbox placement or higher engagement.
 
-## Why use a custom tracking domain?
+## Availability
 
-Switching to a custom tracking domain addresses two of the most common deliverability risks associated with link tracking.
+| Plan | Custom tracking domains |
+|---|---|
+| Free | 30-day demo |
+| Basic | 2 |
+| Pro | Unlimited |
+| Enterprise | Unlimited |
 
-<CardGroup cols={2}>
-  <Card title="Protect Your Reputation" icon="shield-check">
-    A shared tracking domain links your emails to every other sender on that domain. If a spammer abuses the shared domain and gets it blacklisted, your deliverability suffers too. A custom tracking domain isolates your sender reputation so you are only accountable for your own sending behaviour.
-  </Card>
-  <Card title="Build Subscriber Trust" icon="eye">
-    When recipients hover over a link in your email, they see the URL before clicking. A familiar domain — your own — signals legitimacy. A default tracking domain from a third-party service can appear suspicious and reduce click-through rates. Branded links communicate clearly that your company, not an unknown service, is tracking the interaction.
-  </Card>
-</CardGroup>
+Check [current pricing](https://serversmtp.com/pricing/) and your account's enabled features before setup.
 
-## Create a subdomain
+## Configure your domain
 
-The recommended approach is to create a subdomain of a domain you already own. This lets the tracking domain inherit the existing reputation of your root domain, which is almost always stronger than a freshly registered domain. Choose a short, recognisable name such as:
-
-- `link.yourdomain.com`
-- `news.yourdomain.com`
-- `x.yourdomain.com`
-
-If you do not have a domain you can use — or if your current DNS provider does not allow subdomain creation — you can register a new standalone domain through a registrar such as GoDaddy or Namecheap and use it exclusively for tracking. You do not need email hosting or a website on the tracking domain; you only need to be able to manage its DNS records.
-
-## Add a CNAME record
-
-turboSMTP uses CNAME records to route tracking traffic through your subdomain to its infrastructure. Follow these steps to prepare your DNS before configuring the domain inside the turboSMTP dashboard.
+Choose a subdomain such as `link.example.com` whose DNS you can manage.
 
 <Steps>
-  <Step title="Choose your subdomain">
-    Decide on the subdomain you will use for tracking, for example `link.yourdomain.com`. Keep it short and clearly associated with your brand.
+  <Step title="Open tracking settings">
+    In the [dashboard](https://dashboard.serversmtp.com), open **Settings → Tracking**. Enable open or click tracking.
   </Step>
-  <Step title="Log in to your DNS provider">
-    Sign in to the control panel for the domain registrar or DNS host where `yourdomain.com` is managed (for example, GoDaddy, Namecheap, Cloudflare, or your web hosting panel).
+  <Step title="Add the domain">
+    Enable **Custom Tracking Domains**, click **Edit**, then **Add tracking domain**. Enter your domain; **Advanced options** lets you customize the generated subdomain.
   </Step>
-  <Step title="Add the CNAME records">
-    Navigate to the DNS settings for your domain and create a new CNAME record. You will receive the exact target value from turboSMTP in the next section — you may want to return here once you have that value. turboSMTP will provide two CNAME records; add both as instructed.
+  <Step title="Configure DNS">
+    Save the domain and copy both CNAME records into your DNS provider. Use the exact names and targets shown. The second record is shared by subdomains of the same root domain and only needs adding once.
   </Step>
-  <Step title="Wait for DNS propagation">
-    DNS changes can take up to 24 hours to propagate fully. You can check propagation progress using a tool such as [whatsmydns.net](https://www.whatsmydns.net) before attempting verification in turboSMTP.
+  <Step title="Verify">
+    Allow DNS changes to propagate, then click **Verify** and **OK**. A green checkmark means verified. For a pending domain, check both records and retry after propagation.
   </Step>
 </Steps>
 
-## Configure in the turboSMTP dashboard
+## Choose a rotation mode
 
-Once your DNS is ready (or while you wait for propagation), register your custom tracking domain inside turboSMTP.
+Below the domain list, select **Change this behavior**:
 
-<Steps>
-  <Step title="Open Tracking settings">
-    Log in to your [turboSMTP dashboard](https://dashboard.serversmtp.com) and select **Settings** from the left-hand menu. Click the **Tracking** tab.
-  </Step>
-  <Step title="Enable Custom Tracking Domains">
-    Toggle the **Custom Tracking Domains** switch to the on position. At least one of Open Tracking or Click Tracking must also be active for custom tracking domains to function.
-  </Step>
-  <Step title="Open the domain management window">
-    Click the **Edit** button to open the Custom Tracking Domains management window, where you can add and manage tracking domains.
-  </Step>
-  <Step title="Add your tracking domain">
-    Click **Add tracking domain**. Enter the subdomain name you chose (for example, `link.yourdomain.com`) in the text field. Check **Advanced options** if you want to specify a custom subdomain prefix; otherwise turboSMTP generates one automatically.
-  </Step>
-  <Step title="Click Add tracking domain">
-    Click the **Add tracking domain** button in the bottom-right corner of the form to save your entry.
-  </Step>
-  <Step title="Copy the CNAME records">
-    turboSMTP now displays two CNAME records. Copy both records and add them to your DNS provider as described in the previous section. The second CNAME record is the same for all subdomains of your root domain and only needs to be added once.
-  </Step>
-  <Step title="Verify the domain">
-    After DNS has propagated, return to the Custom Tracking Domains window and click **Verify** next to your domain, then click **OK**. A green checkmark confirms successful verification. A red exclamation mark means DNS has not yet propagated — wait a little longer and try again.
-  </Step>
-</Steps>
+- **Do not match sender domain**, the default, uses an active tracking domain regardless of sender.
+- **Match sender domain** prefers the matching domain and otherwise uses an active non-dedicated domain. Mark a domain **Dedicated** to reserve it for the matching sender domain.
 
-## Domain rotation modes
-
-When you have multiple custom tracking domains active, turboSMTP needs to know which one to use for each outgoing email. You can change the rotation mode by clicking **Change this behavior** below the domain list in the dashboard.
-
-<Tabs>
-  <Tab title="Do not match sender domain (default)">
-    In this mode, turboSMTP selects any active custom tracking domain for each email, regardless of which domain appears in the sender address. This is the default and works well when you send all your email from a single domain or when tracking domain alignment is not a priority.
-  </Tab>
-  <Tab title="Match sender domain">
-    In this mode, turboSMTP selects the custom tracking domain that matches the sender's domain for each email. If no matching tracking domain is found, turboSMTP falls back to any active tracking domain that is not marked as **Dedicated**. Use this mode when you send from multiple domains and want each email stream tracked under its corresponding domain. You can mark individual tracking domains as **Dedicated** to reserve them exclusively for their matching sender domain.
-  </Tab>
-</Tabs>
-
-<Tip>
-  When you add a custom tracking domain to turboSMTP, it is automatically enrolled in turboSMTP's blacklist monitoring system. If your tracking domain appears on any major blacklist, turboSMTP will alert you directly and provide recommended actions to take — so you can address the issue before it affects your deliverability.
-</Tip>
+Enable or disable individual domains with their **Status** switches. turboSMTP monitors configured tracking domains for blacklist listings and contacts you when action is needed. See the [official setup guide](https://serversmtp.com/custom-tracking-domain-what-it-is-and-why-you-should-use-it/) for more details.

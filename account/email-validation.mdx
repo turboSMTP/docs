@@ -1,119 +1,71 @@
 ---
-title: "Email Address Validation Tool — Clean Lists Before Sending"
+title: "Validate Email Addresses Before Sending"
 sidebarTitle: "Email Validation"
-description: "Clean contact lists and block invalid addresses with turboSMTP's Email Validation Tool. Upload lists in bulk, use the WordPress plugin, or call the API."
+description: "Check addresses from the dashboard, WordPress, or the API. Start batch validation explicitly and review results before sending."
 ---
 
-Before you send a campaign, every address on your list represents either a real person or a liability. Invalid addresses cause bounces, spam traps silently destroy your sender reputation, and catch-all domains inflate your open rates with phantom deliveries. turboSMTP's Email Validation Tool lets you screen every address in your list — identifying safe contacts, flagging risky ones, and removing the dangerous ones — so every send goes to a real, active inbox.
+Email validation helps identify invalid or risky addresses before you send. It does not guarantee delivery or replace permission to email a recipient.
 
-## Validation categories
+## Review validation categories
 
-When you validate a list, turboSMTP categorizes every address into one of seven groups:
+| Category | Meaning | Suggested action |
+|---|---|---|
+| **Valid** | The address passed validation. | Keep if you have permission to send. |
+| **Invalid** | The address has a permanent error or does not exist. | Remove it. |
+| **Catch-All** | The domain accepts mail for addresses that may not exist. | Review the risk before sending. |
+| **Spamtrap** | The address is identified as a spam trap. | Exclude it. |
+| **Abuse** | The address is associated with spam complaints. | Exclude it. |
+| **Do Not Mail** | The address is flagged, for example as role-based or disposable. | Review or exclude it. |
+| **Unknown** | Validation could not reach a conclusion. | Revalidate or exclude it from the send. |
 
-| Category | Description | Recommended action |
-|----------|-------------|-------------------|
-| **Valid** | Safe addresses with less than 2% bounce risk. | Send freely. |
-| **Invalid** | Non-existent addresses or permanent errors. | Remove from your list immediately. |
-| **Catch-All** | The domain accepts all incoming mail, including addresses that don't exist. | Treat as risky; suppress from important sends. |
-| **Spamtrap** | Addresses set up specifically to catch spammers. Sending to these can cause blacklisting. | Remove immediately — extremely dangerous. |
-| **Abuse** | Addresses associated with known spam reporters. | Remove to prevent complaint spikes. |
-| **Do Not Mail** | Role-based addresses (e.g., `info@`, `admin@`) and disposable email providers. | Remove to avoid low engagement and policy violations. |
-| **Unknown** | Could not be validated — the address's mail server was unreachable or returned no conclusive response. | Suppress from high-volume sends; revalidate later. |
-
-## Three ways to validate
+## Choose a validation method
 
 <Tabs>
   <Tab title="Dashboard">
-    The dashboard validator is the fastest way to clean an existing list in bulk. Upload your file and get categorized results in minutes — no code required.
+    1. Open **Addons → Go to email validator** in the [dashboard](https://dashboard.serversmtp.com).
+    2. Click **Import File** and upload a CSV or TXT file, or enter contacts manually.
+    3. Start validation for the imported list and check its progress.
+    4. Review the categorized results and download the addresses you want to retain.
 
-    <Steps>
-      <Step title="Go to Addons → Email Validator">
-        Log in to your [turboSMTP dashboard](https://dashboard.serversmtp.com), click **Addons** in the left navigation, then select **Go to Email Validator**.
-      </Step>
-      <Step title="Click Import File">
-        Click the **Import File** button to open the import dialog.
-      </Step>
-      <Step title="Upload your list">
-        Choose **Import from a file** and upload a CSV or TXT file containing your email addresses. Alternatively, add individual contacts manually using the text input.
-      </Step>
-      <Step title="Wait for processing">
-        turboSMTP processes your list and categorizes every address. Processing time depends on list size — a list of thousands of addresses typically completes within a few minutes.
-      </Step>
-      <Step title="Download your clean list">
-        Once processing is complete, review the results grouped by category. Download the filtered list of **Valid** addresses, ready to use in your next campaign.
-      </Step>
-    </Steps>
+    Validation uses its own credits. Check the balance before starting a large list.
   </Tab>
-  <Tab title="WordPress Plugin">
-    The turboSMTP Email Validator plugin validates email addresses in real time the moment a visitor submits a form on your WordPress site. This prevents invalid, fake, or disposable addresses from ever entering your database — eliminating the need to clean lists after the fact.
+  <Tab title="WordPress">
+    The turboSMTP Email Validator plugin checks addresses submitted through supported WordPress forms. Connect the credentials requested by the plugin, choose which results to accept, and configure any trusted-address or domain whitelist.
 
-    The plugin works natively with:
-
-    - **Contact Form 7**
-    - **WPForms**
-    - **WooCommerce**
-    - **Gravity Forms**
-    - **Elementor Forms**
-    - **MC4WP Mailchimp Forms**
-    - WordPress native registration and comment forms
-
-    **To install:**
-
-    1. In your WordPress admin, go to **Plugins → Add New Plugin**.
-    2. Search for **TurboSMTP Email Validator** and click **Install Now**, then **Activate**.
-    3. In the plugin settings, enter your turboSMTP API key and configure which validation statuses to accept or reject.
-    4. Optionally, add trusted emails or domains to a whitelist to avoid spending validation credits on known-good addresses.
-
-    No coding is required. Once activated, the plugin automatically intercepts form submissions and blocks addresses that fail your configured validation rules.
+    Supported integrations include Contact Form 7, WPForms, WooCommerce, Gravity Forms, Elementor Forms, MC4WP Mailchimp Forms, and native registration and comment forms. See the [official validation guide](https://serversmtp.com/email-validation-tool/) for plugin links and setup details.
   </Tab>
   <Tab title="API">
-    The Email Validation API lets you integrate validation directly into any application, CRM, SaaS platform, or automated data pipeline. Use it to validate addresses at the point of collection (e.g., during user registration) or to run batch validation jobs programmatically.
+    Use the validation API for individual addresses or batch lists. Send `consumerKey` and `consumerSecret` headers with a key that has **Statistics & Management APIs** enabled.
 
-    The Email Validation API exposes four endpoints covering the full validation workflow:
+    Paths are relative to `https://pro.api.serversmtp.com/api/v2`.
 
-    | Method | Endpoint | Description |
-    |--------|----------|-------------|
-    | `POST` | `/api/v2/emailvalidation/validateEmail` | Validate a single address |
-    | `POST` | `/api/v2/emailvalidation/upload` | Upload a list for bulk validation |
-    | `GET` | `/api/v2/emailvalidation/lists` | Retrieve all validation lists for your account |
-    | `GET` | `/api/v2/emailvalidation/lists/{Id}/csv` | Download results for a validation list as CSV |
+    | Method | Endpoint | Purpose |
+    |---|---|---|
+    | `POST` | `/emailvalidation/validateEmail` | Validate one address |
+    | `POST` | `/emailvalidation/upload` | Import a list |
+    | `POST` | `/emailvalidation/lists/{Id}/validate` | Start validation of an imported list |
+    | `GET` | `/emailvalidation/lists` | List validation jobs |
+    | `GET` | `/emailvalidation/lists/{Id}` | Check processing progress |
+    | `GET` | `/emailvalidation/lists/{Id}/emails` | Read categorized addresses |
+    | `GET` | `/emailvalidation/lists/{Id}/csv` | Download results |
 
-    **Validate a single address:**
+    <Note>
+      Uploading a list does not start validation. Call the list's `validate` endpoint, wait for processing to finish, then retrieve the results.
+    </Note>
 
-    ```bash Terminal
-    POST https://pro.api.serversmtp.com/api/v2/emailvalidation/validateEmail
-    ```
-
-    **Upload a list for bulk validation:**
-
-    ```bash Terminal
-    POST https://pro.api.serversmtp.com/api/v2/emailvalidation/upload
-    ```
-
-    **List all validation jobs:**
-
-    ```bash Terminal
-    GET https://pro.api.serversmtp.com/api/v2/emailvalidation/lists
-    ```
-
-    **Download results as CSV:**
-
-    ```bash Terminal
-    GET https://pro.api.serversmtp.com/api/v2/emailvalidation/lists/{Id}/csv
-    ```
-
-    All endpoints return the same validation categories as the dashboard tool (Valid, Invalid, Catch-All, Spamtrap, Abuse, Do Not Mail, Unknown), giving you full flexibility to define your own acceptance logic within your application.
-
-    Include your API key in the `Authorization` header for all requests (raw key — no `Bearer` prefix). See the [API reference](/api-reference/email-validation) for full request and response documentation.
+    See the [email validation API reference](/api-reference/email-validation) for request formats, result fields, and credit purchases.
   </Tab>
 </Tabs>
 
 ## Included credits
 
-<Note>
-  **Professional and Enterprise plans include 3,000 email validations per month** at no extra charge. The Email Validation tool maintains its own credit balance, separate from your email sending credits. Additional validation credits can be purchased separately from the Addons section of your dashboard if you need to validate larger lists.
-</Note>
+Validation credits are separate from email sending credits. The [pricing page](https://serversmtp.com/pricing/) lists:
 
-<Tip>
-  Validate your contact list every **8–12 months**. Email addresses decay over time as people change jobs, abandon accounts, or switch providers. Regular validation keeps your bounce rate below 2%, protects your sender reputation, and ensures you're not wasting email credits on addresses that can never receive your messages.
-</Tip>
+| Plan | Included validations |
+|---|---|
+| Free | 100 credits |
+| Basic | 100 credits |
+| Pro | 3,000 per month |
+| Enterprise | 10,000 per month |
+
+Purchase additional validation credits through the validator's credit purchase flow. Revalidate aging lists before reuse and remove addresses that bounce or unsubscribe.

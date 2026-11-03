@@ -1,95 +1,52 @@
 ---
-title: "turboSMTP: Email Delivery for Developers & Businesses"
+title: "Start sending email with turboSMTP"
 sidebarTitle: "Introduction"
-description: "Learn what turboSMTP does, how it works, and how to choose the right integration — SMTP relay or REST API — for your application or business."
+description: "Choose SMTP relay or HTTP API sending, create Consumer credentials, and find setup, delivery tracking, validation, and account-management guides."
+keywords: [email API, SMTP relay, getting started, EU email]
 ---
 
-turboSMTP is a professional SMTP relay service and email API platform built to give developers and businesses 99% deliverability on every email they send. Backed by a worldwide server infrastructure spanning Europe, the USA, the Middle East, and Asia, turboSMTP routes your messages through whitelisted, ISP-trusted servers so they land in the inbox — not the spam folder. More than 100,000 customers, including global enterprises like Honeywell, Ford, and Volkswagen, rely on turboSMTP for transactional emails, marketing campaigns, and automated notifications every day.
+turboSMTP lets your application send transactional and marketing email through an SMTP relay or HTTP API. These guides take you from account setup and credentials to sending, delivery tracking, and account management.
 
-## What can you do with turboSMTP?
-
-turboSMTP handles every kind of outgoing email your application or business needs to send.
+## Choose an integration
 
 <CardGroup cols={2}>
-  <Card title="Transactional Emails" icon="envelope">
-    Send order confirmations, password resets, account alerts, and other automated one-to-one messages that must arrive instantly and reliably.
+  <Card title="SMTP relay" icon="server" href="/get-started/smtp-configuration">
+    Configure an email client, CMS, or SMTP library with a host, port, and Consumer credentials.
   </Card>
-  <Card title="Email Campaigns & Newsletters" icon="bullhorn">
-    Design, send, and track bulk marketing campaigns and newsletters directly from the turboSMTP dashboard or via the API — no extra platform required.
+  <Card title="HTTP API" icon="code" href="/sending/email-api">
+    Send a JSON message from your application with Consumer Key and Secret headers.
   </Card>
-  <Card title="Email API Integration" icon="code">
-    Integrate email sending into any application, website, or workflow using the turboSMTP REST API, with official SDKs available for C# and PHP and code examples for cURL, Go, Node.js, Python, Ruby, and Java.
+  <Card title="Frameworks and applications" icon="plug" href="/integrations/overview">
+    Find configuration guides and the release status of provider integrations.
   </Card>
-  <Card title="Email Validation" icon="circle-check">
-    Screen your contact list before sending to identify invalid addresses, spam traps, and risky contacts — protecting your sender reputation and reducing bounce rates.
+  <Card title="SDKs and examples" icon="book-open" href="/integrations/sdks">
+    Choose a supported library or use HTTP examples in your language.
   </Card>
 </CardGroup>
 
-## European company, European servers
+## Create an account and credentials
 
-turboSMTP is an Italian company headquartered in the European Union. Unlike many email providers that process data only in the United States, turboSMTP operates email servers and IP addresses in Italy and across Europe, alongside its infrastructure in the USA, the Middle East, and Asia.
+Register through the [dashboard](https://dashboard.serversmtp.com). Free-plan activation is subject to account review; check [free-plan setup](/get-started/free-trial) for the steps. The Free allowance is up to 200 emails per day. See [pricing](https://serversmtp.com/pricing/) for the current validity period and feature limits.
 
-<CardGroup cols={2}>
-  <Card title="EU Data Residency" icon="shield-halved" href="/api-reference/base-urls#gdpr-and-data-residency">
-    Send through the EU endpoint so message content, recipient addresses, and delivery metadata are processed and stored on European infrastructure only.
-  </Card>
+Create credentials under **Settings → Integrations → API Keys → Edit**. Use the **Consumer Key as your SMTP username** and **Consumer Secret as your SMTP password**. For HTTP calls, pass them as `consumerKey` and `consumerSecret` headers. Enable the sending or management permission needed by your integration.
 
-  <Card title="100% GDPR Compliant" icon="scale-balanced" href="https://serversmtp.com/regulation-eu-2016-679-gdpr/">
-    turboSMTP follows Privacy by Design, has appointed a Data Protection Officer, and has completed a Data Protection Impact Assessment (DPIA).
-  </Card>
-</CardGroup>
+## Global and EU sending
 
-<Tip>
-  If your business is based in the EU, serves EU recipients, or must meet European data protection requirements, use the EU sending infrastructure. EU-based senders also typically see lower latency.
-</Tip>
+turboSMTP is an Italian company with European sending infrastructure. Choose the appropriate host:
 
-## How it works
+| Protocol | Global | EU |
+|---|---|---|
+| SMTP | `pro.turbo-smtp.com` | `pro.eu.turbo-smtp.com` |
+| Send API | `https://api.turbo-smtp.com/api/v2/mail/send` | `https://api.eu.turbo-smtp.com/api/v2/mail/send` |
 
-When you send an email through your own mail server, your messages compete with billions of other senders for inbox placement. ISPs and spam filters judge your domain and IP reputation on every send. An SMTP relay service like turboSMTP solves this by routing your outgoing email through its own trusted, authenticated infrastructure, so your messages benefit from established ISP relationships and whitelisted IP addresses.
+Both SMTP hosts support STARTTLS on `587`, `2525`, and `25`, and implicit TLS on `465` and `25025`. Use the [base URL guide](/api-reference/base-urls) for management hosts and data-residency considerations.
 
-turboSMTP gives you two integration paths:
+## After your first send
 
-- **SMTP relay** — Update the outgoing mail server settings in your application, mail client, or CMS to point at `pro.turbo-smtp.com` on port 587 (or 465 for SSL, 2525 as a fallback). Authenticate with your Consumer Key as the username and your Consumer Secret as the password. No code changes are needed beyond configuration.
-- **REST API** — Send email programmatically by making HTTPS POST requests to `https://api.turbo-smtp.com/api/v2/mail/send`. For EU data residency, use `https://api.eu.turbo-smtp.com/api/v2/mail/send` instead. Authenticate each request with your `consumerKey` and `consumerSecret` headers. This path is ideal for custom applications, microservices, and high-volume automated sending.
+- [Authenticate your domain](/deliverability/spf-dkim-dmarc) with SPF, DKIM, and DMARC.
+- Open **Analytics** to inspect delivery records, or receive [event webhooks](/analytics/webhooks).
+- Manage bounces and complaints through [suppressions](/deliverability/bounce-spam-management).
+- Use [email validation](/account/email-validation) to check contact addresses before sending.
+- Configure [sub-accounts](/account/subaccounts) when you manage sending for multiple customers.
 
-Both paths route through the same delivery infrastructure and give you access to the same analytics, tracking, and management features.
-
-## Key features
-
-turboSMTP includes a complete set of tools to help you send, monitor, and optimize email delivery:
-
-- **Real-time delivery tracking** — See the status of every sent message — delivered, opened, clicked, bounced, or unsubscribed — in your live analytics dashboard.
-- **Bounce, spam, and unsubscribe management** — Track soft and hard bounces, spam complaints, and unsubscribes address-by-address with a real-time feed. Automatically suppress unsubscribed contacts from future sends.
-- **SPF, DKIM, and DMARC authentication** — Publish DNS records that prove your emails are legitimate, protect your domain from spoofing, and improve inbox placement rates.
-- **Smart Routing** — Automatically distribute email across multiple IP addresses and routes to overcome deliverability issues, manage high volume, and isolate different email streams.
-- **Custom Tracking Domains** — Replace the default shared tracking domain with your own subdomain to protect your sender reputation from other users and build trust with your recipients.
-- **Event webhooks** — Receive real-time HTTP notifications to your server for every email event, enabling you to trigger workflows, update CRMs, and react to delivery outcomes instantly.
-- **Sub-accounts & white label** — Create sub-accounts to split sending quotas across team members or resell turboSMTP capacity to your clients under your own brand.
-- **Email Validation Tool** — Validate your contact list in bulk via the dashboard, in real time via the WordPress plugin, or programmatically via the Email Validation API before you launch a campaign.
-- **European servers and GDPR compliance**: Keep email data inside the EU with dedicated European servers and IP addresses, operated by an Italian company.
-- **24/7 multi-language support** — Reach a real person any time by ticket, live chat, or phone — 24 hours a day, 7 days a week, 365 days a year.
-
-## Free tier
-
-<Note>
-  turboSMTP's free plan includes **6,000 emails per month** with no credit card required and no expiration. Sign up at [serversmtp.com/en/signup](https://serversmtp.com/en/signup) and start sending immediately. Upgrade to a monthly or pay-as-you-go plan at any time from your [dashboard](https://dashboard.serversmtp.com) to increase your sending volume.
-</Note>
-
-## Next steps
-
-Choose where to go next based on your goals.
-
-<CardGroup cols={2}>
-  <Card title="Start Your Free Trial" icon="rocket" href="/get-started/free-trial">
-    Create a free account, get 6,000 emails per month, and explore the dashboard — no credit card needed.
-  </Card>
-  <Card title="SMTP Configuration" icon="server" href="/get-started/smtp-configuration">
-    Configure your application or mail client to relay email through turboSMTP using the SMTP protocol.
-  </Card>
-  <Card title="API Keys" icon="key" href="/get-started/api-keys">
-    Generate and manage your Consumer Key and Consumer Secret from the turboSMTP dashboard.
-  </Card>
-  <Card title="API Reference" icon="book-open" href="/api-reference/overview">
-    Browse the full REST API reference for every endpoint, parameter, and response schema.
-  </Card>
-</CardGroup>
+Feature availability, retention, dedicated IPs, and support channels depend on your plan. See [plans and billing](/account/plans-billing) before relying on a feature or trial.

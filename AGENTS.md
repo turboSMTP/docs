@@ -1,4 +1,4 @@
-> **First-time setup**: Customize this file for your project. Prompt the user to customize this file for their project. For Mintlify product knowledge (components, configuration, writing standards), install the Mintlify skill: `npx skills add https://mintlify.com/docs`
+For Mintlify product knowledge, use the official skill: `npx skills add https://mintlify.com/docs`.
 
 # Documentation project instructions
 
@@ -17,14 +17,14 @@
 {/* Example: Use "workspace" not "project", "member" not "user" */}
 
 - **SMTP credentials**: username = **Consumer Key**, password = **Consumer Secret** (from Settings → Integrations → API Keys, with the SMTP Sending service enabled). Never tell users to use their account email or login password for SMTP. Source: serversmtp.com knowledge base "SMTP Settings".
-- **Send API**: `consumerKey` and `consumerSecret` headers. Management API: `Authorization: <api_key>` from `POST /authorize` (account email and password).
+- **API authentication**: use `consumerKey` and `consumerSecret` as the primary method for sending and supported management endpoints. Enable `SEND_API` for sending and `APIS` for management. Consumer-key management and password changes require a raw session key in `Authorization`. Legacy `/authorize` has a known Keycloak password-change incompatibility; do not promote it as the integration setup path. On `/mail/send`, `Authorization` is ignored and cannot replace Consumer credentials.
 
 ## Style preferences
 
 {/* Add any project-specific style rules below */}
 
 - Use active voice and second person ("you")
-- Keep sentences concise — one idea per sentence
+- Keep sentences concise - one idea per sentence
 - Use sentence case for headings
 - Bold for UI elements: Click **Settings**
 - Code formatting for file names, commands, paths, and code references

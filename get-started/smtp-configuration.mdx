@@ -4,7 +4,7 @@ sidebarTitle: "SMTP Setup"
 description: "Set up turboSMTP as your outgoing mail server. Configure SMTP host, port, and credentials for any email client, CMS, or application in minutes."
 ---
 
-turboSMTP works as a drop-in outgoing mail server (SMTP relay) for any email client, CMS, or application that supports SMTP authentication. Instead of relying on your ISP's mail server — which often has poor deliverability, strict rate limits, or blocked ports — you route outgoing email through turboSMTP's infrastructure to benefit from whitelisted IPs, real-time tracking, and high inbox placement rates. All you need are the server settings and your credentials, and you can be sending in minutes.
+Use turboSMTP as the outgoing SMTP server in your mail client, CMS, or application. Choose the global or EU host, create a key with **SMTP Sending** enabled, and configure a port with its matching encryption mode.
 
 ## SMTP server settings
 
@@ -13,11 +13,11 @@ Use the following settings when configuring any client or application to send th
 | Setting | Value |
 |---|---|
 | **SMTP Host** | `pro.turbo-smtp.com` |
-| **SMTP Host (EU)** | `pro.eu.turbo-smtp.com`: European servers for GDPR data residency |
-| **Port (recommended)** | `587` — TLS / STARTTLS |
-| **Port (SSL)** | `465` — SSL/TLS |
-| **Port (fallback)** | `2525` — use if 587 and 465 are blocked |
-| **Authentication** | Required — PLAIN or LOGIN |
+| **SMTP Host (EU)** | `pro.eu.turbo-smtp.com`: EU sending route |
+| **Port (recommended)** | `587` : TLS / STARTTLS |
+| **Ports (implicit TLS)** | `465`, `25025` |
+| **Other STARTTLS ports** | `2525`, `25` |
+| **Authentication** | Required : PLAIN or LOGIN |
 | **Username** | Your **Consumer Key** (from Settings → Integrations → API Keys) |
 | **Password** | Your **Consumer Secret** (from Settings → Integrations → API Keys) |
 
@@ -43,10 +43,10 @@ Use the following settings when configuring any client or application to send th
         Click **More Settings** (bottom-right of the change account dialog), then select the **Outgoing Server** tab.
       </Step>
       <Step title="Enable SMTP authentication">
-        Check **My outgoing server (SMTP) requires authentication** and select **Use same settings as my incoming mail server** (or enter your turboSMTP credentials manually).
+        Check **My outgoing server (SMTP) requires authentication**, select **Log on using**, and enter your Consumer Key and Consumer Secret. Keep these separate from your incoming-mail credentials.
       </Step>
       <Step title="Set the outgoing server">
-        Go to the **Advanced** tab. Set the **Outgoing server (SMTP)** to `pro.turbo-smtp.com`. Set the port to `587` and choose **STARTTLS** (or `465` with **SSL**) from the encryption dropdown.
+        In your account's server settings, set the outgoing server to `pro.turbo-smtp.com` (or `pro.eu.turbo-smtp.com` for EU sending). Under **More Settings → Advanced**, set the outgoing port to `587` with **STARTTLS**, or `465` with **SSL/TLS**.
       </Step>
       <Step title="Save and test">
         Click **OK**, then **Next**, and use the built-in **Test Account Settings** button to verify that Outlook can authenticate and send a test message through turboSMTP.
@@ -75,30 +75,15 @@ Use the following settings when configuring any client or application to send th
         Click **OK** to save. Back in Account Settings, select your email account, scroll to **Outgoing Server (SMTP)**, and choose the turboSMTP server you just created from the dropdown.
       </Step>
       <Step title="Send a test email">
-        Compose a new message and send it. Thunderbird will prompt you for your SMTP password on first use — enter your **Consumer Secret**.
+        Compose a new message and send it. Thunderbird will prompt you for your SMTP password on first use : enter your **Consumer Secret**.
       </Step>
     </Steps>
   </Tab>
 
   <Tab title="Gmail / Google Workspace">
-    You can configure Gmail or Google Workspace to relay outgoing mail through turboSMTP using the **SMTP relay service** in the Google Admin console (Google Workspace) or Gmail's **Send mail as** feature (personal Gmail).
+    Gmail's **Send mail as** feature can send through an external authenticated SMTP server. Availability depends on your account and Workspace policy.
 
-    **For Google Workspace (Admin console):**
-
-    <Steps>
-      <Step title="Open the SMTP relay settings">
-        Log in to [admin.google.com](https://admin.google.com), go to **Apps → Google Workspace → Gmail → Routing**, and click **Configure** under **SMTP relay service**.
-      </Step>
-      <Step title="Add a relay route">
-        Click **Add another rule**. Set the **SMTP server** to `pro.turbo-smtp.com`, port `587`, and enable **Require SMTP Authentication** with TLS encryption.
-      </Step>
-      <Step title="Enter turboSMTP credentials">
-        Enter your **Consumer Key** as the username and your **Consumer Secret** as the password.
-      </Step>
-      <Step title="Save the route">
-        Click **Save**. Allow a few minutes for the change to propagate across Google's infrastructure.
-      </Step>
-    </Steps>
+    For organization-wide Google Workspace routing, use Google's outbound-gateway configuration and confirm its authentication requirements with your administrator. The Admin console's **SMTP relay service** configures Google's relay, not turboSMTP.
 
     **For personal Gmail (Send mail as):**
 
@@ -134,7 +119,7 @@ smtp:
 ```
 
 <Note>
-  For production applications that send transactional or bulk email, consider using the [turboSMTP REST API](/api-reference/send-email) instead of SMTP. The API offers more control, better performance, and supports features like per-message tracking headers that aren't available over plain SMTP.
+  Use the [HTTP send API](/api-reference/send-email) if your application works more easily with HTTPS and JSON. SMTP also supports MIME attachments and custom headers.
 </Note>
 
 ## Verify your connection
@@ -146,9 +131,9 @@ After configuring your SMTP settings, send a test message to confirm everything 
     Go to [dashboard.serversmtp.com](https://dashboard.serversmtp.com) and log in.
   </Step>
   <Step title="Check the email log">
-    Navigate to **Reports → Email Log**. Any email you've sent through turboSMTP will appear here with its delivery status (delivered, bounced, deferred, etc.).
+    Navigate to **Analytics**. Any email you've sent through turboSMTP will appear here with its delivery status (delivered, bounced, deferred, etc.).
   </Step>
   <Step title="Confirm delivery">
-    If you see your test message listed with a **Delivered** status, your SMTP configuration is working correctly. If the message shows as bounced or deferred, check that your Consumer Key and Consumer Secret are entered correctly and that the port you selected is not blocked by your network or firewall.
+    If you see your test message listed with a **Delivered** status, the recipient's mail server accepted it. This does not guarantee inbox placement. If the message shows as bounced or deferred, check that your Consumer Key and Consumer Secret are entered correctly and that the port you selected is not blocked by your network or firewall.
   </Step>
 </Steps>

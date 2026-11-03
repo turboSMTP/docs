@@ -1,7 +1,7 @@
 ---
 title: "Official turboSMTP SDKs for C# and PHP Applications"
 sidebarTitle: "Official SDKs"
-description: "Use the official turboSMTP client libraries for C# and PHP to send email, manage suppressions, and fetch analytics without hand-crafting HTTP requests."
+description: "Find the official turboSMTP C# and PHP SDK source repositories, their requirements, and alternatives for sending email."
 keywords:
   - "turbosmtp sdk"
   - "turbosmtp php"
@@ -10,15 +10,17 @@ keywords:
   - ".net email library"
 ---
 
-If you're integrating turboSMTP programmatically, official SDKs are available for C# and PHP. They wrap the [turboSMTP REST API](/api-reference/overview) so you can send email and manage your account with typed methods instead of raw HTTP calls.
+**Status: Official source repositories available.** The C# and PHP repositories contain API clients and examples. Follow each repository's setup instructions and check its release status before adopting a version.
+
+For a direct HTTP integration, use the [Email API examples](/sending/code-examples).
 
 <CardGroup cols={2}>
   <Card title="C# SDK" icon="code" href="https://github.com/turboSMTP/turboSMTP-csharp">
-    The official turboSMTP C# library for .NET applications. Wraps the REST API with strongly typed methods for sending email, managing suppressions, and retrieving analytics.
+    C# source and examples. The SDK project currently targets .NET Framework 4.8.
   </Card>
 
   <Card title="PHP SDK" icon="php" href="https://github.com/turboSMTP/turboSMTP-php">
-    The official turboSMTP PHP library. Use it in Laravel, Symfony, WordPress plugins, or any PHP application to send via the API without hand-crafting HTTP requests.
+    PHP source and examples. Check runtime requirements and installation instructions in the repository.
   </Card>
 </CardGroup>
 
@@ -26,7 +28,7 @@ If you're integrating turboSMTP programmatically, official SDKs are available fo
 
 If your framework already has a mail abstraction, use the native integration instead of an SDK:
 
-- **Symfony**: [Symfony Mailer bridge](/integrations/symfony-mailer)
+- **Symfony**: [Symfony Mailer bridge status and SMTP alternative](/integrations/symfony-mailer)
 - **Node.js**: [Nodemailer service presets](/integrations/nodemailer)
 - **Elixir and Phoenix**: [Swoosh adapter](/integrations/swoosh)
 

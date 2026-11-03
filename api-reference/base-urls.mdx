@@ -1,70 +1,44 @@
 ---
-title: "turboSMTP API Base URLs, Hosts, and SMTP Server Settings"
+title: "turboSMTP API hosts and SMTP settings"
 sidebarTitle: "Base URLs"
-description: "turboSMTP routes API calls to different hosts. Use the correct base URL for sending vs. management and pick EU or global infrastructure as needed."
+description: "Choose the management API or global and EU sending hosts, then configure SMTP ports and Consumer Key authentication for your application."
+keywords: [base URL, SMTP host, EU endpoint, STARTTLS]
 ---
 
-turboSMTP uses a multi-host API architecture where different operations are intentionally served from different base URLs. Account management endpoints (authentication, analytics, suppressions, sub-accounts, and more) live on one host, while email sending runs on dedicated sending infrastructure with separate global and EU-specific hosts. Targeting the correct base URL for each request is essential — the wrong host will return a `401 Unauthorized` error even if your credentials are valid.
+turboSMTP serves management and sending requests on different hosts. Append each endpoint path to the base URL listed below. Use the [authentication guide](/api-reference/authentication) to choose credentials and permissions.
 
-## Base URL Reference
+## API base URLs
 
-Use this table as your primary reference when constructing API requests:
-
-| Base URL | Used for |
+| Base URL | Operations |
 |---|---|
-| `https://pro.api.serversmtp.com/api/v2` | All endpoints **except** `/mail/send` |
-| `https://api.turbo-smtp.com/api/v2` | `POST /mail/send` — global sending infrastructure |
-| `https://api.eu.turbo-smtp.com/api/v2` | `POST /mail/send` — EU sending infrastructure (GDPR) |
+| `https://pro.api.serversmtp.com/api/v2` | Management, analytics, suppressions, validation, and authentication |
+| `https://api.turbo-smtp.com/api/v2` | `POST /mail/send`, global sending |
+| `https://api.eu.turbo-smtp.com/api/v2` | `POST /mail/send`, EU sending |
 
-All paths are appended directly after `/api/v2`. For example, the authorize endpoint is `https://pro.api.serversmtp.com/api/v2/authorize`, and the global send endpoint is `https://api.turbo-smtp.com/api/v2/mail/send`.
+For example, list analytics at `https://pro.api.serversmtp.com/api/v2/analytics` and send through `https://api.turbo-smtp.com/api/v2/mail/send`. Sending hosts accept the same message format. Do not send management requests to a sending host.
 
-<Warning>
-  Using the wrong base URL is the most common source of `401` errors. Always use `pro.api.serversmtp.com` for account management operations and `api.turbo-smtp.com` (or `api.eu.turbo-smtp.com`) for sending. These hosts are not interchangeable.
-</Warning>
+Use `consumerKey` and `consumerSecret` headers for sending and supported management operations. Key management and password changes require a session API key; see [endpoint-specific authentication](/api-reference/authentication#endpoints-that-require-a-session-api-key).
 
-## Which Send Endpoint Should You Use?
+## GDPR and data residency
 
-turboSMTP operates two separate sending endpoints: one on global infrastructure and one on EU-dedicated infrastructure. Choose based on your geographic location and data-processing requirements:
+turboSMTP is an Italian company with European sending infrastructure. Choose `api.eu.turbo-smtp.com` for HTTP sending or `pro.eu.turbo-smtp.com` for SMTP when you need the EU sending route.
 
-<CardGroup cols={2}>
-  <Card title="Global endpoint" icon="globe">
-    **`https://api.turbo-smtp.com/api/v2/mail/send`**
+Selecting an endpoint is one part of your data-protection configuration. Review turboSMTP's [data-protection information](https://serversmtp.com/regulation-eu-2016-679-gdpr/) and obtain confirmation from support if you need contractual details about processing locations, retention, or subprocessors.
 
-    Use this endpoint if you are outside the EU or have no specific data residency requirements. Requests are routed across turboSMTP's worldwide infrastructure for optimal delivery performance.
-  </Card>
-  <Card title="EU endpoint" icon="shield-halved">
-    **`https://api.eu.turbo-smtp.com/api/v2/mail/send`**
+## SMTP server settings
 
-    Use this endpoint if you are based in the EU, serve EU users, or must comply with GDPR data residency obligations. Email data is processed and stored exclusively on European infrastructure.
-  </Card>
-</CardGroup>
-
-Both endpoints accept identical request and response formats — you only need to change the host. If you are unsure which to use and have no compliance requirements, either endpoint will work correctly; however, EU-based senders typically see lower latency from the EU endpoint.
-
-## GDPR and Data Residency
-
-turboSMTP is an Italian company and runs its own email servers and IP addresses in Italy and Europe. It operates sending infrastructure across multiple regions, including Europe, the United States, the Middle East, and Asia. When you use the EU endpoint (`api.eu.turbo-smtp.com`), your email data — including message content, recipient addresses, and delivery metadata — is processed and remains within European infrastructure. This makes the EU endpoint the correct choice for organisations subject to GDPR or other European data protection regulations that require in-region data processing.
-
-<Info>
-  If your legal or compliance team requires written confirmation of data residency commitments, contact turboSMTP support. The 24/7 support team is available via ticket, chat, and phone.
-</Info>
-
-## SMTP Server (Non-API Sending)
-
-If you are integrating turboSMTP as an SMTP relay rather than through the REST API — for example, connecting a mail client, CMS plugin, or legacy application — use the following SMTP server settings instead of the API base URLs:
+Both SMTP hosts support the same ports:
 
 | Setting | Value |
 |---|---|
-| **SMTP host** | `pro.turbo-smtp.com` |
-| **Port (STARTTLS)** | `587` |
-| **Port (SSL/TLS)** | `465` |
-| **Port (fallback)** | `2525` |
-| **Username** | Your turboSMTP account email address |
-| **Password** | Your Consumer Secret (not your account login password) |
-| **Encryption** | TLS/STARTTLS required |
+| Global SMTP host | `pro.turbo-smtp.com` |
+| EU SMTP host | `pro.eu.turbo-smtp.com` |
+| STARTTLS ports | `587` (recommended), `2525`, `25` |
+| Implicit TLS ports | `465`, `25025` |
+| Username | Your **Consumer Key** |
+| Password | Your **Consumer Secret** |
+| Required key permission | **SMTP Sending** |
 
-<Note>
-  SMTP authentication uses your **Consumer Secret** as the password — not your turboSMTP account password. You can find or create your Consumer Secret in the [dashboard](https://dashboard.serversmtp.com) under **Settings → API Keys**.
-</Note>
+Port `587` starts an SMTP connection and upgrades it with STARTTLS. Ports `465` and `25025` use TLS from the beginning. Port `2525` is a STARTTLS-capable alternative when port `587` is blocked. Port `25` is also available but is often blocked by hosting providers. Require encryption in your client before sending credentials.
 
-Port `587` with STARTTLS is the recommended choice for most applications. Use port `465` if your application requires implicit SSL. Fall back to port `2525` only if your network or hosting provider blocks both `587` and `465`.
+Create your key at **Settings → Integrations → API Keys → Edit** in the [dashboard](https://dashboard.serversmtp.com). Your dashboard login password is not the SMTP password. See [SMTP setup](/get-started/smtp-configuration) for client instructions.

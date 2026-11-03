@@ -9,13 +9,13 @@ keywords:
   - "transactional email plugins"
 ---
 
-turboSMTP plugs into the frameworks, libraries, and apps you already use. Each integration below has its own setup guide with install steps, Global and EU configuration, and a first test message. If a tool supports SMTP but is not listed, you can still connect it with the [standard SMTP settings](/get-started/smtp-configuration).
+Find configuration guides and release status for supported frameworks, libraries, and apps. If your tool supports a custom authenticated SMTP server, connect it with the [standard SMTP settings](/get-started/smtp-configuration).
 
 ## Frameworks and libraries
 
 <CardGroup cols={2}>
   <Card title="Symfony Mailer" icon="symfony" href="/integrations/symfony-mailer">
-    Official bridge for Symfony 8.2 with HTTP API, SMTP relay, EU routing, and delivery webhooks.
+    Merged upstream for the upcoming Symfony 8.2 release. Use standard SMTP until a stable bridge is available.
   </Card>
 
   <Card title="Nodemailer" icon="node-js" href="/integrations/nodemailer">
@@ -35,7 +35,7 @@ turboSMTP plugs into the frameworks, libraries, and apps you already use. Each i
 
 <CardGroup cols={2}>
   <Card title="Uptime Kuma" icon="heart-pulse" href="/integrations/uptime-kuma">
-    Built-in notification provider for monitor alerts, available in Uptime Kuma 2.5.3.
+    Built-in notification provider for monitor alerts, available since Uptime Kuma 2.5.1.
   </Card>
 
   <Card title="WordPress" icon="wordpress" href="/integrations/wordpress">
@@ -53,13 +53,13 @@ turboSMTP plugs into the frameworks, libraries, and apps you already use. Each i
 
 ## Integration status
 
-Every integration page shows its release status at the top, so you know whether you can use it in production today.
+Check each integration's status and version requirements before installing it.
 
 | Status | Meaning |
 | --- | --- |
-| **Available** | Released in an official version of the framework or tool. Ready for production. |
-| **Merged upstream** | Accepted by the project and shipping in its next release. Check package availability before installing. |
-| **In development** | Implemented but not yet published. Use the suggested alternative until it is released. |
+| **Available** | Published by the project. Check supported versions and test your configuration. |
+| **Merged upstream** | Accepted by the project; a stable release may still be pending. |
+| **In development** | No stable release is documented. Use the suggested alternative. |
 
 ## Connect any other tool
 
