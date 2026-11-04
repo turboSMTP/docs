@@ -1,47 +1,566 @@
-/* Match the serversmtp.com 2026 website: rounded cards, 12px buttons, blue links. */
 :root {
-  --ts-border: #e5e7eb;
-  --ts-heading: #111827;
-  --ts-text: #374152;
+  --ts-page: rgb(var(--background-light));
+  --ts-surface: rgb(var(--background-light));
+  --ts-raised: #f6f8fa;
+  --ts-text-primary: #1b212a;
+  --ts-accent: #2440eb;
+  --ts-accent-hover: #1c31c2;
+  --ts-on-accent: #ffffff;
+  --ts-hover: rgba(27, 33, 42, 0.04);
+  --ts-border-default: #c6ced9;
+  --ts-nav-text: #55616f;
+  --ts-nav-text-muted: #6f7c8f;
+  --ts-border-subtle: #dde2ea;
+  --ts-shadow-control: 0 1px 2px rgba(27, 33, 42, 0.06);
+
+  --ts-radius-sm: 10px;
+  --ts-radius-md: 14px;
+  --ts-radius-lg: 20px;
+
+  --ts-header-height: 3.5rem;
+  --ts-shape-opacity: 0.08;
 }
 
-h1, h2, h3, h4 {
+html.dark {
+  --ts-page: rgb(var(--background-dark));
+  --ts-surface: #0e1626;
+  --ts-raised: #131c30;
+  --ts-text-primary: #f6f2e9;
+  --ts-accent: #7a90ff;
+  --ts-accent-hover: #a3b4ff;
+  --ts-hover: rgba(255, 255, 255, 0.05);
+  --ts-border-default: rgba(255, 255, 255, 0.14);
+  --ts-nav-text: rgba(246, 242, 233, 0.68);
+  --ts-nav-text-muted: rgba(246, 242, 233, 0.5);
+  --ts-border-subtle: rgba(255, 255, 255, 0.08);
+  --ts-shadow-control: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --ts-shape-opacity: 0.14;
+}
+
+html,
+body,
+#almond-background-color,
+#background-color {
+  background-color: var(--ts-page);
+}
+
+#almond-background-color ~ span[style*="radial-gradient"] {
+  display: none !important;
+}
+
+#content-container {
+  background-color: transparent;
+  border-color: transparent;
+  border-radius: 0;
+}
+
+#almond-background-color::before,
+#background-color::before {
+  content: "";
+  position: absolute;
+  top: var(--ts-header-height);
+  right: 0;
+  left: 0;
+  height: 360px;
+  pointer-events: none;
+  background: url("/images/w-shape.svg") no-repeat right -540px top -372px / 1235px 1202px;
+  opacity: var(--ts-shape-opacity);
+  -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent);
+  mask-image: linear-gradient(to bottom, #000 45%, transparent);
+}
+
+@media (min-width: 1024px) {
+  #almond-background-color::before,
+  #background-color::before {
+    left: var(--sidebar-width, 19rem);
+  }
+
+  #navbar-transition-maple {
+    height: var(--ts-header-height);
+  }
+}
+
+#navbar-transition-maple {
+  background-color: var(--ts-page);
+  border-color: var(--ts-border-subtle);
+}
+
+#navbar-transition-maple .nav-tabs-item,
+#navbar-transition-maple .nav-tabs-item > div,
+#navbar .nav-tabs-item,
+#navbar .nav-tabs-item > div {
+  color: var(--ts-nav-text);
+}
+
+#navbar-transition-maple .nav-tabs-item:hover,
+#navbar-transition-maple .nav-tabs-item:hover > div,
+#navbar-transition-maple .nav-tabs-item[data-active="true"],
+#navbar .nav-tabs-item:hover,
+#navbar .nav-tabs-item:hover > div,
+#navbar .nav-tabs-item[data-active="true"] {
+  color: var(--ts-text-primary);
+}
+
+[role="menu"]:has(> .nav-dropdown-item) {
+  width: 20rem;
+  margin-top: 0.375rem;
+  padding: 0.375rem;
+  border-color: var(--ts-border-subtle);
+  border-radius: var(--ts-radius-md);
+  background-color: var(--ts-surface);
+  box-shadow: 0 8px 24px rgba(17, 22, 29, 0.12), 0 2px 6px rgba(17, 22, 29, 0.06);
+}
+
+html.dark [role="menu"]:has(> .nav-dropdown-item) {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.nav-dropdown-item {
+  position: relative;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.625rem;
+  border-radius: var(--ts-radius-sm);
+  transition: background-color 120ms ease;
+}
+
+.nav-dropdown-item:hover,
+.nav-dropdown-item[data-highlighted] {
+  background-color: var(--ts-hover);
+}
+
+.nav-dropdown-item::before {
+  content: "";
+  position: absolute;
+  top: 0.625rem;
+  left: 0.625rem;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--ts-border-subtle);
+  border-radius: var(--ts-radius-sm);
+  background-color: var(--ts-raised);
+  transition: border-color 120ms ease;
+}
+
+.nav-dropdown-item:hover::before,
+.nav-dropdown-item[data-highlighted]::before {
+  border-color: var(--ts-border-default);
+}
+
+.nav-dropdown-item > svg {
+  position: relative;
+  width: 0.875rem;
+  height: 0.875rem;
+  margin: 0.5625rem 0.3125rem 0.5625rem 0.5625rem;
+  background-color: var(--ts-accent) !important;
+}
+
+.nav-dropdown-item > div > span:first-child {
+  color: var(--ts-text-primary);
+  font-weight: 600;
+  line-height: 1.25rem;
+}
+
+.nav-dropdown-item > div > span:last-child {
+  color: var(--ts-nav-text);
+  font-size: 0.8125rem;
+  line-height: 1.1875rem;
+}
+
+#navbar > div.absolute {
+  background: transparent !important;
+}
+
+#topbar-cta-button a {
+  background-color: var(--ts-accent);
+  border-radius: var(--ts-radius-sm);
+  box-shadow: var(--ts-shadow-control);
+}
+
+#topbar-cta-button a:hover {
+  background-color: var(--ts-accent-hover);
+  opacity: 1;
+}
+
+html.dark #topbar-cta-button a {
+  background-color: #3355ff;
+}
+
+html.dark #topbar-cta-button a:hover {
+  background-color: #5470ff;
+}
+
+#topbar-cta-button a span,
+#topbar-cta-button a svg {
+  color: var(--ts-on-accent) !important;
+}
+
+:is(#sidebar-content, #navigation-items) .sidebar-group-header {
+  color: var(--ts-text-primary);
+  font-weight: 600;
+}
+
+@media (min-width: 1024px) {
+  #sidebar-content .sidebar-group-header {
+    font-size: 0.8125rem;
+  }
+}
+
+:is(#sidebar-content, #navigation-items) li > a {
+  border-color: var(--ts-border-subtle);
+  color: var(--ts-nav-text);
+  font-weight: 500;
+  transition: border-color 120ms ease, color 120ms ease;
+}
+
+:is(#sidebar-content, #navigation-items) li > a:hover {
+  border-color: var(--ts-border-default);
+  color: var(--ts-text-primary);
+}
+
+:is(#sidebar-content, #navigation-items) li > a[aria-current="page"],
+:is(#sidebar-content, #navigation-items) li > a[aria-current="page"]:hover {
+  border-color: var(--ts-accent);
+  color: var(--ts-accent);
+  font-weight: 600;
+  text-shadow: none;
+}
+
+:is(#sidebar-content, #navigation-items) li > a[aria-current="page"] span {
+  font-weight: 600;
+}
+
+:is(#sidebar-content, #navigation-items) li > a svg {
+  color: var(--ts-nav-text-muted);
+}
+
+:is(#sidebar-content, #navigation-items) li > a[aria-current="page"] svg {
+  color: var(--ts-accent);
+}
+
+#sidebar-content #search-bar-entry {
+  background-color: var(--ts-surface);
+  color: var(--ts-nav-text-muted);
+  box-shadow: var(--ts-shadow-control), inset 0 0 0 1px var(--ts-border-subtle);
+  border-radius: var(--ts-radius-sm);
+  filter: none;
+}
+
+html.dark #sidebar-content #search-bar-entry {
+  background-color: var(--ts-page);
+  box-shadow: 0 0 0 1px rgb(80 81 87 / 0.3);
+  filter: brightness(1.1);
+}
+
+html.dark #sidebar-content #search-bar-entry:hover {
+  box-shadow: 0 0 0 1px rgb(112 113 119 / 0.3);
+  filter: brightness(1.25);
+}
+
+#sidebar-content .border-t,
+#sidebar-content [class*="border-gray"] {
+  border-color: var(--ts-border-subtle);
+}
+
+/* Maple renders navbar.primary at the bottom of the sidebar: pin it to the right of the tab
+   bar. Depends on Mintlify's markup, check it after a Mintlify update. */
+@media (min-width: 1024px) {
+  #sidebar {
+    z-index: 21;
+  }
+
+  #sidebar > ul:last-child {
+    position: fixed;
+    top: 0;
+    right: calc(var(--assistant-sheet-width, 0px) + 3rem);
+    bottom: auto;
+    left: auto;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    width: auto;
+    height: var(--ts-header-height);
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  [data-banner-state="visible"] #sidebar > ul:last-child {
+    top: 2.5rem;
+  }
+
+  #sidebar > ul:last-child > li:empty,
+  #sidebar > ul:last-child > li:not([data-title]) {
+    display: none;
+  }
+
+  #sidebar > ul:last-child a {
+    align-items: center;
+    gap: 0.375rem;
+    height: 2rem;
+    padding: 0 0.75rem !important;
+    border: 0;
+    border-radius: var(--ts-radius-sm);
+    background-color: var(--ts-accent);
+    box-shadow: var(--ts-shadow-control);
+    color: var(--ts-on-accent);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  #sidebar > ul:last-child a:hover {
+    background-color: var(--ts-accent-hover);
+    color: var(--ts-on-accent);
+  }
+
+  html.dark #sidebar > ul:last-child a {
+    background-color: #3355ff;
+  }
+
+  html.dark #sidebar > ul:last-child a:hover {
+    background-color: #5470ff;
+  }
+
+  #sidebar > ul:last-child a span {
+    font-weight: 600;
+  }
+
+  #sidebar > ul:last-child a > div:last-child {
+    display: none;
+  }
+}
+
+#header .eyebrow {
+  color: var(--ts-accent);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+#page-title {
+  color: var(--ts-text-primary);
+  font-size: 2rem;
+  line-height: 2.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+#content h2 {
+  letter-spacing: -0.02em;
+}
+
+#content h3,
+#content h4 {
   letter-spacing: -0.01em;
 }
 
-html:not(.dark) #content h1,
-html:not(.dark) #content h2,
-html:not(.dark) #content h3 {
-  color: var(--ts-heading);
+#content h1,
+#content h2,
+#content h3,
+#content h4,
+.prose {
+  color: var(--ts-text-primary);
 }
 
-html:not(.dark) .prose {
-  color: var(--ts-text);
+#header {
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid var(--ts-border-subtle);
+}
+
+#header .prose {
+  color: var(--ts-nav-text);
+}
+
+#content-container .prose a:not(.card) {
+  color: var(--ts-accent);
 }
 
 .card,
 a.card {
-  border-radius: 24px;
-  border-color: var(--ts-border);
+  background-color: var(--ts-surface);
+  border-color: var(--ts-border-subtle);
+  border-radius: var(--ts-radius-lg);
+  box-shadow: var(--ts-shadow-control);
 }
 
-html.dark .card,
-html.dark a.card {
-  border-color: rgba(255, 255, 255, 0.12);
-  background-color: rgba(255, 255, 255, 0.03);
+.card svg {
+  color: var(--ts-accent);
 }
 
-#navbar a[href*="signup"],
-.prose a.button,
-button[class*="rounded"] {
-  border-radius: 12px;
+.code-block {
+  border-radius: var(--ts-radius-md);
+  border-color: var(--ts-border-subtle);
+  background-color: var(--ts-raised);
+}
+
+.code-block .code-block-background {
+  border-radius: calc(var(--ts-radius-md) - 2px);
 }
 
 .callout {
-  border-radius: 16px;
+  border-radius: var(--ts-radius-md);
 }
 
-/* Test: widen the almond content column. Remove this block to restore the theme default. */
+.prose a.button,
+button[class*="rounded-xl"] {
+  border-radius: var(--ts-radius-sm);
+}
+
+#page-context-menu {
+  border-radius: var(--ts-radius-sm);
+  box-shadow: var(--ts-shadow-control);
+}
+
+#page-context-menu-button,
+#page-context-menu-button + button {
+  height: 2.125rem;
+  background-color: var(--ts-surface);
+  border-color: var(--ts-border-subtle);
+  box-shadow: none;
+}
+
+#page-context-menu-button {
+  border-radius: var(--ts-radius-sm) 0 0 var(--ts-radius-sm);
+}
+
+#page-context-menu-button + button {
+  border-radius: 0 var(--ts-radius-sm) var(--ts-radius-sm) 0;
+}
+
+#page-context-menu-button:hover,
+#page-context-menu-button + button:hover {
+  background-color: var(--ts-raised);
+}
+
+.accordion {
+  border-color: var(--ts-border-subtle);
+  border-radius: var(--ts-radius-md);
+  background-color: var(--ts-surface);
+}
+
+.accordion > summary:hover {
+  background-color: var(--ts-hover);
+}
+
+.accordion[open] > summary {
+  border-bottom: 1px solid var(--ts-border-subtle);
+}
+
+.accordion > [data-component-part="accordion-content"] {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+/* Cards built by pagination.js; Mintlify's pagination stays visible if the script fails. */
+#pagination:has(+ .ts-pagination) {
+  display: none;
+}
+
+.ts-pagination {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .ts-pagination {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ts-pagination__card--next {
+    grid-column: 2;
+  }
+}
+
+.ts-pagination__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--ts-border-subtle);
+  border-radius: 0.75rem;
+  text-decoration: none;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.ts-pagination__card:hover {
+  background-color: var(--ts-raised);
+  border-color: var(--ts-border-default);
+}
+
+.ts-pagination__card--next {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.ts-pagination__title {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--ts-text-primary);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ts-pagination__label {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--ts-nav-text-muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: color 120ms ease;
+}
+
+.ts-pagination__card--next .ts-pagination__label {
+  flex-direction: row-reverse;
+}
+
+.ts-pagination__card:hover .ts-pagination__label {
+  color: var(--ts-accent);
+}
+
+.ts-pagination__label svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  color: currentColor;
+  transition: transform 120ms ease;
+}
+
+.ts-pagination__card--prev:hover .ts-pagination__label svg {
+  transform: translateX(-2px);
+}
+
+.ts-pagination__card--next:hover .ts-pagination__label svg {
+  transform: translateX(2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ts-pagination__label svg {
+    transition: none;
+  }
+}
+
+#table-of-contents a {
+  color: var(--ts-nav-text);
+}
+
+#table-of-contents a[data-active="true"],
+#table-of-contents a:hover {
+  color: var(--ts-accent);
+}
+
+#footer {
+  color: var(--ts-nav-text-muted);
+}
+
 @media (min-width: 1024px) {
   #content-container {
     padding-left: 2rem;

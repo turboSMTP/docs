@@ -1,11 +1,11 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "almond",
+  "theme": "maple",
   "name": "turboSMTP",
   "colors": {
-    "primary": "#102FF7",
-    "light": "#B3C9FF",
-    "dark": "#102FF7"
+    "primary": "#2440EB",
+    "light": "#7A90FF",
+    "dark": "#2440EB"
   },
   "favicon": {
     "light": "/images/favicon.png",
@@ -29,6 +29,7 @@
         "groups": [
           {
             "group": "Get Started",
+            "icon": "rocket",
             "pages": [
               "introduction",
               "get-started/free-trial",
@@ -38,6 +39,7 @@
           },
           {
             "group": "Sending Email",
+            "icon": "paper-plane",
             "pages": [
               "sending/smtp-relay",
               "sending/email-api",
@@ -47,6 +49,7 @@
           },
           {
             "group": "Deliverability",
+            "icon": "shield-check",
             "pages": [
               "deliverability/spf-dkim-dmarc",
               "deliverability/custom-tracking-domain",
@@ -56,6 +59,7 @@
           },
           {
             "group": "Analytics & Tracking",
+            "icon": "chart-line",
             "pages": [
               "analytics/email-tracking",
               "analytics/statistics-dashboard",
@@ -64,6 +68,7 @@
           },
           {
             "group": "Account Management",
+            "icon": "user-gear",
             "pages": [
               "account/subaccounts",
               "account/email-validation",
@@ -74,6 +79,7 @@
           },
           {
             "group": "Troubleshooting",
+            "icon": "life-ring",
             "pages": [
               "troubleshooting/faq",
               "troubleshooting/common-errors",
@@ -100,6 +106,7 @@
             "groups": [
               {
                 "group": "Overview",
+                "icon": "table-cells-large",
                 "pages": [
                   "integrations/overview",
                   "integrations/sdks"
@@ -107,6 +114,7 @@
               },
               {
                 "group": "Frameworks & Libraries",
+                "icon": "cubes",
                 "pages": [
                   "integrations/symfony-mailer",
                   "integrations/nodemailer",
@@ -115,6 +123,7 @@
               },
               {
                 "group": "Apps & Platforms",
+                "icon": "puzzle-piece",
                 "pages": [
                   "integrations/uptime-kuma",
                   "integrations/wordpress",
@@ -131,6 +140,7 @@
             "groups": [
               {
                 "group": "Comparisons",
+                "icon": "scale-balanced",
                 "pages": [
                   "compare/overview",
                   "compare/turbosmtp-vs-sendgrid",
@@ -139,6 +149,7 @@
               },
               {
                 "group": "Migration Guides",
+                "icon": "route",
                 "pages": [
                   "migrate/from-sendgrid",
                   "migrate/from-mailgun"
@@ -153,6 +164,7 @@
         "groups": [
           {
             "group": "Overview",
+            "icon": "book-open",
             "pages": [
               "api-reference/overview",
               "api-reference/authentication",
@@ -161,6 +173,7 @@
           },
           {
             "group": "Endpoints",
+            "icon": "code",
             "pages": [
               "api-reference/send-email",
               "api-reference/suppressions",
@@ -193,10 +206,9 @@
     "library": "fontawesome"
   },
   "background": {
-    "decoration": "gradient",
     "color": {
       "light": "#FFFFFF",
-      "dark": "#000F19"
+      "dark": "#080B14"
     }
   },
   "footer": {
@@ -222,11 +234,11 @@
   },
   "fonts": {
     "heading": {
-      "family": "Outfit",
+      "family": "Geist",
       "weight": 600
     },
     "body": {
-      "family": "Outfit",
+      "family": "Inter",
       "weight": 400
     }
   }
