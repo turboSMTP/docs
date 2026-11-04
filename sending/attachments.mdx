@@ -4,12 +4,12 @@ sidebarTitle: "Attachments"
 description: "Send PDFs, images, spreadsheets, and other files with the turboSMTP API. Learn Base64 encoding, supported MIME types, and the 24 MB total size limit."
 ---
 
-The turboSMTP API lets you attach files of any type to outbound emails by including them as Base64-encoded strings in the request body. You can send PDFs, images, spreadsheets, archives, or any other file format your recipients need : all in a single API call alongside your message content. To add attachments, include an `attachments` array in your `/mail/send` request body, where each element describes one file.
+The turboSMTP API lets you attach files of any type to outbound emails by including them as Base64-encoded strings in the request body. You can send PDFs, images, spreadsheets, archives, or any other file format your recipients need: all in a single API call alongside your message content. To add attachments, include an `attachments` array in your `/mail/send` request body, where each element describes one file.
 
 ## Attachment limits
 
 <Note>
-  The total size of your email, including all attachments, must be **less than 24 MB**. This limit covers the entire serialized message : headers, body, and all attachment content combined. Base64 encoding inflates binary files by approximately 33%, so a 16 MB binary file will produce roughly a 21 MB encoded string. Plan your attachment sizes accordingly.
+  The total size of your email, including all attachments, must be **less than 24 MB**. This limit covers the entire serialized message: headers, body, and all attachment content combined. Base64 encoding inflates binary files by approximately 33%, so a 16 MB binary file will produce roughly a 21 MB encoded string. Plan your attachment sizes accordingly.
 </Note>
 
 ## Request format
@@ -88,7 +88,7 @@ turboSMTP accepts any valid MIME type in the `type` field. The table below lists
 
 ## Multiple attachments
 
-To include more than one file, add additional objects to the `attachments` array. Each object is independent : you can mix different file types in the same request.
+To include more than one file, add additional objects to the `attachments` array. Each object is independent: you can mix different file types in the same request.
 
 ```bash Send email with multiple attachments
 curl -X POST 'https://api.turbo-smtp.com/api/v2/mail/send' \

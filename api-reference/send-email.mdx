@@ -1,5 +1,5 @@
 ---
-title: "Send Transactional Email : POST /mail/send Reference"
+title: "Send Transactional Email: POST /mail/send Reference"
 sidebarTitle: "Send Email"
 description: "Send transactional or marketing emails via HTTP POST. Supports HTML, plain text, CC, BCC, custom headers, attachments, and per-message reference IDs."
 ---
@@ -45,7 +45,7 @@ POST https://api.eu.turbo-smtp.com/api/v2/mail/send
 </ParamField>
 
 <ParamField body="content" type="string">
-  The plain-text body of the email. Recommended for maximum deliverability : include this alongside `html_content` whenever possible.
+  The plain-text body of the email. Recommended for maximum deliverability: include this alongside `html_content` whenever possible.
 </ParamField>
 
 <ParamField body="html_content" type="string">
@@ -155,7 +155,7 @@ curl -X POST 'https://api.turbo-smtp.com/api/v2/mail/send' \
 |---|---|---|
 | `200` | OK | turboSMTP successfully received and queued your message. |
 | `400` | Bad Request | The request body or parameters are malformed or missing required fields. |
-| `401` | Unauthorized | Authentication failed : invalid, missing, or wrong type of credentials. |
+| `401` | Unauthorized | Authentication failed: invalid, missing, or wrong type of credentials. |
 | `500` | Server Unavailable | An unexpected error occurred on the turboSMTP server. |
 
 ## Error responses
