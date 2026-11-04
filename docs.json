@@ -3,17 +3,17 @@
   "theme": "almond",
   "name": "turboSMTP",
   "colors": {
-    "primary": "#005293",
-    "light": "#005293",
-    "dark": "#555658"
+    "primary": "#102FF7",
+    "light": "#B3C9FF",
+    "dark": "#102FF7"
   },
   "favicon": {
     "light": "/images/favicon.png",
     "dark": "/images/favicon.svg"
   },
   "logo": {
-    "light": "/images/logo-turboSMTP.png",
-    "dark": "/images/logo-turboSMTP-white-colors.png"
+    "light": "/images/logo-dark.svg",
+    "dark": "/images/logo-white.svg"
   },
   "navbar": {
     "primary": {
@@ -193,7 +193,11 @@
     "library": "fontawesome"
   },
   "background": {
-    "decoration": "gradient"
+    "decoration": "gradient",
+    "color": {
+      "light": "#FFFFFF",
+      "dark": "#000F19"
+    }
   },
   "footer": {
     "socials": {
@@ -215,5 +219,15 @@
   },
   "seo": {
     "indexing": "navigable"
+  },
+  "fonts": {
+    "heading": {
+      "family": "Outfit",
+      "weight": 600
+    },
+    "body": {
+      "family": "Outfit",
+      "weight": 400
+    }
   }
 }
