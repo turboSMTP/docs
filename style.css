@@ -1,0 +1,71 @@
+/* Match the serversmtp.com 2026 website: rounded cards, 12px buttons, blue links. */
+:root {
+  --ts-border: #e5e7eb;
+  --ts-heading: #111827;
+  --ts-text: #374152;
+}
+
+h1, h2, h3, h4 {
+  letter-spacing: -0.01em;
+}
+
+html:not(.dark) #content h1,
+html:not(.dark) #content h2,
+html:not(.dark) #content h3 {
+  color: var(--ts-heading);
+}
+
+html:not(.dark) .prose {
+  color: var(--ts-text);
+}
+
+.card,
+a.card {
+  border-radius: 24px;
+  border-color: var(--ts-border);
+}
+
+html.dark .card,
+html.dark a.card {
+  border-color: rgba(255, 255, 255, 0.12);
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+#navbar a[href*="signup"],
+.prose a.button,
+button[class*="rounded"] {
+  border-radius: 12px;
+}
+
+.callout {
+  border-radius: 16px;
+}
+
+/* Test: widen the almond content column. Remove this block to restore the theme default. */
+@media (min-width: 1024px) {
+  #content-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  div:has(> #content-area) {
+    padding-left: 0;
+    column-gap: 2rem;
+  }
+
+  #content-area {
+    flex: 1 1 0;
+    max-width: 48rem;
+  }
+
+  #content-side-layout,
+  #table-of-contents-layout,
+  #table-of-contents {
+    width: 14rem;
+    flex-shrink: 0;
+  }
+
+  #table-of-contents-layout {
+    padding-left: 0;
+  }
+}
