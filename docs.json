@@ -13,7 +13,8 @@
   },
   "logo": {
     "light": "/images/logo-dark.svg",
-    "dark": "/images/logo-white.svg"
+    "dark": "/images/logo-white.svg",
+    "href": "https://serversmtp.com"
   },
   "navbar": {
     "primary": {
