@@ -32,11 +32,13 @@ curl --get 'https://pro.api.serversmtp.com/api/v2/suppressions' \
 | `from`, `to` | Required dates. `from` must be on or before `to`. |
 | `page`, `limit` | Positive integers; defaults `1` and `10`. |
 | `filter` | Search text for recipient, subject, or reason. Matches whole words, not parts of words: `example.net` and `Reset` match, `exam` does not. For partial matches on sender or recipient, use `restrict` rules with `POST /suppressions`. |
-| `filter_by` | Suppression sources to include, comma-separated: `filter_by=bounce,spam`. Do not repeat the parameter or use `filter_by[]`. |
+| `filter_by` or `filter_by[]` | Suppression sources to include. Pass a comma-separated `filter_by=bounce,spam` or repeat `filter_by[]` for each source. Repeating plain `filter_by` keeps only the last value. |
 | `smart_search` | Boolean search option. |
 | `orderby` | `date` (default), `source`, `recipient`, or `reason`. |
 | `ordertype` | `asc` or `desc`. |
 | `tz` | Timezone offset, such as `+01:00`. URL-encode the plus sign. |
+
+An invalid `orderby`, `ordertype`, `page`, or `limit` returns `400` with `orderby_can_only_be_date_or_source_or_recipient_or_reason`, `ordertype_should_be_asc_or_desc`, `page_should_be_integer`, `page_should_be_greater_than_0`, `limit_should_be_integer`, or `limit_should_be_greater_than_0`.
 
 The response is an object with `count` and `results`:
 
@@ -120,7 +122,7 @@ The response contains `status`, `valid` (accepted addresses), and `invalid` (rej
 
 ## Export CSV
 
-`GET /suppressions/csv` accepts the date, search, source, sorting, and timezone query parameters, without pagination. `POST /suppressions/csv` accepts a JSON filter body with required `from` and `to` and optional `filter`, `filter_by`, `smart_search`, `tz`, and `restrict`. Both return CSV data.
+`GET /suppressions/csv` accepts the date, search, source, sorting, and timezone query parameters, without pagination, and validates them like the list. `POST /suppressions/csv` accepts a JSON filter body with required `from` and `to` and optional `filter`, `filter_by`, `smart_search`, `tz`, and `restrict`. Both return CSV data.
 
 ## Remove up to 100 addresses
 

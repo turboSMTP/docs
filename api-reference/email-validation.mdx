@@ -118,7 +118,9 @@ curl 'https://pro.api.serversmtp.com/api/v2/emailvalidation/lists/10093/csv' \
 
 ## List and delete uploaded lists
 
-`GET /emailvalidation/lists` requires `from` and `to` dates in `YYYY-MM-DD` format. It accepts optional `page`, `limit`, and `tz`, and returns `{count, results}` containing the list summaries described above.
+`GET /emailvalidation/lists` requires `from` and `to` dates in `YYYY-MM-DD` format. It accepts optional positive integer `page` and `limit`, plus `tz`, and returns `{count, results}` containing the list summaries described above.
+
+Invalid parameters return `400` with `missing_required_parameter_from`, `missing_required_parameter_to`, `from_format_should_be_yyyy-mm-dd`, `to_format_should_be_yyyy-mm-dd`, `page_should_be_integer`, `page_should_be_greater_than_0`, `limit_should_be_integer`, or `limit_should_be_greater_than_0`.
 
 ```bash Terminal
 curl --get 'https://pro.api.serversmtp.com/api/v2/emailvalidation/lists' \
