@@ -6,7 +6,7 @@ description: "Answers to the most common questions about turboSMTP accounts, pla
 
 Find answers about accounts, plans, SMTP, and deliverability. For current allowances and feature availability, check your dashboard and the [pricing page](https://serversmtp.com/pricing/).
 
-## Getting Started
+## Getting started
 
 <Accordion title="What is turboSMTP?">
   turboSMTP provides an authenticated SMTP relay and an HTTP email API. You can send transactional and permission-based marketing mail, inspect delivery events, and manage suppressions. Feature availability depends on your plan.
@@ -40,9 +40,7 @@ Find answers about accounts, plans, SMTP, and deliverability. For current allowa
   Yes. Use the [dashboard](https://dashboard.serversmtp.com) to manage account details, plans, sending settings, **Analytics**, and **Suppressions**. Available controls depend on your plan and permissions.
 </Accordion>
 
----
-
-## Account & Email Addresses
+## Account & email addresses
 
 <Accordion title="Is the email address I signed up with the only one I can use as a sender?">
   No. You can configure other sender addresses you own or are authorized to use. Your account login is separate from your From address and SMTP username. SMTP uses your Consumer Key and Consumer Secret.
@@ -60,9 +58,7 @@ Find answers about accounts, plans, SMTP, and deliverability. For current allowa
   Use the password controls in your dashboard account settings. Your dashboard password is separate from the Consumer Secret used by integrations. See [Authentication](/api-reference/authentication) for API password-operation limitations.
 </Accordion>
 
----
-
-## Plans & Billing
+## Plans & billing
 
 <Accordion title="I want to change my plan. Can I?">
   Use **Order a new plan** in the dashboard top bar or plan box. Review the offered plan, billing period, and terms before ordering.
@@ -104,9 +100,7 @@ Find answers about accounts, plans, SMTP, and deliverability. For current allowa
   The counter updates after you send an email. A renewal resets the counter for the new period; send one email to refresh it.
 </Accordion>
 
----
-
-## Sending & Configuration
+## Sending & configuration
 
 <Accordion title="How many emails can I send per day? What is the maximum attachment size?">
   Your allowance depends on your active plan. The free plan currently lists 200 emails per day. The knowledge base lists a maximum of 30 MB per message. For the send API, keep the whole email, including attachments, under 24 MB. Base64 adds roughly one third to binary attachment data before MIME overhead. See [Attachments](/sending/attachments).
@@ -131,8 +125,6 @@ Find answers about accounts, plans, SMTP, and deliverability. For current allowa
 <Accordion title="My ISP blocks port 25. What can I do?">
   Use **587** or **2525** with STARTTLS, or **465** or **25025** with implicit TLS. Global `pro.turbo-smtp.com` and EU `pro.eu.turbo-smtp.com` support the same ports. Match the client encryption setting to the chosen port.
 </Accordion>
-
----
 
 ## Deliverability
 
@@ -183,8 +175,6 @@ Find answers about accounts, plans, SMTP, and deliverability. For current allowa
 <Accordion title="What is the difference between Smart Routing and Dedicated IP Pools?">
   Smart Routing concerns retrying through shared IPs. A dedicated IP or pool reserves sending infrastructure for an account and requires reputation management and warm-up. Availability and routing options depend on the plan and configuration; check with support before relying on either feature.
 </Accordion>
-
----
 
 ## Support
 

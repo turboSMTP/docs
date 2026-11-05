@@ -25,7 +25,8 @@ For Mintlify product knowledge, use the official skill: `npx skills add https://
 
 - Use active voice and second person ("you")
 - Keep sentences concise - one idea per sentence
-- Use sentence case for headings
+- Use Title Case for names: page `title`, `sidebarTitle`, navigation groups and tabs in `docs.json`, and `<Card title>`. Keep short words lowercase (a, an, and, the, of, for, to, in, on, with, by, via, from, or, vs) unless first. Keep "turboSMTP" with a lowercase "t", even at the start of a title.
+- Use sentence case for section headings inside pages (`##`, `###`)
 - Bold for UI elements: Click **Settings**
 - Code formatting for file names, commands, paths, and code references
 
