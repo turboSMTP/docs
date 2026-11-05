@@ -40,7 +40,7 @@ curl --get 'https://pro.api.serversmtp.com/api/v2/subaccounts/list' \
 | `page`, `limit` | Positive integers; defaults `1` and `10`. |
 | `filterByEmail` | Full or partial email address. |
 | `filterByActive` | `true` or `false`. |
-| `filterByIP[]` | Repeat for each IPv4 address. |
+| `filterByIP[]` or `filterByIP` | IPv4 addresses. Repeat `filterByIP[]` for each address, or pass one `filterByIP` value or a comma-separated list. IPv6 addresses return `400` with `ip_should_be_IPV4_format`. |
 | `orderby` | `email` (default) or `last_used`. |
 | `ordertype` | `asc` or `desc`. |
 

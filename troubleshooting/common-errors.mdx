@@ -20,7 +20,9 @@ Use `consumerKey` and `consumerSecret` headers for sending and supported managem
 | `wrong_credentials_specified` from `/authorize` | This legacy login can fail after a dashboard password change. Use Consumer Key and Consumer Secret for supported operations. |
 | `api_limit_reached` from `/authorize` | Stop retrying. The legacy endpoint can block the caller's IP after 10 attempts in two minutes; support must clear the block. |
 | `from_format_should_be_yyyy-mm-dd` | Use dates such as `2026-10-01` for analytics filters, without a time component. |
-| `server_error_please_try_again` | Check the host, path, and HTTP method. Unknown routes can also return this response. |
+| `not_found` | `404`: the route does not exist. Check the host and path. |
+| `method_not_allowed` | `405`: the route exists but not for this HTTP method. |
+| `server_error_please_try_again` | Retry later. If a documented request keeps failing, contact support. |
 
 ### Send API errors
 
@@ -86,7 +88,9 @@ Validation failures can contain an `errors` array. Inspect its full contents rat
 | `200 OK` | Inspect the operation's response. For `/mail/send`, `message: "OK"` and a `mid` acknowledge acceptance, not recipient delivery. Check **Analytics** for the outcome. |
 | `400 Bad Request` | Read field validation errors and correct the request before retrying. |
 | `401 Unauthorized` | Check the required authentication method, permissions, account status, and source IP restrictions. |
-| `500 Server Error` | Verify host, path, and method first. If a documented request still fails, contact support with a redacted request and timestamp. |
+| `404 Not Found` | Check the host and path, or the resource ID in the path. |
+| `405 Method Not Allowed` | Use the HTTP method documented for the route. |
+| `500 Server Error` | Contact support with a redacted request and timestamp. |
 
 <Warning>
   A timeout or lost response does not prove a send failed. Check **Analytics** before resending to avoid duplicate mail. Do not assume `reference_id` deduplicates requests.

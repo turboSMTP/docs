@@ -49,6 +49,9 @@ info:
     - [Webhook reference](https://serversmtp.com/event-webhook-reference/)
 
     Request and response bodies use JSON unless an operation specifies another format.
+
+    Unknown routes return `404` with `message: not_found`. A known route called with an
+    unsupported HTTP method returns `405` with `message: method_not_allowed`.
   contact:
     email: api@turbo-smtp.com
 servers:
@@ -622,6 +625,7 @@ paths:
         - $ref: '#/components/parameters/TimezoneQueryParam'
         - $ref: '#/components/parameters/SuppressionFilterQueryParam'
         - $ref: '#/components/parameters/SuppressionFilterByQueryParam'
+        - $ref: '#/components/parameters/SuppressionFilterByArrayQueryParam'
         - $ref: '#/components/parameters/SmartSearchQueryParam'
         - $ref: '#/components/parameters/SuppressionOrderByQueryParam'
         - $ref: '#/components/parameters/OrderTypeQueryParam'
@@ -643,6 +647,12 @@ paths:
 
             * invalid_parameter_from
             * invalid_parameter_to
+            * page_should_be_integer
+            * page_should_be_greater_than_0
+            * limit_should_be_integer
+            * limit_should_be_greater_than_0
+            * orderby_can_only_be_date_or_source_or_recipient_or_reason
+            * ordertype_should_be_asc_or_desc
         '401':
           $ref: '#/components/responses/Unauthorized'
     post:
@@ -692,6 +702,7 @@ paths:
         - $ref: '#/components/parameters/TimezoneQueryParam'
         - $ref: '#/components/parameters/SuppressionFilterQueryParam'
         - $ref: '#/components/parameters/SuppressionFilterByQueryParam'
+        - $ref: '#/components/parameters/SuppressionFilterByArrayQueryParam'
         - $ref: '#/components/parameters/SmartSearchQueryParam'
         - $ref: '#/components/parameters/SuppressionOrderByQueryParam'
         - $ref: '#/components/parameters/OrderTypeQueryParam'
@@ -706,6 +717,8 @@ paths:
 
             * invalid_parameter_from
             * invalid_parameter_to
+            * orderby_can_only_be_date_or_source_or_recipient_or_reason
+            * ordertype_should_be_asc_or_desc
         '401':
           $ref: '#/components/responses/Unauthorized'
     post:
@@ -1026,6 +1039,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EmailValidatorSucessResponsetBody'
+        '400':
+          description: |
+            Bad Request
+
+            ###### Produces:
+
+            * missing_required_parameter_from
+            * missing_required_parameter_to
+            * from_format_should_be_yyyy-mm-dd
+            * to_format_should_be_yyyy-mm-dd
+            * page_should_be_integer
+            * page_should_be_greater_than_0
+            * limit_should_be_integer
+            * limit_should_be_greater_than_0
         '401':
           $ref: '#/components/responses/Unauthorized'
   /emailvalidation/lists/{Id}:
@@ -1372,6 +1399,7 @@ paths:
         - $ref: '#/components/parameters/SubaccountFilterByEmailQueryParam'
         - $ref: '#/components/parameters/SubaccountFilterByActiveQueryParam'
         - $ref: '#/components/parameters/SubaccountFilterByIPQueryParam'
+        - $ref: '#/components/parameters/SubaccountFilterByIPStringQueryParam'
         - $ref: '#/components/parameters/SubaccountOrderByQueryParam'
         - $ref: '#/components/parameters/OrderTypeQueryParam'
       responses:
@@ -2186,6 +2214,7 @@ paths:
         - $ref: '#/components/parameters/FromQueryParam'
         - $ref: '#/components/parameters/ToQueryParam'
         - $ref: '#/components/parameters/AnalyticStatusQueryParam'
+        - $ref: '#/components/parameters/AnalyticStatusStringQueryParam'
         - $ref: '#/components/parameters/AnalyticFilterByQueryParam'
         - $ref: '#/components/parameters/AnalyticFilterQueryParam'
         - $ref: '#/components/parameters/SmartSearchQueryParam'
@@ -2220,7 +2249,7 @@ paths:
             * invalid_status_values
             * filter_by_can_only_be_subject_or_sender_or_recipient_or_domain_or_x_campaign_id_or_consumer_key
             * smart_search_should_be_true_or_false
-            * orderby_can_only_be_subject_or_sender_or_recipient_or_domain
+            * orderby_can_only_be_send_time_or_subject_or_sender_or_recipient
             * ordertype_should_be_asc_or_desc                  
         '401':
           $ref: '#/components/responses/Unauthorized'
@@ -2239,16 +2268,13 @@ paths:
       parameters:
         - $ref: '#/components/parameters/FromQueryParam'
         - $ref: '#/components/parameters/ToQueryParam'
-        - in: query
-          name: status
-          required: false
-          description: Comma-separated statuses, such as FAIL,DEFER. The status[] form used by GET /analytics fails on this endpoint.
-          schema:
-            type: string
-            example: FAIL,DEFER
+        - $ref: '#/components/parameters/AnalyticStatusQueryParam'
+        - $ref: '#/components/parameters/AnalyticStatusStringQueryParam'
         - $ref: '#/components/parameters/AnalyticFilterByQueryParam'
         - $ref: '#/components/parameters/AnalyticFilterQueryParam'
         - $ref: '#/components/parameters/SmartSearchQueryParam'
+        - $ref: '#/components/parameters/AnalyticOrderByQueryParam'
+        - $ref: '#/components/parameters/OrderTypeQueryParam'
         - $ref: '#/components/parameters/TimezoneQueryParam'
       responses:
         '200':
@@ -2274,7 +2300,7 @@ paths:
             * invalid_status_values
             * filter_by_can_only_be_subject_or_sender_or_recipient_or_domain_or_x_campaign_id_or_consumer_key
             * smart_search_should_be_true_or_false
-            * orderby_can_only_be_subject_or_sender_or_recipient_or_domain
+            * orderby_can_only_be_send_time_or_subject_or_sender_or_recipient
             * ordertype_should_be_asc_or_desc                  
         '401':
           $ref: '#/components/responses/Unauthorized'
@@ -4496,7 +4522,7 @@ components:
             percentage: 100
     AnalyticMailStatus:
       description: |
-        Send Mail Status:
+        Send Mail Status. Values are case-sensitive and uppercase.
 
         NEW: email has been queued for delivery
         DEFER: email is in the queue for delivery
@@ -4806,7 +4832,16 @@ components:
       required: false
       style: form
       explode: false
-      description: Comma-separated sources, such as bounce,spam. The filter_by[] form returns 500.
+      description: Comma-separated sources, such as bounce,spam. Repeating filter_by keeps only the last value; use filter_by[] to repeat.
+      schema:
+        $ref: '#/components/schemas/SuppressionFilterBy'
+    SuppressionFilterByArrayQueryParam:
+      in: query
+      name: filter_by[]
+      required: false
+      style: form
+      explode: true
+      description: Repeat for each suppression source. Alternative to comma-separated filter_by.
       schema:
         $ref: '#/components/schemas/SuppressionFilterBy'
     SmartSearchQueryParam:
@@ -4875,7 +4910,15 @@ components:
         items:
           type: string
           pattern: ^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$
-      description: Filter by IPv4 addresses (e.g., 192.168.1.1). Multiple IPs can be provided.
+      description: Filter by IPv4 addresses (e.g., 192.168.1.1). Repeat for each address. IPv6 returns ip_should_be_IPV4_format.
+    SubaccountFilterByIPStringQueryParam:
+      in: query
+      name: filterByIP
+      required: false
+      schema:
+        type: string
+        example: 192.168.1.1,192.168.1.2
+      description: One IPv4 address or a comma-separated list. Alternative to filterByIP[]. IPv6 returns ip_should_be_IPV4_format.
     SubaccountOrderByQueryParam:
       in: query
       name: orderby
@@ -4905,7 +4948,8 @@ components:
       style: form
       explode: true
       description: |
-        Filter by Status
+        Filter by Status. Repeat status[] for each value, or use status with one value or a comma-separated list.
+        Values are case-sensitive and uppercase.
 
             NEW: email has been queued for delivery
             DEFER: email is in the queue for delivery
@@ -4934,6 +4978,14 @@ components:
         type: array
         items:
           $ref: '#/components/schemas/AnalyticMailStatus'
+    AnalyticStatusStringQueryParam:
+      in: query
+      required: false
+      name: status
+      description: One status or a comma-separated list, such as FAIL,DEFER. Alternative to status[]. Values are case-sensitive and uppercase.
+      schema:
+        type: string
+        example: FAIL,DEFER
     AnalyticFilterByQueryParam:
       in: query
       name: filter_by

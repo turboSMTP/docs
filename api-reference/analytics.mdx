@@ -31,7 +31,7 @@ curl --get 'https://pro.api.serversmtp.com/api/v2/analytics' \
 |---|---|
 | `from`, `to` | Required dates in `YYYY-MM-DD` format. `from` must be on or before `to`. Do not include a time. |
 | `page`, `limit` | Positive integers. Defaults: page `1`, limit `10`. |
-| `status[]` | Repeat for each status to include. Omit to include all statuses. |
+| `status[]` or `status` | Statuses to include. Repeat `status[]` for each value, or pass one `status` value or a comma-separated list such as `status=FAIL,DEFER`. Omit to include all [statuses](#status-values). |
 | `filter` | Text to search. Supply `filter_by` when using a filter. |
 | `filter_by` | Fields to search: `subject`, `sender`, `recipient`, `domain`, `x_campaign_id`, `consumer_key`. Repeat the parameter for multiple fields. |
 | `smart_search` | Boolean search option. |
@@ -69,7 +69,7 @@ Treat message IDs as 64-bit identifiers. JavaScript's `JSON.parse` can round lar
 
 ## Export CSV
 
-`GET /analytics/csv` accepts the same date, search, and timezone filters as the list endpoint, without `page` or `limit`. Two differences apply. Filter statuses with a single comma-separated `status` parameter, such as `status=FAIL,DEFER`; the list endpoint's `status[]` form fails on the CSV export. Rows are always ordered newest first, so `orderby` and `ordertype` have no effect.
+`GET /analytics/csv` accepts the same date, status, search, sorting, and timezone parameters as the list endpoint, without `page` or `limit`. Both `status[]` and comma-separated `status` work, and `orderby` and `ordertype` take the same values as the list.
 
 ```bash Terminal
 curl --get 'https://pro.api.serversmtp.com/api/v2/analytics/csv' \
@@ -83,6 +83,8 @@ curl --get 'https://pro.api.serversmtp.com/api/v2/analytics/csv' \
 CSV columns are **Message Id**, **Status**, **Subject**, **From**, **To**, **Date**, **Reason**, and **Consumer Key**. In the dashboard, use **Analytics → Export**.
 
 ## Status values
+
+Status values are case-sensitive. Send them in uppercase exactly as listed.
 
 | Value | Meaning |
 |---|---|
