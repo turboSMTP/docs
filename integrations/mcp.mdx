@@ -115,7 +115,7 @@ Add the endpoint as a remote HTTP MCP server, then complete browser authenticati
 
 Ask your assistant to pass `region: "eu"` or `region: "global"` to `send_email`. Region is chosen per send, not in the current sign-in form. It is not included in the email's API JSON body.
 
-With the standard endpoints, Global uses `api.turbo-smtp.com` and EU uses `api.eu.turbo-smtp.com`. turboSMTP is an Italian company with its own European servers. If you omit the argument, the connection's default applies. The service does not switch regions after an error.
+With the standard endpoints, Global uses `api.turbo-smtp.com` and EU uses `api.eu.turbo-smtp.com`. turboSMTP is an Italian company with its own European servers. If you omit the argument, Consumer Key sign-in sends through Global. Account sign-in uses the default region stored for your account, which is Global unless support set a different one. The service does not switch regions after an error.
 
 ### Static API-key authentication
 
