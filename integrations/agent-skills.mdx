@@ -1,0 +1,65 @@
+---
+title: "Use turboSMTP Agent Skills in Claude Code and Codex"
+sidebarTitle: "Agent Skills"
+description: "Install turboSMTP Agent Skills, review an email locally, and choose the skills that use a connected account for sending and delivery diagnostics."
+keywords: ["turboSMTP agent skills", "email best practices", "Claude Code", "Codex", "email delivery"]
+---
+
+Use a turboSMTP skill to teach your coding agent a specific email workflow. For example, the template skill can review a receipt in your project, and the delivery skill can help trace a missing receipt using message records.
+
+<Note>
+  The [skills repository](https://github.com/turboSMTP/skills) is currently private. Installation requires GitHub read access. To work with live account data, you also need an authorized connection for the operation.
+</Note>
+
+## Try a skill in your project
+
+Open a terminal in your project. With Node.js and npm installed, use the following commands to see the catalog and install the template review skill for your agent.
+
+```bash
+npx skills add turboSMTP/skills --list
+```
+
+<CodeGroup>
+```bash Claude Code
+npx skills add turboSMTP/skills --skill turbosmtp-email-template-review -a claude-code
+```
+
+```bash Codex
+npx skills add turboSMTP/skills --skill turbosmtp-email-template-review -a codex
+```
+</CodeGroup>
+
+Open your agent in that project, give it the path to an email template, and ask:
+
+> Review our order receipt with images disabled. Can a customer still find their order number, the amount paid, and a way to contact us? Show me the smallest fix.
+
+This review works locally without a turboSMTP account. Expect findings tied to the actual template and its plain-text alternative. To check which skills are installed in the project, run `npx skills list`.
+
+## Choose the skill for your task
+
+Use the ID from the table as the value of `--skill` in the install command.
+
+| What you want to do | Skill ID | Example task |
+| --- | --- | --- |
+| Review a sending program | `turbosmtp-email-best-practices` | Check how a newsletter handles opt-outs while the app continues sending order receipts. |
+| Review a message before sending | `turbosmtp-email-template-review` | Fix missing personalization, text alternatives, or an inline logo. |
+| Add sending to an application | `turbosmtp-integrate` | Configure an existing Nodemailer transport for EU sending. |
+| Switch email providers | `turbosmtp-migrate` | Move a SendGrid workflow while preserving per-recipient content and opt-outs. |
+| Set up a domain | `turbosmtp-domain-setup` | Add turboSMTP to an existing SPF policy and locate the DKIM record for a sending subdomain. |
+| Receive delivery events | `turbosmtp-webhooks` | Update a receiver to handle duplicate events after a restart. |
+| Send a specific message | `turbosmtp-send-email` | Send an approved test message to your own address via the connected account. |
+| Investigate delivery | `turbosmtp-delivery-debug` | Trace a dropped message by ID and explain the recorded reason. |
+| Review a recipient list | `turbosmtp-list-hygiene` | Identify which validation results need review and preserve existing unsubscribes. |
+| Manage an account | `turbosmtp-account-operations` | Plan a credential rotation that preserves permissions and IP restrictions. |
+
+## When to connect MCP
+
+**For code, templates and supplied evidence**, the agent can work with local files. You can ask it to implement a webhook receiver, review redacted delivery headers or explain DNS changes before giving it account access.
+
+**For live account actions**, [connect your agent to the turboSMTP MCP server](/integrations/mcp). For example, ask it to look up a message by its exact ID or to verify a domain you already registered. The Send Email skill uses the connected server to send. Your account permissions determine which operations succeed. The server guide lists the available tools and sign-in methods.
+
+Some workflows also involve systems you control. The domain skill can show you which TXT records to publish, but publishing them requires access to your DNS provider. Likewise, the webhook skill helps implement the receiver in your application. You register the callback in the [dashboard webhook settings](/analytics/webhooks).
+
+## Manage your installation
+
+Run `npx skills check` to look for updates, `npx skills update` to apply updates, or `npx skills remove` to choose a skill to uninstall. If installation reports that the repository cannot be found, check that the GitHub identity used by your Git client has access to [turboSMTP/skills](https://github.com/turboSMTP/skills).

@@ -126,7 +126,8 @@
                 "group": "AI & Agents",
                 "icon": "robot",
                 "pages": [
-                  "integrations/mcp"
+                  "integrations/mcp",
+                  "integrations/agent-skills"
                 ]
               },
               {
