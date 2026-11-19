@@ -1,11 +1,11 @@
 ---
-title: "Use turboSMTP Agent Skills in Claude Code and Codex"
+title: "Use turboSMTP Agent Skills"
 sidebarTitle: "Agent Skills"
 description: "Install turboSMTP Agent Skills, review an email locally, and choose the skills that use a connected account for sending and delivery diagnostics."
-keywords: ["turboSMTP agent skills", "email best practices", "Claude Code", "Codex", "email delivery"]
+keywords: ["turboSMTP agent skills", "email best practices", "agent skills format", "SKILL.md", "email delivery"]
 ---
 
-Use a turboSMTP skill to teach your coding agent a specific email workflow. For example, the template skill can review a receipt in your project, and the delivery skill can help trace a missing receipt using message records.
+Use turboSMTP skills with any agent that supports the [Agent Skills format](https://agentskills.io/specification). Each skill guides your agent through a specific email workflow. For example, the template skill can review a receipt in your project, and the delivery skill can help trace a missing receipt using message records.
 
 ## Try a skill in your project
 
@@ -29,7 +29,7 @@ If you already know which skill you want, you can pass its ID with `--skill`. Fo
 npx skills add turboSMTP/skills --skill turbosmtp-email-template-review
 ```
 
-Optionally add `-a claude-code` or `-a codex` to select the agent.
+To select an agent on the command line, pass its ID with `-a`. Find your client in the [installer’s supported agents list](https://github.com/vercel-labs/skills/blob/main/docs/agents.md).
 
 | What you want to do | Skill ID | Example task |
 | --- | --- | --- |
@@ -48,7 +48,7 @@ Optionally add `-a claude-code` or `-a codex` to select the agent.
 
 **For code, templates and supplied evidence**, the agent can work with local files. You can ask it to implement a webhook receiver, review redacted delivery headers or explain DNS changes before giving it account access.
 
-**For live account actions**, [connect your agent to the turboSMTP MCP server](/integrations/mcp). For example, ask it to look up a message by its exact ID or to verify a domain you already registered. The Send Email skill uses the connected server to send. Your account permissions determine which operations succeed. The server guide lists the available tools and sign-in methods.
+**For live account actions**, use an agent with MCP support and [connect it to the turboSMTP MCP server](/integrations/mcp). For example, ask it to look up a message by its exact ID or to verify a domain you already registered. The Send Email skill uses the connected server to send. Your account permissions determine which operations succeed. The server guide lists the available tools and sign-in methods.
 
 Some workflows also involve systems you control. The domain skill can show you which TXT records to publish, but publishing them requires access to your DNS provider. Likewise, the webhook skill helps implement the receiver in your application. You register the callback in the [dashboard webhook settings](/analytics/webhooks).
 
