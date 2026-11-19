@@ -13,23 +13,13 @@ Use a turboSMTP skill to teach your coding agent a specific email workflow. For 
 
 ## Try a skill in your project
 
-Open a terminal in your project. With Node.js and npm installed, use the following commands to see the catalog and install the template review skill for your agent.
+From your project directory, run the interactive installer with Node.js 22.20 or later:
 
 ```bash
-npx skills add turboSMTP/skills --list
+npx skills add turboSMTP/skills
 ```
 
-<CodeGroup>
-```bash Claude Code
-npx skills add turboSMTP/skills --skill turbosmtp-email-template-review -a claude-code
-```
-
-```bash Codex
-npx skills add turboSMTP/skills --skill turbosmtp-email-template-review -a codex
-```
-</CodeGroup>
-
-Open your agent in that project, give it the path to an email template, and ask:
+Choose the skills and coding agents you want to install them for. To try the example below, include `turbosmtp-email-template-review`. Open your agent in the project, give it the path to an email template, and ask:
 
 > Review our order receipt with images disabled. Can a customer still find their order number, the amount paid, and a way to contact us? Show me the smallest fix.
 
@@ -37,7 +27,13 @@ This review works locally without a turboSMTP account. Expect findings tied to t
 
 ## Choose the skill for your task
 
-Use the ID from the table as the value of `--skill` in the install command.
+If you already know which skill you want, you can pass its ID with `--skill`. For example:
+
+```bash
+npx skills add turboSMTP/skills --skill turbosmtp-email-template-review
+```
+
+Optionally add `-a claude-code` or `-a codex` to select the agent.
 
 | What you want to do | Skill ID | Example task |
 | --- | --- | --- |
