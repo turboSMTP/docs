@@ -123,6 +123,14 @@
                 ]
               },
               {
+                "group": "AI & Agents",
+                "icon": "robot",
+                "pages": [
+                  "integrations/mcp",
+                  "integrations/agent-skills"
+                ]
+              },
+              {
                 "group": "Apps & Platforms",
                 "icon": "puzzle-piece",
                 "pages": [

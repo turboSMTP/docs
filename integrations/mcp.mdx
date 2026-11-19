@@ -1,0 +1,241 @@
+---
+title: "Connect AI Assistants to turboSMTP with the MCP Server"
+sidebarTitle: "MCP Server"
+description: "Connect Claude, ChatGPT, Cursor, or VS Code to turboSMTP: send email, manage sender domains, inspect delivery, and check DNS with 16 MCP tools."
+keywords:
+  - "turbosmtp mcp"
+  - "mcp server email"
+  - "model context protocol"
+  - "claude email"
+  - "claude code email"
+  - "ai agent send email"
+  - "sender domain verification"
+---
+
+**Status: In development.** The production endpoint below is the intended public address. Public-service availability is not yet confirmed.
+
+Connect your AI assistant to your turboSMTP account through the [Model Context Protocol](https://modelcontextprotocol.io). You can send email, investigate delivery, register and verify sender domains, inspect DNS, and search the developer documentation.
+
+```text
+https://mcp.serversmtp.com/mcp
+```
+
+The server uses your account's Consumer Key and Consumer Secret to call the turboSMTP API. You can sign in with those credentials or use **Continue with turboSMTP account** when account sign-in is enabled for you. Both methods remain available together.
+
+If your agent supports the Agent Skills format, add guided workflows with [turboSMTP Agent Skills](/integrations/agent-skills).
+
+## Before you start
+
+Create a dedicated key in the [dashboard](https://dashboard.serversmtp.com) under **Settings → Integrations → API Keys**. See [API keys](/get-started/api-keys). Enable the permissions for the tools you need:
+
+| Permission | Tools |
+| --- | --- |
+| **HTTP API Sending** (`SEND_API`) | `send_email` |
+| **Statistics & Management APIs** (`APIS`) | Account, analytics, sender domains, suppressions, email validation, and sub-accounts |
+| No upstream API permission | `check_domain_setup` and `search_docs`; MCP connection authentication still applies |
+
+If your key restricts source IPs, the MCP service's outbound IP must be allowed. Ask support for the service's current egress requirements rather than assuming your computer's IP is used.
+
+## Connect your client
+
+Add the endpoint as a remote HTTP MCP server, then complete browser authentication.
+
+<Tabs>
+  <Tab title="Claude Code">
+    ```bash
+    claude mcp add --transport http turbosmtp https://mcp.serversmtp.com/mcp
+    ```
+
+    Run `/mcp`, select **turbosmtp**, and start authentication. Your browser opens the turboSMTP sign-in page. See [Claude Code's MCP guide](https://code.claude.com/docs/en/mcp) for client-specific settings.
+  </Tab>
+
+  <Tab title="Claude">
+    In Claude, open **Settings → Connectors**, add a custom connector, and enter `https://mcp.serversmtp.com/mcp`. Connect it and complete the browser sign-in.
+
+    Workspace policies may control who can add or use custom connectors.
+  </Tab>
+
+  <Tab title="ChatGPT">
+    Use ChatGPT's **Add custom MCP server** flow, enter `https://mcp.serversmtp.com/mcp`, and select OAuth authentication. Complete the authorization prompt and tool scan.
+
+    Availability and write actions depend on your plan and workspace permissions. Follow [OpenAI's custom MCP server instructions](https://developers.openai.com/api/docs/guides/custom-mcp-server) for the current setup flow.
+  </Tab>
+
+  <Tab title="Cursor">
+    Add the server to `~/.cursor/mcp.json` or your project's `.cursor/mcp.json`:
+
+    ```json mcp.json
+    {
+      "mcpServers": {
+        "turbosmtp": {
+          "url": "https://mcp.serversmtp.com/mcp"
+        }
+      }
+    }
+    ```
+
+    Open Cursor's MCP settings and complete authentication for **turbosmtp**.
+  </Tab>
+
+  <Tab title="VS Code">
+    Run **MCP: Add Server**, select **HTTP**, and enter the endpoint. You can also configure `.vscode/mcp.json`:
+
+    ```json .vscode/mcp.json
+    {
+      "servers": {
+        "turbosmtp": {
+          "type": "http",
+          "url": "https://mcp.serversmtp.com/mcp"
+        }
+      }
+    }
+    ```
+
+    Complete the sign-in prompt when the server starts.
+  </Tab>
+</Tabs>
+
+### Sign in
+
+<Steps>
+  <Step title="Check the request">
+    Confirm the requesting client and return address. Continue only if you started the connection yourself.
+  </Step>
+
+  <Step title="Choose a sign-in method">
+    Enter your **Consumer Key** and **Consumer Secret**, then select **Connect**. The service checks the key without sending an email.
+
+    Alternatively, select **Continue with turboSMTP account** if enabled. Enter your account password and any required second factor on the turboSMTP account-login page, then review the account and client approval. Account sign-in requires MCP access to be enabled for that account; use the API-key option if it is not available.
+  </Step>
+
+  <Step title="Return to your assistant">
+    Your client receives MCP credentials and loads the tools. A completed sign-in does not grant API permissions missing from your Consumer Key.
+  </Step>
+</Steps>
+
+### Sending region
+
+Ask your assistant to pass `region: "eu"` or `region: "global"` to `send_email`. Region is chosen per send, not in the current sign-in form. It is not included in the email's API JSON body.
+
+With the standard endpoints, Global uses `api.turbo-smtp.com` and EU uses `api.eu.turbo-smtp.com`. turboSMTP is an Italian company with its own European servers. If you omit the argument, Consumer Key sign-in sends through Global. Account sign-in uses the default region stored for your account, which is Global unless support set a different one. The service does not switch regions after an error.
+
+### Static API-key authentication
+
+Clients supporting custom headers can use a static bearer token instead of browser sign-in. Base64-encode `ConsumerKey:ConsumerSecret`:
+
+```bash
+TOKEN=$(printf '%s:%s' "$TURBOSMTP_CONSUMER_KEY" "$TURBOSMTP_CONSUMER_SECRET" | base64 | tr -d '\n')
+
+claude mcp add --transport http turbosmtp https://mcp.serversmtp.com/mcp \
+  --header "Authorization: Bearer $TOKEN" \
+  --header "X-TurboSMTP-Region: eu"
+```
+
+`X-TurboSMTP-Region` is an optional default; a `send_email.region` argument overrides it for that call. Without a header, static connections default to Global. Base64 is not encryption: keep the token and any client configuration containing it private.
+
+## What you can ask
+
+- "Send a test email from my verified sender to my own address, using the EU region."
+- "Show last week's delivery rate, bounces, and common errors."
+- "Register example.com as a sender domain and show the DNS records I need."
+- "I published the DNS records. Verify the registered sender domain again."
+- "Explain why this message bounced."
+- "Add turboSMTP sending to my Laravel application."
+
+## Tools
+
+The server exposes 16 tools:
+
+| Tool | What it does |
+| --- | --- |
+| `send_email` | Sends text or HTML email, with optional CC, BCC, headers, attachments, inline images, and per-call region. |
+| `delivery_summary` | Summarizes status counts, delivery/bounce/open/click rates, and common failures. |
+| `list_sent_emails` | Lists messages with date, status, recipient, sender, subject, and domain filters. |
+| `get_sent_email` | Returns one message's status and error details. |
+| `get_account_info` | Reads the authenticated account's profile. |
+| `list_sender_domains` | Lists registered sender domains with pagination, search, and verification filtering. |
+| `add_sender_domain` | Registers a domain you own or manage and triggers the API's existing DNS checks. |
+| `verify_sender_domain` | Rechecks a registered domain by its numeric domain ID and returns verification flags and reasons. |
+| `check_domain_setup` | Checks public SPF, DKIM, and DMARC. Missing standard DKIM advice includes the shared public TXT value for selector `turbo-smtp`. |
+| `search_docs` | Searches the developer documentation and returns matching sections with links. |
+| `list_suppressions` | Lists suppressed addresses and their reasons. |
+| `add_suppressions` | Adds addresses to the suppression list. |
+| `remove_suppressions` | Removes suppressions. Marked destructive; review recipients before allowing it. |
+| `validate_email` | Validates one address and consumes one [email validation](/account/email-validation) credit. |
+| `list_subaccounts` | Lists the account's sub-accounts. |
+| `get_subaccount` | Reads one sub-account. |
+
+Message, sub-account, and domain IDs are passed as strings to avoid numeric precision loss. Copy IDs from tool results instead of guessing them.
+
+<Note>
+  Registering or verifying a domain does not edit DNS. Publish the returned records with your DNS provider, then use `verify_sender_domain`. The standard shared DKIM record is not a newly generated per-domain key; custom keys/selectors need their own provisioning.
+</Note>
+
+## Prompts
+
+Clients supporting MCP prompts can offer these ready-made tasks:
+
+| Prompt | Arguments | What it does |
+| --- | --- | --- |
+| `debug-delivery` | `recipient` | Investigates recent messages, errors, suppressions, and domain setup. |
+| `setup-domain` | `domain` | Finds or registers the domain, checks DNS, shows records to publish, and verifies through the API. |
+| `integrate` | `stack`, `migrate_from` (optional) | Helps integrate turboSMTP or migrate from another provider. |
+
+## Access and errors
+
+Use a dedicated key with the minimum permissions you need. Account sign-in and API-key sign-in are independent: signing out of your turboSMTP account ends associated account-login connections, not separate API-key connections. Deleting an API key prevents future API operations using that key.
+
+Access tokens are renewed by compatible clients. Lifetimes depend on the sign-in method and account policy. Account-login connections are capped at 30 days and can end earlier after revocation or session expiry. Offline access requires explicit approval when requested. If renewal fails, authenticate again.
+
+If a tool returns `isError: true`, inspect its error details:
+
+- `upstream_access_denied`: check the required permission, key validity, and IP restrictions. A 401 or 403 alone does not identify which one failed.
+- `rate_limited`: wait before trying a read again.
+- `outcome_unknown`: a write may already have completed. Inspect sent-mail history, the domain list, or the affected resource before repeating it.
+
+The server does not automatically resend email or retry uncertain mutations. A `reference_id` helps correlate a message; it does not guarantee duplicate prevention.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Opening /mcp in my browser returns 401">
+    This is expected without an authorization header. `/mcp` is an authenticated protocol endpoint, not a web homepage. Start the connection from your MCP client and complete sign-in.
+  </Accordion>
+
+  <Accordion title="The client metadata document could not be loaded">
+    Start a fresh connection from your client. If the error persists, report the client name/version and the public `client_id` URL to support. Do not share Consumer Secrets or tokens. This happens before account login and is not evidence that your API credentials are wrong.
+  </Accordion>
+
+  <Accordion title="A tool is missing or the tool list is outdated">
+    Refresh the connector's tools or reconnect it. Workspace app policies may require an administrator to enable newly discovered actions.
+  </Accordion>
+
+  <Accordion title="The sign-in page rejects my Consumer Key and Secret">
+    Copy the complete pair from the same key and check its permissions and IP restrictions. Your account password is not a Consumer Secret.
+  </Accordion>
+
+  <Accordion title="My domain is registered but not verified">
+    Use `check_domain_setup` to inspect DNS and obtain the standard records, publish them with your DNS provider, then use `verify_sender_domain` with the ID returned by `list_sender_domains`. See [SPF, DKIM, and DMARC](/deliverability/spf-dkim-dmarc).
+  </Accordion>
+
+  <Accordion title="Email uses the wrong region">
+    Pass the intended `region` to `send_email`. You do not need to reconnect just to choose the region for another send.
+  </Accordion>
+</AccordionGroup>
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="API Keys" icon="key" href="/get-started/api-keys">
+    Create a Consumer Key and Secret with the permissions you need.
+  </Card>
+  <Card title="Email API" icon="paper-plane" href="/sending/email-api">
+    The API request used for sending.
+  </Card>
+  <Card title="SPF, DKIM, and DMARC" icon="shield-check" href="/deliverability/spf-dkim-dmarc">
+    Publish the required authentication records.
+  </Card>
+  <Card title="Model Context Protocol" icon="plug" href="https://modelcontextprotocol.io">
+    Learn about the protocol supported by the server.
+  </Card>
+</CardGroup>
